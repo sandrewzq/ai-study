@@ -14,10 +14,10 @@
 
 <div class="layout">
 <nav class="sidenav">
-  <div class="grp">往上</div>
+  <div class="grp zone">往上</div>
   <a class="up" href="../index.html">← 总目录</a>
   <a class="up" href="index.html">← 材料目录</a>
-  <div class="grp">这一层</div>
+  <div class="grp zone mid">这一层</div>
   <div class="grp sub">步骤 3 · 保分与填数字</div>
   <ul>
     <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
@@ -33,7 +33,7 @@
     <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
     <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
   </ul>
-  <div class="grp">参考</div>
+  <div class="grp zone">参考</div>
   <a class="up" href="../index.html#plan">学习计划全文</a>
 </nav>
 
@@ -282,6 +282,41 @@
   <p><strong>【框架的作用】</strong>框架抹平的是<strong>"写代码时的差异"</strong>——事件、DOM 操作这些它内部统一了；但<strong>运行环境的差异抹不平</strong>，它自己也依赖那些底层能力。新版框架更是直接用到了老浏览器不支持的东西，等于主动放弃兼容，这是拿兼容性换性能的取舍。</p>
   <p><strong>【权衡】</strong>有些能力是补不了的，比如语言底层的那种。<strong>所以真正的解法是选型阶段就避开</strong>，而不是等测试发现问题再改——那时候可能要换掉整块实现。</p>
 </div>
+
+<!-- ============ 追问预警 ============ -->
+<details class="ask">
+  <summary>支持范围到底怎么定？</summary>
+  <p>三个来源，按可靠程度从高到低排：</p>
+  <ul>
+    <li><strong>用户分布数据</strong>——前端埋点或服务端访问日志里的浏览器与版本占比。这是最硬的依据；没有数据就先补埋点，别拍脑袋划范围。</li>
+    <li><strong>产品与业务的硬约束</strong>——面向政企、金融、医疗这类客户的系统，终端是统一采购和管控的，可能整批停在很老的版本上，<strong>这时候范围不是你说了算</strong>。</li>
+    <li><strong>团队既有基线</strong>——其他项目已经在支持什么范围，跟着走最省事，构建配置和补齐清单都能复用。</li>
+  </ul>
+  <p>定完之后<strong>写进项目文档</strong>。不然每次需求评审都要重新吵一遍"这个要不要支持"，新同事也不知道边界在哪。</p>
+</details>
+
+<details class="ask">
+  <summary>为什么不能"全量引入"兼容代码，多打几十 KB 有那么严重吗？</summary>
+  <p>比想象中严重，因为它会滚雪球：</p>
+  <ul>
+    <li><strong>补齐实现本身就不小</strong>——把常用能力全量引入，几百 KB 是常事，其中大部分你的代码根本没用到。</li>
+    <li><strong>代价由所有人承担，收益只属于极少数人</strong>——用老浏览器的可能只有百分之几，但多出来的体积<strong>每一个用户都要下载</strong>，包括那 95% 用新版浏览器的人。</li>
+    <li><strong>三方库要一起处理</strong>——你自己降级了，依赖的库还在用新语法，不把它们纳入转译范围就会漏过去（见第 2 节）。</li>
+  </ul>
+  <p>所以正确做法是<strong>按实际使用引入</strong>：构建工具扫描你的代码，只把真正用到的能力补进来。范围定得越准，这份清单越短。</p>
+</details>
+
+<details class="ask">
+  <summary>现在做新项目，还要考虑浏览器兼容吗？</summary>
+  <p>要，但"考虑"的内容变了——不是无脑支持老浏览器，而是<strong>先判断目标用户跑在什么环境里</strong>：</p>
+  <ul>
+    <li><strong>面向大众的产品</strong>：长尾用户里一定有老设备，范围要保守一些。</li>
+    <li><strong>企业内网、政企、金融终端</strong>：浏览器版本由对方 IT 统一管控，可能比公网落后好几年，<strong>反而最需要认真对待</strong>。</li>
+    <li><strong>嵌入式 WebView</strong>：App 内嵌页面、车载、大屏，内核版本跟着宿主走，升级节奏完全不受你控制。</li>
+    <li><strong>纯内部工具、只给团队自己用</strong>：可以定得很激进，直接要求新版浏览器。</li>
+  </ul>
+  <p>所以答案不是"要不要考虑"，而是<strong>"你的用户在什么环境里"</strong>——这句话本身就能显出你想过这个问题，而不是背了个结论。</p>
+</details>
 
 <hr>
 

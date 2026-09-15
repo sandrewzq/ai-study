@@ -15,10 +15,10 @@
 <div class="layout">
 
 <nav class="sidenav">
-  <div class="grp">往上</div>
+  <div class="grp zone">往上</div>
   <a class="up" href="../index.html">← 总目录</a>
   <a class="up" href="index.html">← 材料目录</a>
-  <div class="grp">这一层</div>
+  <div class="grp zone mid">这一层</div>
   <div class="grp sub">步骤 2 · 做系统</div>
   <ul>
     <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
@@ -33,7 +33,7 @@
     <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
-  <div class="grp">参考</div>
+  <div class="grp zone">参考</div>
   <a class="up" href="../index.html#plan">学习计划全文</a>
 </nav>
 
@@ -215,6 +215,41 @@
     <tr><td><strong>解耦</strong></td><td>支付只负责"记下这笔钱到了"，发货是另一件事</td></tr>
   </tbody>
 </table>
+
+<h3>对账具体在对什么</h3>
+
+<p>补偿任务解决的是"几分钟内"的问题，对账解决的是<strong>"隔了一天之后"</strong>的问题——它不追求实时，追求的是<strong>最终一笔都不能错</strong>。渠道侧通常 <code>T+1</code> 出对账单，所以流程是每天凌晨拉前一天的账单。</p>
+
+<table>
+  <thead><tr><th style="width:20%">对账层次</th><th style="width:30%">比什么</th><th>能发现什么</th></tr></thead>
+  <tbody>
+    <tr><td><strong>总额</strong></td><td>本地当天成功收款总额 vs 渠道账单总额</td><td>最粗的一层。对不上说明有系统性问题，但<strong>对上了不代表没问题</strong>——见下面的 warn。</td></tr>
+    <tr><td><strong>笔数</strong></td><td>两边的成功交易笔数</td><td>能发现单边多、单边少。比总额敏感一点，但同样会被"一多一少"抵消掉。</td></tr>
+    <tr><td><strong>逐笔</strong></td><td>以订单号为键，一笔一笔比对状态和金额</td><td><strong>这才是真正有效的对账。</strong>任何差异都能定位到具体订单，也才有可能自动补单。</td></tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">为什么不能只对总额</span>
+  <p>因为差异会<strong>互相抵消</strong>：渠道多了一笔 100 元（你没记），同时少了一笔 100 元（你记了），总额一减正好为零。<strong>账平了，但两笔都是错的。</strong>所以对账必须以订单号为键逐笔做。</p>
+</div>
+
+<p>逐笔比对的结果只有三类，处理方式各不相同：</p>
+
+<table>
+  <thead><tr><th style="width:26%">差异</th><th style="width:32%">说明</th><th>怎么处理</th></tr></thead>
+  <tbody>
+    <tr><td><strong>渠道有、本地没有</strong></td><td>用户付了钱，回调丢了、补偿任务也没捞到</td><td><strong>自动补单</strong>——这是"钱收了货没发"的最后一道兜底。补完必须记日志，方便事后核查。</td></tr>
+    <tr><td><strong>本地有、渠道没有</strong></td><td>你记了一笔成功，但渠道那边没有这笔交易</td><td><strong>不能自动改</strong>。先冻结这笔订单、进人工队列排查——有可能是本地状态被错误更新了。</td></tr>
+    <tr><td><strong>金额不一致</strong></td><td>订单号对得上，但两边金额不同</td><td>同样<strong>不自动处理</strong>，直接进人工。这类差异往往是代码 bug 或数据被改过，自动"修正"会把问题掩盖掉。</td></tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">两个容易被追问的细节</span>
+  <p><strong>跨天的交易算哪一天？</strong>要答得出<strong>以渠道账单的日期为准</strong>：渠道按它自己记账的时点把交易归到某一天，你的本地订单时间可能落在前一天 23:59，也可能落在后一天 00:01。<strong>所以要用"渠道账单里的日期"去捞本地订单，而不是按本地订单的创建时间</strong>——否则每个跨天的单子都会被误报成差异。</p>
+  <p><strong>退款怎么办？</strong>退款在账单里是<strong>负数流水</strong>，通常在单独一段或单独一个文件里。比对时必须一起算进去，否则当天有退款的账永远对不平。</p>
+</div>
 
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>

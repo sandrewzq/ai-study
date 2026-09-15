@@ -14,10 +14,10 @@
 
 <div class="layout">
 <nav class="sidenav">
-  <div class="grp">往上</div>
+  <div class="grp zone">往上</div>
   <a class="up" href="../index.html">← 总目录</a>
   <a class="up" href="index.html">← 材料目录</a>
-  <div class="grp">这一层</div>
+  <div class="grp zone mid">这一层</div>
   <div class="grp sub">步骤 2 · 做系统</div>
   <ul>
     <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
@@ -32,7 +32,7 @@
     <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
-  <div class="grp">参考</div>
+  <div class="grp zone">参考</div>
   <a class="up" href="../index.html#plan">学习计划全文</a>
 </nav>
 
@@ -151,6 +151,53 @@
 <div class="skeleton">
   <span class="tag">讲的时候按这个顺序讲</span>
   <p>"优先级是<strong>隔离 &gt; 外部化 &gt; 摘要 &gt; 截断</strong>。理由很简单：<strong>最好的压缩是不需要压缩</strong>——一开始就别让脏东西进主上下文。等到塞满了再摘要，信息已经损失过一轮；而截断最粗暴，容易把关键前提一起扔掉。"</p>
+</div>
+
+<h3>判断标准：这一轮还需要它吗</h3>
+
+<p>每一条信息都可以问同一句话：<strong>"这一轮如果看不到它，任务会不会做错？"</strong> 不会，就说明它该被外部化或者摘要掉。按这个标准过一遍，上下文里的内容基本分成三类：</p>
+
+<table>
+  <thead><tr><th style="width:28%">信息</th><th style="width:14%">留不留</th><th>怎么处理</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>用户的目标和硬约束</strong>（"必须兼容旧接口""不能调外部服务"）</td>
+      <td><strong>必留</strong></td>
+      <td>放进结构化任务状态，<strong>每轮都带上</strong>。绝不能只存在于早期对话里——那是最先被摘要丢掉的一批东西。</td>
+    </tr>
+    <tr>
+      <td><strong>已经确认的结论和事实</strong></td>
+      <td><strong>必留</strong></td>
+      <td>同上。这是防止它绕回去把做过的事再做一遍的关键。</td>
+    </tr>
+    <tr>
+      <td><strong>失败过的尝试</strong></td>
+      <td><strong>留结论</strong></td>
+      <td>只留"试过 X，因为 Y 不行"。<strong>过程和报错原文丢掉</strong>——它们是上下文里最占地方的部分。</td>
+    </tr>
+    <tr>
+      <td><strong>工具的原始返回</strong></td>
+      <td><strong>不留</strong></td>
+      <td>落盘，上下文里只留<strong>路径加一句话摘要</strong>，需要时再读回来。</td>
+    </tr>
+    <tr>
+      <td><strong>中间过程的日志和报错</strong></td>
+      <td><strong>不留</strong></td>
+      <td>只留最后一条决定性的。前面几十行堆栈对判断没有增量信息。</td>
+    </tr>
+    <tr>
+      <td><strong>与当前任务无关的历史</strong></td>
+      <td><strong>不留</strong></td>
+      <td>上一件事的对话不要带进新任务。<strong>开个新会话，比想办法清理旧上下文划算得多。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">为什么这件事的收益是平方级的</span>
+  <p>很多人以为上下文治理省的是"一次请求的钱"，其实不是——<strong>每一轮请求都要把前面的内容重发一遍</strong>。</p>
+  <p>所以总消耗大致是<strong>轮数乘以上下文长度</strong>。而上下文长度本身又随轮数增长，两个因素乘在一起，成本接近于<strong>随轮数平方增长</strong>。</p>
+  <p>这就是"从源头不让脏东西进来"值钱的原因：<strong>你在第 1 轮省下的 1000 token，后面每一轮都会被再省一次</strong>；反过来，第 1 轮多塞进去的 1000 token，也会在后面每一轮里被重复计费。</p>
 </div>
 
 <!-- ============ 追问 ============ -->

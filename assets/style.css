@@ -519,6 +519,11 @@ a:focus-visible, summary:focus-visible {
     padding: 16px 0 14px; margin-bottom: 8px;
   }
   .sidenav .grp { margin: 10px 0 5px; padding-left: 0; }
+  /* 窄屏省高度：外层的分区标题跟它的链接排到同一行；
+     「这一层」隐藏——紧跟其后的 .grp.sub（步骤名）本身就是它的标题。
+     这样三个分区标题从占 4 行降到占 0 行，手机上首屏能少掉一百来像素 */
+  .sidenav .grp.zone { display: inline-block; margin: 8px 10px 4px 0; }
+  .sidenav .grp.zone.mid { display: none; }
   .sidenav ul { display: flex; flex-wrap: wrap; gap: 5px; }
   .sidenav li { margin: 0; }
   .sidenav a.item { border: 1px solid var(--line); padding: 4px 11px; }
