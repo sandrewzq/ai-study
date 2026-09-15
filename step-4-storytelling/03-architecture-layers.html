@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · 架构分层与技术选型 — 步骤 4 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 4 · 第 3/7 份 ｜ G 域 · 项目叙事与方案设计</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 4 · 讲故事</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-project-overview.html"><span class="n">01</span><span>项目整体怎么讲</span></a></li>
+    <li><a class="item" href="02-project-facts.html"><span class="n">02</span><span>用户、功能与工期</span></a></li>
+    <li><a class="item cur" href="03-architecture-layers.html"><span class="n">03</span><span>架构分层与技术选型</span></a></li>
+    <li><a class="item" href="04-from-zero.html"><span class="n">04</span><span>从 0 到 1 与搭框架</span></a></li>
+    <li><a class="item" href="05-design-cases.html"><span class="n">05</span><span>方案设计题</span></a></li>
+    <li><a class="item" href="06-wecom-ecosystem.html"><span class="n">06</span><span>企微生态专题</span></a></li>
+    <li><a class="item" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>03 · 架构分层与技术选型</h1>
+<p class="lead">
+  「介绍一下你的架构」是一道<strong>开放题</strong>，没有标准答案——但有一种答法一定不扣分：
+  <strong>按职责分层讲，每层说清它负责什么、为什么这么切。</strong>
+</p>
+
+<div class="qbadges"><span class="q">JR-1</span><span class="q">YC-3</span><span class="q">PY-8</span><span class="q">YC-5</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页假设你手上有<a href="../step-2-systems/index.html">步骤 2</a>做出来的项目，能说清它由哪些部分组成。<strong>还没做出来的话，这一页只能当模板看。</strong>术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，记住那五层分别负责什么。</div>
+  <div><b>第二遍（15 分钟）</b>读第 2、3 节，<strong>把你自己项目的层画一遍</strong>。</div>
+  <div><b>第三遍</b>做页尾回忆卡，用数据流把分层串起来讲一次。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「介绍一下你这个项目的架构。」</strong></p>
+
+<p>你开始说：<em>「前端用 Vue3，后端用 NestJS，数据库 PostgreSQL，缓存 Redis，向量库用的 Milvus，部署在云主机上，前面挂了 Nginx……」</em></p>
+
+<p>说完了。对方点点头，问：<strong>「那这些是怎么串起来的？」</strong></p>
+
+<p>——这说明你刚才报的是<strong>技术清单</strong>，不是<strong>架构</strong>。</p>
+
+<div class="analogy">
+  <span class="tag">技术清单和架构的区别</span>
+  <p>技术清单回答的是"<strong>用了什么</strong>"，架构回答的是"<strong>东西怎么组织、数据怎么流转、为什么这么切</strong>"。</p>
+  <p>同样这些组件，你可以说成清单，也可以说成架构——<strong>区别只在于你有没有讲"它们之间的关系"和"你为什么这么安排"。</strong></p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 一个 AI 应用通常这么分层</p>
+  <h3>每一层只回答一个问题</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 380" role="img" aria-label="AI 应用的分层架构">
+    <!-- 层 -->
+    <rect class="box-s" x="20" y="40" width="330" height="52" rx="8"></rect>
+    <text x="40" y="61" font-size="12.5" style="font-weight:600">① 接入层</text>
+    <text x="40" y="80" font-size="11.5" class="lbl-muted">页面、接口网关、鉴权、限流</text>
+    <text x="366" y="62" font-size="12">用户怎么进来</text>
+    <text x="366" y="80" font-size="11.5" class="lbl-muted">这一层不关心业务，只管收和发</text>
+
+    <rect class="box-m" x="20" y="102" width="330" height="52" rx="8"></rect>
+    <text x="40" y="123" font-size="12.5" style="font-weight:600">② 应用层</text>
+    <text x="40" y="142" font-size="11.5" class="lbl-muted">业务编排：这次请求该怎么走</text>
+    <text x="366" y="124" font-size="12">业务怎么走</text>
+    <text x="366" y="142" font-size="11.5" class="lbl-muted">判断意图、选链路、管会话和权限</text>
+
+    <rect class="box-m" x="20" y="164" width="330" height="52" rx="8"></rect>
+    <text x="40" y="185" font-size="12.5" style="font-weight:600">③ AI 能力层</text>
+    <text x="40" y="204" font-size="11.5" class="lbl-muted">改写、检索、精排、生成、编排</text>
+    <text x="366" y="186" font-size="12">"智能"在哪</text>
+    <text x="366" y="204" font-size="11.5" class="lbl-muted">这是 AI 应用特有的一层，也是最该讲细的</text>
+
+    <rect class="box-d" x="20" y="226" width="330" height="52" rx="8"></rect>
+    <text x="40" y="247" font-size="12.5" style="font-weight:600">④ 数据层</text>
+    <text x="40" y="266" font-size="11.5" class="lbl-muted">关系库 / 向量库 / 缓存 / 对象存储</text>
+    <text x="366" y="248" font-size="12">东西放哪</text>
+    <text x="366" y="266" font-size="11.5" class="lbl-muted">每类数据的访问模式不同，所以分开存</text>
+
+    <rect class="box-d" x="20" y="288" width="330" height="52" rx="8"></rect>
+    <text x="40" y="309" font-size="12.5" style="font-weight:600">⑤ 基础支撑</text>
+    <text x="40" y="328" font-size="11.5" class="lbl-muted">队列、定时任务、日志、监控</text>
+    <text x="366" y="310" font-size="12">怎么跑得住</text>
+    <text x="366" y="328" font-size="11.5" class="lbl-muted">异步任务和可观测性都挂在这一层</text>
+
+    <!-- 右侧提示 -->
+    <rect class="box-t" x="576" y="40" width="204" height="300" rx="9"></rect>
+    <text x="678" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">讲的时候遵守两条</text>
+
+    <text x="594" y="94" font-size="11.5">① 每层先说职责</text>
+    <text x="594" y="114" font-size="11.5">再说用了什么</text>
+    <text x="594" y="134" font-size="11" class="lbl-muted">反过来就成清单了</text>
+
+    <text x="594" y="168" font-size="11.5">② 两层之间说清</text>
+    <text x="594" y="188" font-size="11.5">"谁调谁、传什么"</text>
+    <text x="594" y="208" font-size="11" class="lbl-muted">这是"架构"和"清单"的分界</text>
+
+    <text x="594" y="242" font-size="11.5">③ 至少要有一处</text>
+    <text x="594" y="262" font-size="11.5">"为什么这样切"</text>
+    <text x="594" y="282" font-size="11" class="lbl-muted">比如"为什么向量库</text>
+    <text x="594" y="298" font-size="11" class="lbl-muted">不放进关系库"</text>
+
+    <text x="594" y="324" font-size="11" class="lbl-muted">有这一条，层次立刻不同</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：AI 应用的分层和普通 Web 应用大体一样，<strong>只是中间多了一层「AI 能力层」</strong>——改写、检索、精排、生成这些"智能"的部分都在这儿。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">讲的时候守住两条：<strong>每层先说职责再说技术</strong>，以及<strong>说清层与层之间谁调谁</strong>。有这两条，听起来就是架构；没有，就是清单。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>通用层</span>
+  <span><i style="background:var(--c-model)"></i>AI 应用特有</span>
+  <span><i style="background:var(--c-data)"></i>存储与支撑</span>
+  <span><i style="background:var(--c-tool)"></i>讲解要求</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 「分成哪些层」（<code>YC-3</code>、<code>JR-1</code>）</h2>
+
+<p>照着上面五层讲就行，但<strong>重点要放在第 ③ 层</strong>——那是 AI 应用和普通 Web 应用真正不一样的地方，也是对方最想听的。</p>
+
+<table>
+  <thead><tr><th style="width:20%">层</th><th style="width:34%">职责</th><th>怎么讲得不空</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>接入层</strong></td>
+      <td>收请求、鉴权、限流、把结果推回去。</td>
+      <td>可以一句话带过，但<strong>流式推送要提一句</strong>——这是 AI 应用的接入层和普通网页不同的地方。</td>
+    </tr>
+    <tr>
+      <td><strong>应用层</strong></td>
+      <td>判断这次请求该走哪条链路、管会话、管权限。</td>
+      <td>讲一个具体判断：<strong>什么样的问题走简单检索，什么样的问题要进 Agent 流程</strong>。有这一句就说明你真的分过流。</td>
+    </tr>
+    <tr>
+      <td><strong>AI 能力层</strong></td>
+      <td>查询改写、检索、精排、上下文组装、模型调用、结果校验。</td>
+      <td><strong>这一层要讲细</strong>：按顺序说清每一步做什么、哪一步最关键。<strong>大多数追问都会落在这里。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>数据层</strong></td>
+      <td>文档和切片、向量、会话记录、任务状态、用量统计。</td>
+      <td>关键是<strong>说清"为什么分开存"</strong>：文档和会话记录适合关系库；向量要用专门的库；热点会话状态放缓存（见<a href="../step-2-systems/06-consistency-and-concurrency.html">步骤 2 的一致性与并发</a>）。</td>
+    </tr>
+    <tr>
+      <td><strong>基础支撑</strong></td>
+      <td>异步队列、定时任务、日志、监控、告警。</td>
+      <td>重点讲<strong>哪件事是异步的</strong>——文档解析和向量化通常都放队列里跑。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>讲完分层，主动补一句<strong>"哪一层最重、哪一层我改得最多"</strong>：</p>
+  <p>「实际投入最多的是 <strong>AI 能力层</strong>——接入层和数据层都是标准做法，但检索这一步的每个参数都要按语料调。<strong>我们后来大部分优化都发生在这一层。</strong>」</p>
+  <p>这句话把"我知道有哪些层"变成了"我知道重心在哪"。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「数据怎么流转」（<code>YC-5</code>）</h2>
+
+<p>拆模块和技术选型都能背，<strong>唯独数据流转背不出来</strong>——因为它必须是你项目里的真实路径。所以这一问是<strong>最能分辨真假的地方</strong>。</p>
+
+<div class="pipeline">
+  <details class="node m"><summary>① 请求进来</summary><div class="body">接入层收下，做鉴权，拿到用户身份和会话标识，转给应用层。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>② 应用层判断</summary><div class="body">读会话历史（从缓存里拿），判断这次要不要改写、要不要走 Agent。<strong>这一步决定后面走哪条分支。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>③ 检索</summary><div class="body">改写后的查询同时走<strong>向量检索和关键词检索</strong>，两路结果合并去重，再送精排模型打分。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>④ 组装与生成</summary><div class="body">取精排后的前几段，和系统提示、历史对话拼成上下文，调模型。<strong>流式返回，边生成边推给前端。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>⑤ 落库与统计</summary><div class="body">这一轮的对话、引用的资料、消耗的用量都记下来。<strong>离线任务再拿这些数据去算命中率和成本。</strong></div></details>
+</div>
+
+<div class="analogy">
+  <span class="tag">讲数据流转的一个技巧</span>
+  <p>用<strong>一个具体的问题</strong>走完全程，比抽象地讲"数据从 A 到 B"好得多。</p>
+  <p>「比如用户问<strong>'报销单丢了怎么办'</strong>。这句话先被改写补全成'差旅报销单丢失后的补办流程'；然后向量检索命中了两份制度文档、关键词检索命中了另一份；三份合并后精排，前两名送进上下文；模型基于这两份生成回答，同时把文档出处一起返回，前端显示成可点的引用。」</p>
+  <p><strong>带具体问题的数据流，和只报组件名的数据流，可信度差一个量级。</strong></p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「怎么拆模块、怎么选型」（<code>YC-5</code>）</h2>
+
+<p>这两问通常在数据流之后出现。拆模块有<strong>可讲的原则</strong>，选型有<strong>可讲的顺序</strong>，都不要答成"看情况"。</p>
+
+<table>
+  <thead><tr><th style="width:22%">拆模块的原则</th><th style="width:34%">什么意思</th><th>在你项目里的例子</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>按变化频率拆</strong></td>
+      <td>改得频繁的和几乎不动的分开，避免动一处波及一片。</td>
+      <td>检索策略经常调，就单独成模块；鉴权基本不动，不用拆那么细。</td>
+    </tr>
+    <tr>
+      <td><strong>按职责边界拆</strong></td>
+      <td>一个模块只干一类事，边界清晰才好测试和替换。</td>
+      <td>向量检索和关键词检索各成一块，背后可以换不同实现。</td>
+    </tr>
+    <tr>
+      <td><strong>按复用度拆</strong></td>
+      <td>多处要用的抽出来，只有一处用的先别急着抽。</td>
+      <td>模型调用被封成统一的一层，因为好几个地方都要用；但某个页面专用的逻辑没必要抽。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="tree">
+  <p class="q">技术选型的顺序：先定"约束"，再定"关键选型"，最后才是外围</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">① 先摸约束</span>团队会什么、规模多大、能不能上云、有没有合规要求。<strong>约束不定，选型就是空谈。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">② 定关键选型</span>AI 应用里最关键的通常是<strong>模型怎么用</strong>（直接调 API 还是私有化）和<strong>向量库选哪个</strong>。<strong>这两个定了，其他都跟着定。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">③ 再定外围</span>关系库、缓存、队列这些都有成熟方案，按团队习惯选就行，不用纠结。</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">④ 别颠倒顺序</span><strong>最怕的是先挑了个时髦的技术，再倒过来找理由。</strong>这种选型一被追问就崩。</div>
+  </div>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「为什么向量不放在关系库里？很多数据库现在也支持向量。」</summary>
+  <p>这是个<strong>很实际的问题</strong>，答好了很加分。别答"因为向量库更专业"，那是同义反复。从访问模式讲：</p>
+  <ul>
+    <li><strong>两者的查询模式不同</strong>：关系库是"按条件精确找行"，向量检索是"按相似度找最近的若干条"。<strong>后者需要专门的索引结构和计算方式。</strong></li>
+    <li><strong>扩展方式不同</strong>：向量检索吃内存和算力，关系库吃磁盘和连接数，<strong>混在一起扩容很别扭</strong>。</li>
+    <li><strong>但要承认合并也有道理</strong>：数据量不大的时候，用同一个库确实省运维成本。<strong>我们的量级需要独立扩展，所以分开了。</strong></li>
+  </ul>
+  <p>最后那句"我们的量级需要……所以分开了"是关键——<strong>把通用道理落回你的实际情况，而不是当成绝对真理。</strong></p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「数据库和后端架构是什么？」（<code>PY-8</code>）</summary>
+  <p>这题问得比"介绍一下架构"更具体，所以要<strong>落到表结构和部署形态</strong>上：</p>
+  <ul>
+    <li><strong>有哪些主要的表</strong>：文档、切片、会话、消息、用量记录。<strong>说出主要字段和关系</strong>，比如切片表外键指向文档表。</li>
+    <li><strong>哪些数据不放关系库</strong>：向量放专门的库，热点会话状态放缓存，原始文件放对象存储。<strong>说清每一类的去向和理由。</strong></li>
+    <li><strong>部署形态</strong>：几台机器、数据库是自建还是托管、有没有读写分离。<strong>量级不大就直说，别硬撑。</strong></li>
+    <li><strong>一个实际的坑</strong>：比如"切片表数据涨到几百万行之后，按文档标识查变慢了，加了联合索引才好"（见<a href="../step-2-systems/05-index-and-slow-query.html">步骤 2 的索引与慢查询</a>）。</li>
+  </ul>
+</details>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「介绍一下你的架构 / 分成哪些层」</span>
+  <p><strong>【结论】</strong>我一般按<strong>职责分成五层</strong>讲：接入、应用、AI 能力、数据、基础支撑。<strong>和普通 Web 应用比，多出来的是中间的 AI 能力层</strong>，那也是我投入最多的一层。</p>
+  <p><strong>【接入层】</strong>页面和接口网关，负责鉴权、限流，以及<strong>把流式结果推给前端</strong>——这是 AI 应用和普通网页不太一样的地方。</p>
+  <p><strong>【应用层】</strong>判断这次请求该走哪条链路。简单的直接走检索生成，需要多步的才进 Agent 流程；同时管会话历史和权限。</p>
+  <p><strong>【AI 能力层】</strong>查询改写 → 混合检索（向量加关键词）→ 合并去重 → 精排 → 组装上下文 → 调模型 → 流式返回。<strong>大部分优化都发生在这一层</strong>，因为检索的参数要按语料调。</p>
+  <p><strong>【数据层】</strong>文档和会话记录放关系库，向量放专门的向量库，热点会话状态放缓存，原始文件放对象存储。<strong>分开的理由是访问模式不同</strong>——精确查找和相似度检索是两种完全不同的查询，扩展方式也不一样。</p>
+  <p><strong>【数据怎么流】</strong>用户提问 → 应用层读会话、判断分支 → 改写后两路检索 → 合并精排 → 取前几段拼进上下文 → 模型流式生成 → 前端渲染并显示引用 → 这一轮的数据落库、离线算命中率和成本。</p>
+  <p><strong>【选型原则】</strong>先摸约束（团队、规模、合规），再定关键选型（模型怎么用、向量库选哪个），外围技术按团队习惯选。<strong>关键是别颠倒顺序——先挑时髦技术再找理由，一追问就崩。</strong></p>
+  <p><strong>【权衡】</strong>这套分层在<strong>规模不大的时候其实有点重</strong>。如果只有几百份文档、几个人的团队，完全可以把向量和关系数据放同一个库，省一半运维成本。<strong>分层是为了应对变化，用不上的时候就是过度设计。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>用一次完整的问答，把你的架构串起来讲一遍（从用户点下发送开始）。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>检查你的讲述里有没有这几样：</p>
+    <ol>
+      <li><strong>一个具体的问题</strong>，而不是抽象的"数据"——比如"报销单丢了怎么办"。</li>
+      <li><strong>每一跳都说清"谁调谁、传了什么"</strong>——这是架构和清单的分界线。</li>
+      <li><strong>检索那一步要讲细</strong>：两路检索怎么合并、精排取前几段。</li>
+      <li><strong>至少一处"为什么这么设计"</strong>——比如为什么向量单独存。</li>
+      <li><strong>结尾落到落库和统计</strong>——说明数据不只是流过去，还留下来了。</li>
+    </ol>
+    <p>如果讲的时候卡在某一步，<strong>那一步就是你项目里最不熟的部分</strong>——回去把它弄明白。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「你搭框架的整体思路是什么？」——说出你的回答（这是 <a href="04-from-zero.html">下一份</a>要展开的题）。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>核心是<strong>别一上来讲技术，先讲你怎么摸清需求</strong>：</p>
+    <ol>
+      <li><strong>先问约束</strong>：谁用、多少人用、有没有合规要求、团队会什么。<strong>这一步决定后面所有选择的空间。</strong></li>
+      <li><strong>再划边界</strong>：哪些是核心必须自己做的，哪些用现成的就行。<strong>AI 应用里框架和检索组件大多是现成的，真正要自己做的是数据准备和效果调优。</strong></li>
+      <li><strong>然后定关键选型</strong>：模型怎么用、数据怎么存。</li>
+      <li><strong>最后搭骨架并跑通一条最小链路</strong>：先让"提问 → 检索 → 回答"能走通，再往上加功能。</li>
+    </ol>
+    <p>收尾一句：「<strong>我的习惯是先跑通最小闭环，再谈扩展</strong>——不然容易在还没验证效果的时候就陷入架构细节。」</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="02-project-facts.html">← 上一篇：用户、功能与工期</a>
+  <a href="04-from-zero.html">下一篇：从 0 到 1 与搭框架 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

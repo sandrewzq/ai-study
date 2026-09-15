@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · 成本优化与收益 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 11/11 份 ｜ F 域 · 量化指标与成本</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item cur" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>11 · 成本优化与收益</h1>
+<p class="lead">
+  这一页解决最后一道坎：<strong>被问"你降了多少成本"时，怎么答得让人信。</strong>
+  关键不是数字多大，而是<strong>你能不能拆清成本构成，并按性价比排出优先级</strong>。
+</p>
+
+<div class="qbadges"><span class="q">ML-14</span><span class="q">ML-15</span><span class="q">ML-16</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页接着<a href="10-usage-and-cost.html">上一份（用量与成本口径）</a>。<strong>如果你还没把用量和 token 的数算出来</strong>，先回去算——降本的比例是建立在成本基数上的，基数说不清，比例就没意义。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住降本手段的<strong>优先级顺序</strong>。</div>
+  <div><b>第二遍（12 分钟）</b>读第 2、3 节——手段和收益是两道不同的题。</div>
+  <div><b>第三遍</b>做页尾回忆卡，把"降本"和"收益"两笔账分开算一遍。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「你们 AI 这块的成本，做过什么优化吗？」</strong></p>
+
+<p>你答：「做了缓存，还有用便宜点的模型。」</p>
+
+<p>对方追问：<strong>「降了多少？」</strong></p>
+
+<p>你答：「大概降了三成吧。」</p>
+
+<p>对方再问：<strong>「三成是怎么算出来的？」</strong></p>
+
+<p>——到这里就答不上来了。</p>
+
+<p>问题的关键不在"三成"这个数，而在于<strong>你没有成本基数</strong>。说降了 30%，对方自然想知道：原来多少、现在多少、降的是哪一块？<strong>答不出基数，比例就是编的。</strong></p>
+
+<p>所以这一组题的顺序是：<strong>先拆构成 → 再谈手段 → 最后才是比例</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 降本手段按性价比排序，别乱做</p>
+  <h3>先做省得多又简单的，最后才考虑动架构</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 350" role="img" aria-label="AI 应用成本构成与降本手段的优先级">
+    <text x="20" y="26" class="lbl-muted">先拆成本构成（典型比例，按你自己项目的来）</text>
+
+    <!-- 成本条 -->
+    <rect class="box-m" x="20" y="42" width="470" height="34" rx="7"></rect>
+    <text x="255" y="64" text-anchor="middle" font-size="13" style="font-weight:600">模型调用 · 通常占大头</text>
+    <rect class="box-d" x="496" y="42" width="130" height="34" rx="7"></rect>
+    <text x="561" y="64" text-anchor="middle" font-size="12">向量库</text>
+    <rect class="box-d" x="632" y="42" width="90" height="34" rx="7"></rect>
+    <text x="677" y="64" text-anchor="middle" font-size="12">服务器</text>
+    <rect class="box-d" x="728" y="42" width="52" height="34" rx="7"></rect>
+    <text x="754" y="64" text-anchor="middle" font-size="11">存储</text>
+
+    <text x="20" y="98" class="lbl-muted" font-size="13">降本手段：从上往下做，越靠上越该先做</text>
+
+    <!-- 优先级列表 -->
+    <rect class="box-s" x="20" y="114" width="760" height="38" rx="7"></rect>
+    <text x="36" y="133" font-size="13" style="font-weight:600">① 缓存</text>
+    <text x="120" y="133" font-size="12">同样的问题不重复调用 —— 省得最多，实现最简单</text>
+    <text x="700" y="133" font-size="11.5" text-anchor="end" class="lbl-muted">先做这个</text>
+
+    <rect class="box-s" x="20" y="158" width="760" height="38" rx="7"></rect>
+    <text x="36" y="177" font-size="13" style="font-weight:600">② 模型分级</text>
+    <text x="120" y="177" font-size="12">简单问题走小模型，复杂问题才用大模型</text>
+
+    <rect class="box-s" x="20" y="202" width="760" height="38" rx="7"></rect>
+    <text x="36" y="221" font-size="13" style="font-weight:600">③ 减少输入</text>
+    <text x="120" y="221" font-size="12">上下文裁剪、资料精排 —— RAG 场景里输入才是大头</text>
+
+    <rect class="box-d" x="20" y="246" width="760" height="38" rx="7"></rect>
+    <text x="36" y="265" font-size="13" style="font-weight:600">④ 精简提示词</text>
+    <text x="120" y="265" font-size="12">去掉冗余说明和重复示例，每次调用都省一点</text>
+
+    <rect class="box-d" x="20" y="290" width="760" height="38" rx="7"></rect>
+    <text x="36" y="309" font-size="13" style="font-weight:600">⑤ 防重复调用</text>
+    <text x="120" y="309" font-size="12">失败重试和并发提交导致的重复请求，用幂等去重挡掉</text>
+
+    <rect x="20" y="334" width="760" height="1" rx="0" fill="none"></rect>
+    <text x="20" y="346" class="lbl-muted" font-size="11.5">再往下才是：批量处理非实时任务、量大后自建或私有化 —— 这些属于"动架构"，收益大但成本也高</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：降本不是"挑几个手段做"，而是<strong>有个明确的优先级</strong>——缓存最该先做，因为它同时满足"省得多"和"实现简单"；模型分级次之；<strong>减少输入在 RAG 场景里往往被低估</strong>，因为大家只盯着输出，但输入才是大头。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">回答时的加分点就是这条<strong>顺序</strong>——它能说明你不是"想到什么做什么"，而是<strong>按投入产出比在排</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>成本大头</span>
+  <span><i style="background:var(--c-store)"></i>优先做（省得多且简单）</span>
+  <span><i style="background:var(--c-data)"></i>其次做</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 「怎么节约 AI 成本」（<code>ML-14</code>）</h2>
+
+<p>这题问的是<strong>思路</strong>，不是清单。所以最好的答法是<strong>先给判断框架，再给手段</strong>。</p>
+
+<div class="skeleton">
+  <span class="tag">判断框架：先问三个问题</span>
+  <ol>
+    <li><strong>钱花在哪一块？</strong>——先把成本拆开。绝大多数情况下模型调用占大头，但<strong>你得先确认</strong>，而不是默认。</li>
+    <li><strong>这一块的量能不能减？</strong>——调用次数能减吗（缓存、去重）？每次的用量能减吗（精简输入输出）？</li>
+    <li><strong>单位价格能不能降？</strong>——同一件事能不能用更便宜的模型？量大到一定程度能不能换更划算的部署方式？</li>
+  </ol>
+  <p>框架说完再展开手段，<strong>条理和可信度完全不同</strong>。</p>
+</div>
+
+<div class="analogy">
+  <span class="tag">一条容易被忽略的思路</span>
+  <p>很多人只想着"让每次调用更便宜"，但更有效的一招是<strong>让它压根不用调用</strong>：</p>
+  <ul>
+    <li><strong>把能确定的答案提前算好</strong>：常见问题、固定报表，定时生成好存起来，用户来查直接读——<strong>零调用成本</strong>。</li>
+    <li><strong>先用便宜的方式试试</strong>：能用关键词检索直接命中的，就不必走模型生成。</li>
+  </ul>
+  <p>这个思路说出来很加分，因为它体现的是<strong>"把 AI 用在真正需要它的地方"</strong>，而不是"什么都丢给模型"。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「做了哪些优化」（<code>ML-15</code>）</h2>
+
+<p>这题要<strong>给方案，并且每个方案都带上"为什么有效"</strong>。只报名字会被认为没真做过。下面按优先级列，答题时挑你项目里真做过的说三到四个就够。</p>
+
+<table>
+  <thead><tr><th style="width:20%">手段</th><th style="width:38%">怎么做</th><th>为什么有效 / 注意什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>缓存</strong></td>
+      <td>相同或相似的问题直接返回上次的结果。可以做得粗（完全相同的输入）也可以做得细（意思相近就算命中）。</td>
+      <td><strong>省得最多，因为它直接把调用次数降下来了。</strong>但要注意<strong>失效策略</strong>——知识库更新了，旧答案必须能失效，否则用户拿到过期信息。</td>
+    </tr>
+    <tr>
+      <td><strong>模型分级</strong></td>
+      <td>先判断问题难度，简单的走便宜模型，复杂的才用贵的。判断可以用规则（关键词、长度），也可以先用小模型分类。</td>
+      <td><strong>效果取决于"分得准不准"。</strong>分错了要么浪费（简单问题用了贵模型），要么答不好（复杂问题用了便宜模型）。所以要<strong>留兜底</strong>：发现效果差就升级到强模型重试。</td>
+    </tr>
+    <tr>
+      <td><strong>减少输入</strong></td>
+      <td>检索回来的资料先精排、只留最相关的几段；历史对话做摘要而不是全量带上；系统提示去掉冗余。</td>
+      <td><strong>RAG 场景里这是最被低估的一条</strong>——输入常常是输出量的好几倍，而且是每次调用都要付的。</td>
+    </tr>
+    <tr>
+      <td><strong>防止重复调用</strong></td>
+      <td>给请求加唯一标识，重复提交直接返回已有结果；失败重试时先查任务是否已经成功执行过。</td>
+      <td>看起来是小优化，但<strong>重试风暴时的浪费非常可观</strong>——一次网络抖动可能触发一大批重试。</td>
+    </tr>
+    <tr>
+      <td><strong>批量处理</strong></td>
+      <td>不要求实时的任务（比如批量给文档打标签）攒起来一次处理，或者走专门的批量接口。</td>
+      <td>批量接口的单价通常更低。前提是<strong>业务允许延迟</strong>——实时对话就不能这么干。</td>
+    </tr>
+    <tr>
+      <td><strong>输出控制</strong></td>
+      <td>明确要求回答简洁；限制最大输出长度；能返回结构化数据就别让它写长段落。</td>
+      <td>输出单价通常比输入高，所以<strong>让它少说废话是真金白银</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>答完手段，补一句<strong>取舍</strong>——这能说明你不只是省钱：</p>
+  <p>「但我不会只看成本。比如模型分级，<strong>如果分错了导致答案质量下降，省下的钱可能还不够赔体验</strong>。所以我的原则是：<strong>先做不影响效果的</strong>（缓存、去重、精简输入），<strong>再做需要权衡的</strong>（模型分级），而且一定要有兜底和效果监控。」</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「降了多少、收益多少」（<code>ML-16</code>）</h2>
+
+<p>这题是这一域的<strong>最后一道关</strong>。它其实是<strong>两笔账</strong>，很多人混着说，结果两个都说不清。</p>
+
+<table>
+  <thead><tr><th style="width:22%">哪笔账</th><th style="width:36%">怎么算</th><th>注意</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>降本账</strong><br><span class="lbl-muted">省了多少钱</span></td>
+      <td>先有<strong>优化的成本基数</strong>（比如每月多少），再说优化后是多少，然后算比例。<strong>最好还能拆出"哪一条手段贡献了多少"。</strong></td>
+      <td><strong>基数必须先说得清</strong>（就是<a href="10-usage-and-cost.html">上一份</a>那些数字）。只给比例不给基数，等于没答。</td>
+    </tr>
+    <tr>
+      <td><strong>收益账</strong><br><span class="lbl-muted">带来了什么价值</span></td>
+      <td>分三层说：<strong>效率</strong>（同样的事少花多少时间）、<strong>质量</strong>（准确率、返工率的变化）、<strong>业务</strong>（转化、满意度、能承接的量）。</td>
+      <td><strong>说清口径</strong>："这个数字是怎么量出来的"——是统计的、抽样测的、还是估算的。<strong>诚实标出估算部分，比全是精确数字更可信。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">最容易被追问倒的地方</span>
+  <p>说"效率提升 50%"的时候，对方一定会问：<strong>「怎么算的？」</strong></p>
+  <p>所以提前把口径准备好，比如：「以前一份材料人工整理要 <strong>40 分钟</strong>，现在 AI 出初稿加人工校对大约 <strong>15 分钟</strong>，按我们组的量算，一周能省下 <strong>十几个小时</strong>。<strong>这是按我们实际记录的时间估的</strong>，不是精确统计。」</p>
+  <p>注意最后那句——<strong>主动说明这是估算</strong>，对方反而更信。<strong>把估算说成精确统计，一追问就崩。</strong></p>
+</div>
+
+<div class="analogy">
+  <span class="tag">一个安全的收尾</span>
+  <p>如果量级不大、降本绝对值不算亮眼，别硬编数字，<strong>把重点放在方法和判断上</strong>：</p>
+  <p>「我们的调用量不算大，所以绝对金额不夸张，<strong>但成本结构我看得很清楚</strong>：模型调用占大头，其中输入又比输出贵。所以我做优化的顺序是<strong>先缓存、再减输入、然后才是模型分级</strong>。量级上去之后，这套优先级不用变，只是效果会更明显。」</p>
+  <p>这样答<strong>既诚实又显得有方法</strong>——比编一个"降了 80%"安全得多。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「AI 成本怎么优化 / 降了多少 / 收益多少」</span>
+  <p><strong>【结论】</strong>我先拆成本构成，再做优化。<strong>模型调用占大头</strong>，向量库和服务器占小头；而在模型调用里，<strong>输入 token 又比输出更值钱</strong>——这是 RAG 场景的特点，因为要把检索到的资料塞进去。</p>
+  <p><strong>【优化的顺序】</strong>按性价比排：<strong>第一是缓存</strong>，相同问题不重复调用，省得最多也最简单；<strong>第二是减少输入</strong>，检索资料先精排只留最相关的几段、历史对话做摘要；<strong>第三是模型分级</strong>，简单问题走小模型，但要留兜底，发现效果差就升级重试；<strong>另外还做了去重</strong>，防止重试和并发提交造成的重复调用。</p>
+  <p><strong>【降本数字】</strong>优化前每月模型调用成本大概是 X，做完缓存和输入精简之后降到 Y，<strong>降幅大约多少</strong>。其中<strong>缓存贡献最大</strong>，因为直接把调用次数降下来了。</p>
+  <p><strong>【收益】</strong>分三层看：<strong>效率上</strong>，一份材料从人工整理 40 分钟降到 15 分钟左右；<strong>质量上</strong>，因为答案有依据可查，减少了翻找和返工；<strong>业务上</strong>，原来堆着没人看的资料现在能检索到了。<strong>这些是按实际记录的时间估的，不是精确统计。</strong></p>
+  <p><strong>【权衡】</strong>我不会为了省钱牺牲效果。<strong>先做不影响效果的</strong>（缓存、去重、精简输入），<strong>再做需要权衡的</strong>（模型分级），而且一定配效果监控和兜底——<strong>分错模型省下的钱，可能还不够赔体验</strong>。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「缓存会不会导致用户拿到过期答案？」</summary>
+  <p>这是<strong>问到了点子上</strong>，能答好说明你真上线过。分三块说：</p>
+  <ul>
+    <li><strong>哪些能缓存</strong>：答案是稳定事实的（比如"这个流程怎么走"）、或者带时间戳和数据版本号的。这些过期风险低。</li>
+    <li><strong>哪些别缓存</strong>：依赖实时数据的（"现在库存多少"）、个性化很强的（"我的待办"）。<strong>这类缓存了就是错。</strong></li>
+    <li><strong>怎么失效</strong>：知识库更新时<strong>主动清掉相关缓存</strong>（按文档标识关联），或者给缓存设一个合理的有效期。同时<strong>把数据版本写进缓存键</strong>，版本一变自然就不命中了。</li>
+  </ul>
+  <p>收尾："所以缓存不是'一刀切开或关'，而是<strong>按数据类型分开定策略</strong>。"</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「模型分级怎么保证分对？」</summary>
+  <p>诚实说清它的<strong>天然局限和处理方式</strong>：</p>
+  <ul>
+    <li><strong>不可能 100% 分对</strong>。所以设计的重点不是"分得完美"，而是<strong>"分错了也能兜住"</strong>。</li>
+    <li><strong>判断方式</strong>：先用规则（问题长度、是否命中特定意图）做粗筛，成本最低；再不行用一个小模型做分类，比用大模型便宜得多。</li>
+    <li><strong>兜底机制</strong>：便宜模型答完之后，用<strong>置信度或者规则</strong>判断要不要升级重试。比如回答里出现"不确定""无法回答"，或者格式不符合要求，就换强模型再来一次。</li>
+    <li><strong>持续校准</strong>：抽样看分错的比例，据此调整规则。<strong>上线不是终点。</strong></li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「成本和质量冲突时你怎么选？」</summary>
+  <p>这题<strong>没有标准答案，但要给出判断依据</strong>，不能只说"看情况"：</p>
+  <ol>
+    <li><strong>先看这个场景的质量底线在哪</strong>。面向外部用户的问答，答错了有信任成本，质量优先；内部的辅助工具，容错高一些，可以更激进地省钱。</li>
+    <li><strong>再看省下的钱值不值</strong>。省 10% 但要冒答错的风险，多半不值；省 70% 且影响可控，就值得试。</li>
+    <li><strong>最后一定要可回退</strong>。任何降本改动都配监控，发现问题能快速切回来。<strong>"能退回"本身就是设计的一部分。</strong></li>
+  </ol>
+  <p>收尾："所以我的答案不是固定选哪个，而是<strong>先定质量底线，在底线之上把成本压到最低</strong>。"</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>老板说"AI 这块太贵了，砍一半"。你会怎么动手？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>先拆构成，不猜</strong>：模型调用、向量库、服务器、存储各占多少。<strong>先确认大头在哪</strong>，别对着小头使劲。</li>
+      <li><strong>再拆调用本身</strong>：调用次数有多少、每次输入输出各多少 token、有多少是重复的、有多少是失败的。</li>
+      <li><strong>按性价比上手段</strong>：<strong>缓存</strong>（降次数，最划算）→ <strong>精简输入</strong>（RAG 场景的大头）→ <strong>去重</strong>（挡住重试浪费）→ <strong>模型分级</strong>（需要权衡，放在后面）。</li>
+      <li><strong>定质量底线并留退路</strong>：哪些场景绝对不能降质，先划出来；改动都配监控，能随时切回。</li>
+    </ol>
+    <p>最后一句体现分寸：「<strong>砍一半这个目标我会先反问场景</strong>——如果是内部工具，能做到；如果是对外问答，我会先确认质量底线，不能为了指标牺牲体验。」</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「降本」和「收益」是两笔账，分别怎么算？各需要什么前提？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>降本账</strong>：优化前的成本 → 优化后的成本 → 比例。<strong>前提是成本基数要说得清</strong>，也就是用量、token、单价那一整套数字。没有基数，比例就是空的。</p>
+    <p><strong>收益账</strong>：分三层——<strong>效率</strong>（少花多少时间）、<strong>质量</strong>（准确率、返工率）、<strong>业务</strong>（转化、满意度、能承接的量）。<strong>前提是口径要说明白</strong>，是统计的、抽样的还是估算的。</p>
+    <p>两者的区别：<strong>降本是"省了多少"，收益是"赚了多少"</strong>。很多项目降本明显但收益说不清，也有反过来的。</p>
+    <p>加分句：「<strong>我汇报时会把两笔账分开说，并且标清哪些是实测、哪些是估算</strong>——混在一起说，对方一追问口径就全乱了。」</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="10-usage-and-cost.html">← 上一篇：用量与成本口径</a>
+  <a href="index.html">回到材料目录 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

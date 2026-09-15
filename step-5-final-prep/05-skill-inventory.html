@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · 技术栈自评 — 步骤 5 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 5 · 第 5/9 份 ｜ J 域 · 软性、职业与综合</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 5 · 冲刺</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-career-plan.html"><span class="n">01</span><span>职业规划与择业标准</span></a></li>
+    <li><a class="item" href="02-self-assessment.html"><span class="n">02</span><span>自我评价</span></a></li>
+    <li><a class="item" href="03-ai-era-value.html"><span class="n">03</span><span>AI 时代的价值</span></a></li>
+    <li><a class="item" href="04-experience-inventory.html"><span class="n">04</span><span>经历与角色盘点</span></a></li>
+    <li><a class="item cur" href="05-skill-inventory.html"><span class="n">05</span><span>技术栈自评</span></a></li>
+    <li><a class="item" href="06-requirements-and-progress.html"><span class="n">06</span><span>接需求与推进项目</span></a></li>
+    <li><a class="item" href="07-cross-team-collaboration.html"><span class="n">07</span><span>跨角色协作</span></a></li>
+    <li><a class="item" href="08-team-and-risk.html"><span class="n">08</span><span>团队与风险</span></a></li>
+    <li><a class="item" href="09-stories.html"><span class="n">09</span><span>讲一段经历</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>05 · 技术栈自评</h1>
+<p class="lead">
+  「你对 XX 了解到什么程度」——这是整个 J 域<strong>最实用的一页</strong>。
+  因为它问得最频繁，而且<strong>答错的代价最直接：说高了当场翻车，说低了被低估。</strong>
+</p>
+
+<div class="qbadges"><span class="q">YU-11</span><span class="q">YU-22</span><span class="q">YF-12</span><span class="q">YF-16</span><span class="q">YF-25</span><span class="q">YU-6</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页需要你先在<a href="00-how-to-study.html">事实表</a>里<strong>把技术栈分好三档</strong>。没分的话先回去分——这页讲的都是基于那个分级的表达方式。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，把三档的判断标准记下来。</div>
+  <div><b>第二遍（15 分钟）</b>读第 1、2 节——"不会怎么答"是最关键的一节。</div>
+  <div><b>第三遍</b>做页尾回忆卡，<strong>把你在事实表里列的技术一个个套档</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「你对 Java 了解到什么程度？」</strong></p>
+
+<p>你其实没怎么用过 Java，但自己的技术清单里写着"了解后端"。这时候怎么办？</p>
+
+<div class="analogy">
+  <span class="tag">三种答法，差别很大</span>
+  <ul>
+    <li><em>「Java 我了解一些，基本的语法都会。」</em><br>——接下来对方就会问 JVM、GC、并发包。<strong>你会在第二个问题就崩。</strong>而且崩了之后，前面说过的所有话都会被重新审视。</li>
+    <li><em>「Java 我不会。」</em><br>——太干，浪费了一次展示的机会。<strong>而且会让对方觉得你只会自己那一块。</strong></li>
+    <li><em>「Java 我没有在项目里用过</em>，<strong>但后端这套东西我是通的</strong>——我现在的主力是 Node 那套，关系库、缓存、队列这些都实际做过。<strong>语法层面的东西换一门语言很快，难的是工程上的判断，这部分是通的。</strong>」<br>——<strong>诚实、有边界、还说明了可迁移性。</strong></li>
+  </ul>
+</div>
+
+<p>这一页要解决的就是：<strong>怎么在不吹牛的前提下，把自己的能力说清楚。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 三档，每档都有一个"能做什么"和"不能做什么"</p>
+  <h3>关键是说出边界，不是说出等级</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 356" role="img" aria-label="技术栈三档的分级标准">
+    <!-- 三档 -->
+    <rect class="box-s" x="20" y="42" width="240" height="140" rx="9"></rect>
+    <text x="140" y="66" text-anchor="middle" font-size="13" style="font-weight:600">第一档 · 主力</text>
+    <text x="36" y="92" font-size="11.5" fill="var(--c-store)">✅ 能主导方案</text>
+    <text x="36" y="112" font-size="11.5">能做选型和取舍</text>
+    <text x="36" y="132" font-size="11.5">遇到问题能独立定位</text>
+    <text x="36" y="154" font-size="11.5" fill="var(--c-risk)">❌ 不能说"精通"</text>
+    <text x="36" y="172" font-size="11" class="lbl-muted">除非你真读过源码级别的细节</text>
+
+    <rect class="box-m" x="278" y="42" width="240" height="140" rx="9"></rect>
+    <text x="398" y="66" text-anchor="middle" font-size="13" style="font-weight:600">第二档 · 会用</text>
+    <text x="294" y="92" font-size="11.5" fill="var(--c-store)">✅ 能独立完成日常开发</text>
+    <text x="294" y="112" font-size="11.5">常见问题能自己解决</text>
+    <text x="294" y="132" font-size="11.5">复杂场景要查或问</text>
+    <text x="294" y="154" font-size="11.5" fill="var(--c-risk)">❌ 别说"熟悉"</text>
+    <text x="294" y="172" font-size="11" class="lbl-muted">"熟悉"没有标准，等于没说</text>
+
+    <rect class="box-d" x="536" y="42" width="244" height="140" rx="9"></rect>
+    <text x="658" y="66" text-anchor="middle" font-size="13" style="font-weight:600">第三档 · 了解</text>
+    <text x="552" y="92" font-size="11.5" fill="var(--c-store)">✅ 知道原理和适用场景</text>
+    <text x="552" y="112" font-size="11.5">能看懂相关代码</text>
+    <text x="552" y="132" font-size="11.5">能判断该不该用它</text>
+    <text x="552" y="154" font-size="11.5" fill="var(--c-risk)">❌ 别说"用过"</text>
+    <text x="552" y="172" font-size="11" class="lbl-muted">一旦追问"用它做过什么"就露</text>
+
+    <!-- 被问不会的怎么办 -->
+    <text x="20" y="212" class="lbl-muted" font-size="13">被问到"你完全不会的东西"，三句话接住</text>
+
+    <rect class="box-t" x="20" y="228" width="240" height="106" rx="8"></rect>
+    <text x="140" y="250" text-anchor="middle" font-size="12" style="font-weight:600">① 承认没做过</text>
+    <text x="140" y="272" text-anchor="middle" font-size="11" class="lbl-muted">"我没有在项目里用过"</text>
+    <text x="140" y="292" text-anchor="middle" font-size="11" class="lbl-muted">短促、明确，不要绕</text>
+    <text x="140" y="316" text-anchor="middle" font-size="11" class="lbl-muted">绕反而显得心虚</text>
+
+    <rect class="box-t" x="278" y="228" width="240" height="106" rx="8"></rect>
+    <text x="398" y="250" text-anchor="middle" font-size="12" style="font-weight:600">② 说清你懂的相关部分</text>
+    <text x="398" y="272" text-anchor="middle" font-size="11" class="lbl-muted">"但这套东西我是通的"</text>
+    <text x="398" y="292" text-anchor="middle" font-size="11" class="lbl-muted">举同类技术里的实际经验</text>
+    <text x="398" y="316" text-anchor="middle" font-size="11" class="lbl-muted">说明底层原理是共通的</text>
+
+    <rect class="box-t" x="536" y="228" width="244" height="106" rx="8"></rect>
+    <text x="658" y="250" text-anchor="middle" font-size="12" style="font-weight:600">③ 说清可迁移性</text>
+    <text x="658" y="272" text-anchor="middle" font-size="11" class="lbl-muted">"语法换一门很快"</text>
+    <text x="658" y="292" text-anchor="middle" font-size="11" class="lbl-muted">"难的是工程判断"</text>
+    <text x="658" y="316" text-anchor="middle" font-size="11" class="lbl-muted">这部分我是通的</text>
+
+    <rect class="box-s" x="20" y="342" width="760" height="1" rx="0"></rect>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：三档的关键不在名字，而在<strong>每一档都能说出"能做什么"和"不能做什么"</strong>。说出边界，对方才有判断依据；只给一个模糊的等级词，他只能靠自己猜。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">底下那三句是应对"完全不会"的：<strong>先干脆承认，再说清你懂的相关部分，最后说明可迁移性。</strong>整个过程不卑不亢，而且信息量比"我不会"大得多。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>可以说</span>
+  <span><i style="background:var(--c-model)"></i>第二档</span>
+  <span><i style="background:var(--c-data)"></i>第三档</span>
+  <span><i style="background:var(--c-risk)"></i>别说</span>
+  <span><i style="background:var(--c-tool)"></i>应对不会的三步</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 为什么"熟悉""精通"这类词不能用</h2>
+
+<p>因为这些词<strong>没有公认的标准</strong>。你说"熟悉 Redis"，对方不知道你说的是"会用基本命令"还是"能设计集群方案"——<strong>他只能自己去试，而试的方式通常是往深了问。</strong></p>
+
+<table>
+  <thead><tr><th style="width:20%">模糊的词</th><th style="width:34%">对方会怎么理解</th><th>换成什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>"精通 XX"</strong></td>
+      <td>往最难的地方问——原理、源码、边界情况。<strong>绝大多数人说"精通"都撑不住这个标准。</strong></td>
+      <td>说"<strong>能主导这块的方案</strong>"，然后举一个你做过的决定。</td>
+    </tr>
+    <tr>
+      <td><strong>"熟悉 XX"</strong></td>
+      <td>没有参照系，对方只能靠追问来定位你的水平。</td>
+      <td>说"<strong>能独立完成日常开发，复杂场景需要查资料</strong>"——把边界自己画出来。</td>
+    </tr>
+    <tr>
+      <td><strong>"了解 XX"</strong></td>
+      <td>从最基础的开始问，浪费时间；或者干脆跳过你。</td>
+      <td>说"<strong>知道它的原理和适用场景，但没有在项目里独立用过</strong>"——明确到这一层。</td>
+    </tr>
+    <tr>
+      <td><strong>"用过 XX"</strong></td>
+      <td>追问"用它做过什么、遇到什么问题"。<strong>这是最容易被戳破的一个。</strong></td>
+      <td>要么说清具体项目里做了什么，要么降到"了解"那一档。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一个能通用的句式</span>
+  <p>把"我熟悉 XX"换成这个结构：</p>
+  <p>「<strong>XX 我在项目里用过</strong>（说明范围）——<strong>能独立完成 A 和 B</strong>（说能做什么）；<strong>但 C 那种情况我还没处理过，一般会查资料或者找有经验的同事确认</strong>（说不能做什么）。」</p>
+  <p>这个句式的价值在于：<strong>你把边界主动画出来了，对方就不需要靠追问来试探</strong>。而且一旦你说了"能做什么"，他更可能顺着你熟的地方问——<strong>这等于你在引导话题。</strong></p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「完全不会」怎么答（<code>YF-12</code>、<code>YU-22</code>）</h2>
+
+<p>被问到不会的东西是常态——<strong>关键是别慌，也别硬撑。</strong>用主图里那三句话：</p>
+
+<div class="pipeline">
+  <details class="node s"><summary>① 先承认，而且要快</summary><div class="body">"<strong>Java 我没有在项目里用过。</strong>"——短促、明确。<strong>最忌讳的是绕</strong>：说"了解一些""学过一点"，等于邀请对方继续问，然后你在第三个问题上崩掉。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>② 说清你懂的相关部分</summary><div class="body">"<strong>但后端这套东西我是通的</strong>——我现在主力是 Node 那套，关系库设计、缓存、队列、并发这些都在项目里实际做过。"<strong>把话题从"语言"拉回"能力"。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>③ 说明可迁移性</summary><div class="body">"<strong>语法层面换一门语言很快</strong>——真正的难点是工程判断，比如什么时候该加缓存、事务边界怎么划，<strong>这部分是通的。</strong>"</div></details>
+</div>
+
+<div class="warn">
+  <span class="tag">有一个例外：别说"我学得很快"</span>
+  <p>第 ③ 句里<strong>不要出现"我学习能力强，很快就能上手"</strong>——这句话太常见，而且没法验证，说出来反而像是在找补。</p>
+  <p>正确做法是<strong>用可迁移的"具体能力"替代"学习速度"</strong>：</p>
+  <ul>
+    <li>❌ "我学得很快，给我时间就能上手。"</li>
+    <li>✅ "语法层面的东西换一门语言很快；<strong>真正难的是工程上的判断——比如并发怎么写、事务边界怎么划，这部分在哪个语言里都是通的，我做过。</strong>"</li>
+  </ul>
+  <p>后者没有承诺"我很快能学会"，而是指出<strong>"真正难的部分我已经有了"</strong>——这更有说服力。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你数据库能力大概在什么水平？」（<code>YF-16</code>）</summary>
+  <p>数据库这类技术<strong>深度是分层的</strong>，所以答的时候要<strong>指出你在哪一层</strong>，而不是给一个笼统的水平：</p>
+  <table>
+    <thead><tr><th style="width:26%">层次</th><th>能做到什么</th></tr></thead>
+    <tbody>
+      <tr><td><strong>第一层：会写</strong></td><td>能写查询、联表、聚合。<strong>这是最基本的，说这一层等于没加分。</strong></td></tr>
+      <tr><td><strong>第二层：会设计</strong></td><td>能根据业务设计表结构、定字段类型、想清楚关系。<strong>这一层开始有价值。</strong></td></tr>
+      <tr><td><strong>第三层：会优化</strong></td><td>能看执行计划、加对索引、定位慢查询（见<a href="../step-2-systems/05-index-and-slow-query.html">步骤 2 的索引与慢查询</a>）。<strong>这一层是大多数方向真正要的。</strong></td></tr>
+      <tr><td><strong>第四层：懂原理</strong></td><td>知道存储引擎怎么组织数据、事务隔离是怎么实现的。<strong>这一层通常只有专门做数据库的人需要。</strong></td></tr>
+    </tbody>
+  </table>
+  <p>答法示范：「我在<strong>设计和优化这两层</strong>。表结构和索引设计是我自己做的；慢查询也实际排查过几次，<strong>做过一次索引优化把接口从几秒降到几十毫秒</strong>。<strong>再往下的存储引擎原理我了解大概，但没有深入研究过</strong>——那是专门做数据库的人的事。」</p>
+  <p>这个答法同时做到了三件事：<strong>定位清楚、有具体例子、主动划了上界。</strong></p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「你做 AI 相关是工作落地，还是业余学习？」（<code>YF-25</code>）</summary>
+  <p>这题<strong>不能含糊</strong>——因为它是在核实你前面讲的项目到底是不是真的。三种情况分别答：</p>
+  <ul>
+    <li><strong>如果是工作落地</strong>：说清在什么场景、解决了谁的什么问题、有没有真的被用起来。<strong>光说"公司要求做的"不够，要说清"做出了什么、谁在用"。</strong></li>
+    <li><strong>如果是业余做的</strong>：<strong>不要心虚。</strong>说清做了什么、做到什么程度、为什么要做。<strong>"业余做的东西能跑起来"本身就是很强的信号</strong>——说明你是真的有兴趣，不是被推着走。</li>
+    <li><strong>如果两边都有</strong>：<strong>这是最好的答案</strong>。分开说清各做了什么，以及工作里的东西怎么反哺到自己的探索上。</li>
+  </ul>
+  <p>无论哪种，<strong>都要落到具体的产出上</strong>："我业余也搭过一个本地知识库，跑了两万份文档，主要是想验证一下不同切分策略对召回的影响。"——这种细节编不出来。</p>
+</details>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「你是怎么转型学过来的」（<code>YU-6</code>）</h2>
+
+<p>这题问的是<strong>学习方法</strong>，而不是结果。所以别只说"我现在能写后端了"，要说清<strong>你怎么从不会到会的</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:22%">说哪一段</th><th>内容</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 起点</strong></td>
+      <td>当时是什么情况——为什么需要转、你原来的基础是什么。<strong>有起点才有"跨越"的对比。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>② 路径</strong></td>
+      <td>先学了什么、后学了什么、怎么验证。<strong>关键是说清"验证方式"</strong>——这决定了你是真会还是看过。</td>
+    </tr>
+    <tr>
+      <td><strong>③ 卡在哪</strong></td>
+      <td>哪个概念最难理解、哪次踩坑最深刻。<strong>这一段最能证明你是真的走过这条路。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>④ 现在到什么程度</strong></td>
+      <td>和你的技术栈分级保持一致。别忘了说边界。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">套出来的样子</span>
+  <p><strong>【起点】</strong>「一开始是因为项目需要，<strong>前端只有我一个人，后端没人接</strong>，只能自己顶上。当时我对后端基本是空白——会发请求，但不知道怎么设计表、怎么保证数据不出问题。」</p>
+  <p><strong>【路径】</strong>「我的顺序是<strong>先跑通再补原理</strong>。第一步是用最简单的框架把接口和数据库接起来，<strong>先让功能能用</strong>；然后才开始补基础——关系库设计、事务、缓存这几块。<strong>验证方式是强迫自己真的用</strong>：每学一块，就在项目里替换掉原来的临时方案。」</p>
+  <p><strong>【卡在哪】</strong>「最难理解的是<strong>并发和一致性</strong>。因为前端基本是单线程思维，我一开始完全无法理解'两个人同时操作会怎样'。<strong>后来是做缓存的时候真的踩了一次</strong>——数据和缓存对不上，排查了很久才定位。那次之后我才真正建立起来这个概念。」</p>
+  <p><strong>【现在到什么程度】</strong>「现在是<strong>能独立完成日常开发，表结构和索引设计是我做的，慢查询也排查过</strong>。但复杂的并发场景还是要查资料或者找人确认，<strong>这个我也写在自己的短板上</strong>。」</p>
+</div>
+
+<div class="analogy">
+  <span class="tag">这题的加分点</span>
+  <p><strong>"先跑通再补原理"这个顺序，本身就是一个可以讲的判断</strong>——但要说清它什么时候成立、什么时候不成立：</p>
+  <p>「我的顺序是先跑通再补原理。<strong>这么做的理由是：有了一个能跑的东西，学原理的时候才有具体的问题可以对照</strong>，不然抽象的概念记不住。</p>
+  <p><strong>但这个顺序有前提</strong>——只能用在<strong>出错代价低的地方</strong>。如果一开始就要碰支付、碰账务这种不能出错的部分，那必须先搞懂再动手。<strong>我当时做的第一版是内部工具，所以敢先跑起来。</strong>」</p>
+  <p>最后那句"有前提"是关键——<strong>它把"我的方法"变成了"我知道这个方法什么时候适用"。</strong></p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「你对 XX 了解到什么程度 / 后端接触多深 / Java 会吗 / 数据库什么水平」</span>
+  <p><strong>【统一原则】</strong>我一般<strong>不说"精通""熟悉"这类词</strong>，因为它们没有标准。<strong>我会说清"能做什么、什么还不行"</strong>，这样对方能自己判断。</p>
+  <p><strong>【主力方向】</strong>前端和全栈这条线我是<strong>能主导方案的</strong>——选型、拆模块、定接口这些我自己能定。AI 应用的工程落地也是我做主的，从链路设计到效果调优。</p>
+  <p><strong>【后端】</strong>后端我<strong>能独立完成日常开发</strong>——接口设计、表结构、缓存、队列这些都在项目里实际做过，慢查询也排查过几次，<strong>做过一次索引优化把接口从几秒降到几十毫秒</strong>。<strong>但复杂的并发和一致性问题还要查资料或者找人确认</strong>，这个我心里有数。</p>
+  <p><strong>【Java 这类没用过的】</strong><strong>Java 我没有在项目里用过。</strong>但后端这套东西我是通的——关系库设计、缓存、队列、事务这些在 Node 那套里都实际做过。<strong>语法层面换一门语言很快，真正难的是工程判断，比如什么时候该加缓存、事务边界怎么划，这部分在哪个语言里都是通的。</strong></p>
+  <p><strong>【数据库的分层】</strong>我会说自己在哪一层：<strong>设计和优化这两层</strong>——表结构和索引是我做的；再往下的存储引擎原理我了解大概，没深入研究过，<strong>那是专门做数据库的人的事。</strong></p>
+  <p><strong>【AI 是工作还是业余】</strong>两边都有。<strong>工作上是真的落地了一个内部系统，有两万多份文档，还有人在用</strong>；<strong>业余自己也搭过一个小的，主要是想验证不同切分策略对召回的影响</strong>。</p>
+  <p><strong>【怎么转过来的】</strong>我的顺序是<strong>先跑通再补原理</strong>。前端只有我一个人、后端没人接，所以先用最简单的框架把链路接起来，再回头补关系库设计、事务、缓存。<strong>验证方式是强迫自己在项目里替换掉临时方案。</strong>最难的是并发——前端是单线程思维，我一开始完全理解不了"两个人同时操作会怎样"，<strong>直到做缓存时真踩了一次，数据和缓存对不上，排查了很久才建立起这个概念。</strong></p>
+  <p><strong>【权衡】</strong>"先跑通再补原理"这个顺序<strong>有前提</strong>——只能用在出错代价低的地方。如果一开始就碰支付、账务这种不能出错的部分，必须先搞懂再动手。<strong>我当时做的第一版是内部工具，所以敢先跑起来。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>被问到一个你完全没用过的技术，说出你的三段答法。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>干脆承认</strong>："我没有在项目里用过。"——<strong>短促明确，不要用"了解一些"来绕。</strong></li>
+      <li><strong>说清你懂的相关部分</strong>：举同类技术里的实际经验，把话题从"这门语言"拉回"这类能力"。</li>
+      <li><strong>说明可迁移性</strong>：指出真正难的部分（工程判断）你已经有了，<strong>而不是承诺"我学得很快"</strong>。</li>
+    </ol>
+    <p>最后自检一句：<strong>你有没有说出"我学习能力强"？</strong>说了就删掉——那句话没有信息量，而且会让前面两句的可信度下降。</p>
+    <p>要记住的底线：<strong>承认不会不丢分，硬撑然后被戳破才丢分。</strong>而且第二三句一说，对方往往会顺着你熟的部分继续问——<strong>相当于你把话题引导到了自己的主场。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么"熟悉 XX"和"精通 XX"这两个词不能用？换成什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>因为它们没有公认的标准。</strong></p>
+    <p>你说"熟悉 Redis"，对方无法判断你指的是"会用几个基本命令"还是"能设计集群方案"。<strong>他只能自己去试——而试的方式通常是往深了问</strong>，问到你不会为止。这时候"熟悉"这个词就成了把柄。</p>
+    <p>替换结构：<strong>能做什么 + 不能做什么</strong>。</p>
+    <p>「Redis 我在项目里用过——<strong>能独立做缓存设计和常见问题排查</strong>（能做什么）；<strong>但集群和持久化的细节我还没处理过，一般会查资料或找人确认</strong>（不能做什么）。」</p>
+    <p>这个结构有个额外好处：<strong>你把边界主动画出来之后，对方更可能顺着你说了"能"的那部分问</strong>——等于你在引导话题走向自己的主场。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="04-experience-inventory.html">← 上一篇：经历与角色盘点</a>
+  <a href="06-requirements-and-progress.html">下一篇：接需求与推进项目 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

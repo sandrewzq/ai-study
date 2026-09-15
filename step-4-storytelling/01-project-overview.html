@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · 项目整体怎么讲 — 步骤 4 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 4 · 第 1/7 份 ｜ G 域 · 项目叙事与方案设计</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 4 · 讲故事</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item cur" href="01-project-overview.html"><span class="n">01</span><span>项目整体怎么讲</span></a></li>
+    <li><a class="item" href="02-project-facts.html"><span class="n">02</span><span>用户、功能与工期</span></a></li>
+    <li><a class="item" href="03-architecture-layers.html"><span class="n">03</span><span>架构分层与技术选型</span></a></li>
+    <li><a class="item" href="04-from-zero.html"><span class="n">04</span><span>从 0 到 1 与搭框架</span></a></li>
+    <li><a class="item" href="05-design-cases.html"><span class="n">05</span><span>方案设计题</span></a></li>
+    <li><a class="item" href="06-wecom-ecosystem.html"><span class="n">06</span><span>企微生态专题</span></a></li>
+    <li><a class="item" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>01 · 项目整体怎么讲</h1>
+<p class="lead">
+  「介绍一下你的项目」是<strong>每一轮都会问、而且决定后面聊什么</strong>的一道题。
+  这一页给你三档详略的标准版本——<strong>30 秒、2 分钟、深挖</strong>，按对方的兴趣切换。
+</p>
+
+<div class="qbadges"><span class="q">ML-1</span><span class="q">YF-1</span><span class="q">YU-16</span><span class="q">FN-5</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页假设你手上有<a href="../step-2-systems/index.html">步骤 2</a>做出来的项目和<a href="../step-3-frontend-and-cost/10-usage-and-cost.html">步骤 3</a>测出来的数字。<strong>没数字的话这一页只能看个结构，用不上。</strong>术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，理解三层详略分别用在哪。</div>
+  <div><b>第二遍（15 分钟）</b>读第 1、2 节，然后<strong>照着写出你自己的 30 秒版本</strong>。</div>
+  <div><b>第三遍</b>做页尾回忆卡，对着录音讲一遍 2 分钟版本。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方坐下来说：<strong>「先简单介绍一下你这个项目吧。」</strong></p>
+
+<p>这句话有两种理解，而大多数人选错了：</p>
+
+<div class="analogy">
+  <span class="tag">「简单介绍」不是让你讲简单，是让你讲短</span>
+  <p>很多人听到"简单介绍"，就开始铺垫背景：<em>我们公司是做什么的、这个业务怎么来的、当时有个什么契机……</em>讲了两分钟还没到正题。</p>
+  <p>对方的真实意思是：<strong>用最短的话让我知道这是个什么东西，然后我会挑感兴趣的地方追问。</strong></p>
+</div>
+
+<p>所以这道题的正确姿势是<strong>准备好三档长度</strong>，根据对方的反应切换——<strong>而不是准备一个固定长度的稿子。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 同一个项目，三档详略</p>
+  <h3>看你讲完之后，对方往哪追问</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 356" role="img" aria-label="项目介绍的三档详略结构">
+    <!-- 三档 -->
+    <rect class="box-s" x="20" y="42" width="220" height="130" rx="9"></rect>
+    <text x="130" y="64" text-anchor="middle" font-size="13" style="font-weight:600">30 秒 · 电梯版</text>
+    <text x="36" y="88" font-size="11.5">给谁用</text>
+    <text x="36" y="108" font-size="11.5">解决什么问题</text>
+    <text x="36" y="128" font-size="11.5">你负责哪块</text>
+    <text x="36" y="148" font-size="11.5">一个数字</text>
+    <text x="130" y="166" text-anchor="middle" font-size="11" class="lbl-muted">四句话，不超过 30 秒</text>
+
+    <rect class="box-m" x="258" y="42" width="250" height="130" rx="9"></rect>
+    <text x="383" y="64" text-anchor="middle" font-size="13" style="font-weight:600">2 分钟 · 标准版</text>
+    <text x="274" y="88" font-size="11.5">上面四句 +</text>
+    <text x="274" y="108" font-size="11.5">为什么要做（痛点）</text>
+    <text x="274" y="128" font-size="11.5">整体链路走一遍</text>
+    <text x="274" y="148" font-size="11.5">技术栈（按链路说）</text>
+    <text x="383" y="166" text-anchor="middle" font-size="11" class="lbl-muted">讲完主动停一下</text>
+
+    <rect class="box-d" x="526" y="42" width="254" height="130" rx="9"></rect>
+    <text x="653" y="64" text-anchor="middle" font-size="13" style="font-weight:600">深挖 · 看对方问什么</text>
+    <text x="542" y="88" font-size="11.5">问到架构 → 翻 03</text>
+    <text x="542" y="108" font-size="11.5">问到效果 → 讲优化</text>
+    <text x="542" y="128" font-size="11.5">问到难题 → 讲坑</text>
+    <text x="542" y="148" font-size="11.5">问到规模 → 报数字</text>
+    <text x="653" y="166" text-anchor="middle" font-size="11" class="lbl-muted">这时候才是你的主场</text>
+
+    <!-- 常见错误 -->
+    <text x="20" y="204" class="lbl-muted" font-size="13">两个最常见的错误</text>
+
+    <rect x="20" y="218" width="370" height="52" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="205" y="238" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">错误一：一上来就报技术栈</text>
+    <text x="205" y="258" text-anchor="middle" font-size="11.5" class="lbl-muted">"用了 Vue3 + NestJS + PostgreSQL + Redis + Milvus…"</text>
+
+    <rect x="410" y="218" width="370" height="52" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="595" y="238" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">错误二：大段铺垫背景</text>
+    <text x="595" y="258" text-anchor="middle" font-size="11.5" class="lbl-muted">"我们公司是做 XX 的，当时有个契机…"（两分钟还没到正题）</text>
+
+    <!-- 正确顺序 -->
+    <rect class="box-t" x="20" y="282" width="760" height="62" rx="8"></rect>
+    <text x="400" y="304" text-anchor="middle" font-size="13" style="font-weight:600">正确的顺序是「问题 → 方案 → 结果」，不是「技术 → 技术 → 技术」</text>
+    <text x="400" y="326" text-anchor="middle" font-size="12">先说解决谁的什么问题，再说你用什么办法解决的，最后说效果如何</text>
+    <text x="400" y="342" text-anchor="middle" font-size="11.5" class="lbl-muted">技术栈是"手段"，要挂在"问题"和"结果"上才有意义</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：同一个项目要准备<strong>三档长度</strong>。30 秒版本用来"让对方知道这是个什么"，2 分钟版本用来"把链路交代清楚"，<strong>深挖版本才是你真正得分的地方</strong>——但前提是前两档讲得干脆，对方才愿意往下问。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">关键那句：<strong>顺序是「问题 → 方案 → 结果」，不是「技术 → 技术 → 技术」。</strong>一上来报技术栈，对方既记不住也没有追问的抓手。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>最短版本</span>
+  <span><i style="background:var(--c-model)"></i>标准版本</span>
+  <span><i style="background:var(--c-data)"></i>追问才展开</span>
+  <span><i style="background:var(--c-risk)"></i>常见错误</span>
+  <span><i style="background:var(--c-tool)"></i>原则</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 30 秒版本：四句话</h2>
+
+<p>这四句话的<strong>顺序不能换</strong>，因为它对应的是听的人心里的四个问题。</p>
+
+<table>
+  <thead><tr><th style="width:16%">第几句</th><th style="width:30%">说什么</th><th>它在回答对方心里的什么问题</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>第一句</strong></td>
+      <td>这是个<strong>给谁用</strong>的什么系统。</td>
+      <td>"这东西的定位是什么？"——先归类，对方才能调用已有的认知框架去理解你后面说的东西。</td>
+    </tr>
+    <tr>
+      <td><strong>第二句</strong></td>
+      <td>它<strong>解决什么问题</strong>（没有它之前是怎么样的）。</td>
+      <td>"为什么需要它？"——<strong>这一句决定后面所有技术选择的合理性。</strong>没有痛点，你讲什么架构都是自嗨。</td>
+    </tr>
+    <tr>
+      <td><strong>第三句</strong></td>
+      <td><strong>你负责哪一块</strong>。</td>
+      <td>"你在里面干了什么？"——很多人讲了半天系统，却没说清自己的角色。</td>
+    </tr>
+    <tr>
+      <td><strong>第四句</strong></td>
+      <td><strong>一个数字</strong>（规模、效果、或者工期）。</td>
+      <td>"这东西是真的吗？"——数字是"真做过"的第一个证据，也是对方决定往哪追问的线索。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">套出来的样子（用你自己的填）</span>
+  <p>「这是一个<strong>给公司内部研发团队用</strong>的技术资料问答系统。以前大家查规范只能靠翻文件或者问人，<strong>新人上手要一两个月</strong>。我负责从检索链路到前端交互的<strong>全栈实现</strong>，目前库里有两万多份文档，<strong>常用问题的检索命中率在八成以上</strong>。」</p>
+  <p>四句话，二十多秒。<strong>对方立刻知道该往哪追问了</strong>——是问检索怎么做的，还是问命中率怎么测的。</p>
+</div>
+
+<div class="warn">
+  <span class="tag">为什么第四句是"一个数字"而不是"一堆数字"</span>
+  <p>因为 30 秒版本的目标是<strong>给对方一个追问的抓手</strong>，不是展示数据。</p>
+  <p>说一个最有代表性的就够（通常是效果类或规模类的）。<strong>一口气报五个数字，对方一个也记不住，还会觉得你在背稿。</strong></p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 2 分钟版本：怎么把链路讲顺</h2>
+
+<p>对方说了"展开讲讲"，你要在这两分钟里把<strong>整条链路</strong>走一遍。这里最容易犯的错是<strong>按技术分层讲</strong>（前端什么、后端什么、数据库什么）——听着像技术清单。</p>
+
+<p>更好的方式是<strong>按数据流讲</strong>：一个请求进来，依次经过了什么。</p>
+
+<div class="pipeline">
+  <details class="node d"><summary>① 用户做了什么</summary><div class="body">从一个具体动作切入，而不是从"系统由什么组成"切入。比如"用户输入一个问题"。<strong>有了具体动作，后面的每一步都自然。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>② 问题经过了哪几步</summary><div class="body">改写 → 检索 → 精排 → 组装上下文 → 调模型 → 流式返回。每一步<strong>一句话说清做了什么</strong>，先不展开为什么。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>③ 数据存在哪</summary><div class="body">文档切片、向量、会话记录、任务状态分别在哪。这一步顺带就把"用了什么数据库"交代了。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>④ 一句话收技术栈</summary><div class="body">走完链路之后再说"所以技术上是这些"，<strong>这时候技术栈是"对前面链路的总结"，而不是"开场白"。</strong></div></details>
+</div>
+
+<div class="analogy">
+  <span class="tag">把"用到哪些技术"讲得不流水账（<code>YF-1</code>）</span>
+  <p>这题的正确答法是<strong>每个技术都挂在一个理由上</strong>：</p>
+  <p>❌ "前端 Vue3，后端 NestJS，数据库 PostgreSQL，缓存 Redis，向量库 Milvus。"</p>
+  <p>✅ "后端用 NestJS，因为它<strong>自带依赖注入和模块划分</strong>，我们好几个人分模块开发不容易冲突；数据库用 PostgreSQL，主要看中它<strong>支持 JSON 字段和全文检索</strong>，一些非结构化数据不用再单独找存储；向量库选的是支持<strong>混合检索</strong>的那一类，因为我们后来发现纯向量召回效果不够。"</p>
+  <p><strong>每个选择都带一个"因为"</strong>——这就是"用过"和"列过"的差别。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「印象最深的项目」怎么选（<code>FN-5</code>）</h2>
+
+<p>这题的关键在<strong>选材</strong>，不在表达。选错了，后面怎么讲都平淡。</p>
+
+<div class="tree">
+  <p class="q">应该选哪个项目？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">别选"最大的"</span>最大的项目往往你只参与了很小一块，<strong>一追问细节就说不下去</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">别选"最成功的"</span>一路顺风的项目没有故事，讲出来就是流水账</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">要选"你解决过难题的"</span>判断标准很简单：<strong>这个项目里有没有一件事，是你最初不知道怎么办、后来搞定了的？</strong>有，就选它</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">最好还能覆盖多个域</span>如果这个项目同时能讲架构、能讲优化、能讲踩坑，那它一个人就能撑起整场</div>
+  </div>
+
+  <p class="q">讲的时候按什么顺序？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">先给结论</span>"我印象最深的是 XX 项目，因为它让我第一次真正理解了 YY。"——<strong>一句话定调，对方知道你接下来要讲什么</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">再讲难在哪</span>说清当时的约束和难点。<strong>难点要具体</strong>，不能是"时间紧任务重"这种空话</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">然后讲你怎么做的</span>试过什么、为什么最后选了这条</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">最后讲收获</span>不是"学到了很多"这种废话，而是<strong>具体的认知改变</strong>——"我以前以为 A，做完发现其实是 B"</div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>最后那句"收获"是拉开差距的地方。对比一下：</p>
+  <p>❌ "这个项目让我对 AI 应用有了更深的理解。"——<strong>等于没说</strong>。</p>
+  <p>✅ "我以前觉得 RAG 效果不好就换个更强的模型，做完这个项目才发现，<strong>大部分问题其实出在切分和精排上</strong>——检索回来的东西不对，模型再强也白搭。"</p>
+  <p>后者<strong>具体、可验证、还带一点反直觉</strong>，一听就是真做过。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「你在这个项目里具体负责什么？」</summary>
+  <p>这题<strong>几乎必问</strong>，而且很多人会答砸——要么说得太大（"整个系统都是我做的"），要么说得太虚（"我负责前端部分"）。</p>
+  <p>好的答法是<strong>说清"范围 + 深度"</strong>：</p>
+  <ul>
+    <li><strong>范围</strong>：参与了哪些模块，哪些是别人做的。<strong>坦率说清分工反而更可信</strong>——没有人会独立做出一个完整系统。</li>
+    <li><strong>深度</strong>：你负责的那块，你做到什么程度。是"按设计稿实现"，还是"方案也是我定的"。</li>
+    <li><strong>最难的那部分</strong>：明确指出哪一块是你攻下来的。<strong>这一句是重点。</strong></li>
+  </ul>
+  <p>例：「检索链路和前端是我做的，后端的基础设施是同事搭的。其中<strong>混合检索的排序策略</strong>是我自己调的——一开始只用向量召回，长尾问题效果很差，后来加了关键词检索和重排才稳定下来。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「如果重来一次，你会怎么改？」</summary>
+  <p>这是一道<strong>专门测反思能力</strong>的题，答不好会显得你没复盘过。别答"我觉得挺好的"，也别说一堆无关痛痒的小改动。</p>
+  <p>好的答法：<strong>指出一个当初的决策、说明当时的理由、再讲现在会怎么选</strong>。</p>
+  <p>「当时我为了快，把上下文治理直接做成了"超长就截断"。<strong>这么做上线是快了，但多轮对话到后面质量明显下滑</strong>。如果重来，我会一开始就把摘要做进去——虽然开发慢几天，但能省掉后来重构的功夫。」</p>
+  <p>注意这句里的三层：<strong>当初的决策 → 当时的取舍理由 → 现在的判断</strong>。第三层才是对方要的。</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「这个项目有多少人做？做了多久？」</summary>
+  <p>这题看着是问事实，其实在<strong>验证前面讲的东西是不是你做的</strong>。答的时候把数字和分工对上：</p>
+  <ul>
+    <li><strong>人力和时长要对得上工作量</strong>：一个人两周做出一个"两万份文档的知识库系统"是可信的（因为有现成框架）；但说"两个人两周从零做了一个完整的多 Agent 平台"就会让人起疑。</li>
+    <li><strong>阶段要能拆</strong>：调研、开发、联调、上线各占多久。<strong>能拆说明你真的经历过全过程。</strong></li>
+    <li><strong>和自己前面报的数字对得上</strong>：这一条最重要，见<a href="02-project-facts.html">下一份</a>。</li>
+  </ul>
+</details>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「介绍一下你的项目」</span>
+  <p><strong>【30 秒版】</strong>这是一个<strong>给内部研发团队用</strong>的技术资料问答系统。以前查规范只能翻文件或问人，<strong>新人上手要一两个月</strong>。我负责检索链路和前端的实现。<strong>目前库里两万多份文档，常用问题的命中率八成以上。</strong></p>
+  <p><strong>【展开：问题】</strong>核心痛点是<strong>资料散、版本多、找不到</strong>。而且这类问题有长尾——同一个意思有好几种问法，纯关键词搜索经常搜不到。</p>
+  <p><strong>【展开：方案】</strong>所以做成了 RAG。一个请求进来依次是：<strong>查询改写 → 向量加关键词的混合检索 → 重排 → 组装上下文 → 调模型 → 流式返回</strong>。前端负责流式渲染和断线续传。</p>
+  <p><strong>【技术选型】</strong>后端用 NestJS，因为它<strong>自带模块划分和依赖注入</strong>，多人分模块开发不容易冲突；数据库用 PostgreSQL，看中它<strong>同时支持 JSON 字段和全文检索</strong>，非结构化数据不用再单独找存储；向量库选支持<strong>混合检索</strong>的，因为纯向量召回在长尾问题上不够。</p>
+  <p><strong>【最深的坑】</strong>上线后发现有些问题答不准，<strong>一开始以为是模型不行</strong>，换了更强的模型提升有限。后来把检索结果打出来看，发现<strong>真正的问题是切片把表格切碎了</strong>——表格被切开之后语义就断了。改成按结构切、表格整体保留，效果才上去。</p>
+  <p><strong>【权衡】</strong>这套方案适合<strong>资料相对稳定、问题偏事实型</strong>的场景。如果是需要大量推理的任务，光靠检索补充上下文不够，得考虑别的方式。<strong>而且混合检索的排序权重是要按语料调的，换一套资料就得重新调一轮。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>用 30 秒介绍你自己的项目——四句话，按顺序说出。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>检查你的四句话是不是这四类：</p>
+    <ol>
+      <li><strong>给谁用 + 是什么</strong>：一句话定位，让对方能归类。</li>
+      <li><strong>解决什么问题</strong>：说清"没有它之前是怎么样的"，这是后面所有技术选择的依据。</li>
+      <li><strong>你负责哪块</strong>：明确自己的范围，别说"整个系统"。</li>
+      <li><strong>一个数字</strong>：规模或效果，选最有代表性的那一个。</li>
+    </ol>
+    <p>如果卡住了，通常是两个原因：<strong>要么第二句说不清</strong>（说明你没想清楚为什么做这个系统），<strong>要么第四句没有</strong>（说明数字还没测，回<a href="../step-3-frontend-and-cost/10-usage-and-cost.html">步骤 3 的用量口径</a>补）。</p>
+    <p>讲完记一下<strong>实际秒数</strong>。超过 40 秒就说明某一句太啰嗦了。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>对方问"你这个项目用到哪些技术"，你怎么答才不像背清单？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>核心原则：<strong>每个技术都挂在一个理由上，而且按链路顺序说，不按分层罗列。</strong></p>
+    <ol>
+      <li><strong>先说链路</strong>：一个请求进来经过哪几步。这样技术栈就是"链路的自然结果"，而不是孤立的清单。</li>
+      <li><strong>再逐个补"因为"</strong>：为什么选它、当时还考虑过什么、为什么没选。</li>
+      <li><strong>最后说一个"换过的"</strong>：如果某个技术中途换过，讲清为什么换——<strong>这比任何"因为"都更能证明你真的用过。</strong></li>
+    </ol>
+    <p>对比："我们用了 Redis" vs "<strong>一开始我们把会话状态放在数据库里，但每轮对话都要读写一次太慢，后来挪到 Redis 了</strong>"——后者一听就是踩过坑的人说的。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="00-how-to-study.html">← 上一篇：这一步骤怎么学</a>
+  <a href="02-project-facts.html">下一篇：用户、功能与工期 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · 响应式失效与排查 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 3/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item cur" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>03 · 响应式失效与排查</h1>
+<p class="lead">
+  「数据改了但页面没变」是前端最常见的 bug，也是<strong>能直接看出你有没有真做过项目</strong>的题。
+  这一页给的不是知识点，是一套<strong>能照着走的排查顺序</strong>。
+</p>
+
+<div class="qbadges"><span class="q">SH-37</span><span class="q">SH-38</span><span class="q">SH-39</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页建立在<a href="02-vue-reactivity.html">上一份（Vue 响应式原理）</a>之上。<strong>如果还不清楚 <code>defineProperty</code> 和 <code>Proxy</code> 的区别</strong>，先回去看那份，否则这页的排查顺序你只能背下来、理解不了。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看下面那棵树，记住排查的<strong>顺序</strong>。</div>
+  <div><b>第二遍（12 分钟）</b>读每一层"为什么"，把顺序变成理解。</div>
+  <div><b>第三遍</b>回忆卡里有一个真实场景，先自己走一遍排查再展开。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>用户反馈：<strong>"点了已读，红点没消失。"</strong></p>
+
+<p>你打开代码，找到那行：<code>this.list[0].read = true;</code>。加了 <code>console.log</code>，确认执行到了，值也确实变成 <code>true</code> 了。</p>
+
+<p>于是卡住了——<strong>数据明明变了，为什么页面不动？</strong></p>
+
+<p>这时候大多数人的做法是<strong>开始猜</strong>：是不是要加 <code>$forceUpdate</code>？是不是 <code>key</code> 写错了？然后一个个试过去，试到某个能用了就收工——<strong>但并不知道为什么</strong>。下次遇到换个样子，还是不会。</p>
+
+<p>这道题（<code>SH-39</code>）真正想看的，是<strong>你有没有一套固定顺序</strong>，而不是你能不能猜对。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 照着这个顺序走，不要跳步</p>
+  <h3>四层往下筛：每一层排除掉一半可能</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 360" role="img" aria-label="响应式失效的四层排查顺序">
+    <!-- 第 1 层 -->
+    <rect class="box-m" x="20" y="34" width="240" height="46" rx="8"></rect>
+    <text x="140" y="55" text-anchor="middle" font-size="13" style="font-weight:600">① 数据真的变了吗</text>
+    <text x="140" y="72" text-anchor="middle" font-size="12" class="lbl-muted">打印 / 看调试面板</text>
+    <text x="272" y="62" class="lbl-muted" font-size="12.5">没变 → 问题在赋值那行，跟响应式无关</text>
+
+    <!-- 第 2 层 -->
+    <rect class="box-m" x="20" y="100" width="240" height="46" rx="8"></rect>
+    <text x="140" y="121" text-anchor="middle" font-size="13" style="font-weight:600">② 是"响应式地"改的吗</text>
+    <text x="140" y="138" text-anchor="middle" font-size="12" class="lbl-muted">走没走框架能感知的路径</text>
+    <text x="272" y="122" class="lbl-muted" font-size="12.5">没走 → 见下方</text>
+    <rect x="272" y="132" width="506" height="30" rx="6" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="525" y="152" text-anchor="middle" fill="var(--c-risk)" font-size="12.5">下标赋值 / 改长度 / 增删属性 / 直接替换整个对象</text>
+
+    <!-- 第 3 层 -->
+    <rect class="box-m" x="20" y="176" width="240" height="46" rx="8"></rect>
+    <text x="140" y="197" text-anchor="middle" font-size="13" style="font-weight:600">③ 模板用到了它吗</text>
+    <text x="140" y="214" text-anchor="middle" font-size="12" class="lbl-muted">依赖有没有被收集到</text>
+    <text x="272" y="198" class="lbl-muted" font-size="12.5">没用到 → 数据变了也不会触发渲染</text>
+
+    <!-- 第 4 层 -->
+    <rect class="box-m" x="20" y="252" width="240" height="46" rx="8"></rect>
+    <text x="140" y="273" text-anchor="middle" font-size="13" style="font-weight:600">④ 渲染了但被挡住了吗</text>
+    <text x="140" y="290" text-anchor="middle" font-size="12" class="lbl-muted">条件渲染 / 缓存 / 样式</text>
+    <text x="272" y="274" class="lbl-muted" font-size="12.5">渲染了但看不见 → 那就不是响应式的问题了</text>
+
+    <!-- 箭头 -->
+    <text x="304" y="216" class="lbl-muted" font-size="18">↓</text>
+    <text x="304" y="140" class="lbl-muted" font-size="18"></text>
+
+    <!-- 结论条 -->
+    <rect class="box-s" x="20" y="318" width="758" height="32" rx="7"></rect>
+    <text x="399" y="339" text-anchor="middle" font-size="13" style="font-weight:600">每往下一层，可能性就少一半 —— 先定位在哪一层，再谈怎么修</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：这四层是<strong>按"发生的先后顺序"排的</strong>——先确认数据变了没，再看改的方式对不对，再看模板有没有依赖，最后才怀疑渲染和样式。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">大部分人卡住是因为<strong>直接从第四层开始猜</strong>（试 <code>$forceUpdate</code>、改 <code>key</code>），跳过了前三层。<strong>按顺序走，通常两分钟就能定位。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>排查步骤</span>
+  <span><i style="background:var(--c-risk)"></i>最常见的失效原因</span>
+  <span><i style="background:var(--c-store)"></i>结论</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 第 ② 层：什么算「响应式地改」</h2>
+
+<p>这是<strong>绝大多数 bug 的所在层</strong>，也是 <code>SH-38</code> 那道题问的东西。判断标准只有一条：<strong>这次修改有没有经过框架能感知的路径。</strong></p>
+
+<table>
+  <thead><tr><th style="width:26%">写法</th><th style="width:16%">Vue 2</th><th style="width:16%">Vue 3</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>obj.key = 1</code><br><span class="lbl-muted">改已有属性</span></td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td>两者都支持，这是最常见的写法。</td>
+    </tr>
+    <tr>
+      <td><code>obj.newKey = 1</code><br><span class="lbl-muted">新增属性</span></td>
+      <td style="color:var(--c-risk)">❌ 不响应</td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td>Vue 2 要在初始化时就装好监听器，事后新增的没有；得用 <code>$set</code>。</td>
+    </tr>
+    <tr>
+      <td><code>delete obj.key</code><br><span class="lbl-muted">删除属性</span></td>
+      <td style="color:var(--c-risk)">❌ 不响应</td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td>同上。</td>
+    </tr>
+    <tr>
+      <td><code>list[0] = 'x'</code><br><span class="lbl-muted">数组下标赋值</span></td>
+      <td style="color:var(--c-risk)">❌ 不响应</td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td>Vue 2 靠重写数组方法来感知变化，下标赋值<strong>不经过任何方法</strong>；要用 <code>splice</code> 或 <code>$set</code>。</td>
+    </tr>
+    <tr>
+      <td><code>list.length = 0</code><br><span class="lbl-muted">改数组长度</span></td>
+      <td style="color:var(--c-risk)">❌ 不响应</td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td>同理。Vue 2 里清空数组要用 <code>splice(0)</code>。</td>
+    </tr>
+    <tr>
+      <td><code>this.list = [...]</code><br><span class="lbl-muted">整体替换</span></td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td style="color:var(--c-store)">✅ 响应</td>
+      <td>前提是这个字段<strong>本身</strong>是响应式的。很多人以为"整体替换最保险"，其实它和上面几条是两个维度。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">Vue 3 里还有一类坑：解构</span>
+  <p>Vue 3 用 <code>reactive</code> 包了对象，然后<strong>解构取值</strong>：</p>
+  <div class="skeleton">
+    <span class="tag">看起来没问题</span>
+    <p><code>const { count } = state;</code>　→　之后改 <code>count</code> 不影响 <code>state.count</code></p>
+  </div>
+  <p>原因是：解构拿到的是<strong>某一刻的普通值</strong>，不是代理。代理那层被丢掉了，后面的修改自然和框架无关。</p>
+  <p>解法是用 <code>toRefs</code> 把每个字段转成"保持连接的引用"，或者干脆不解构、始终写 <code>state.count</code>。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 第 ③ 层：模板没用到，就永远不更新</h2>
+
+<p>这一层容易被忽略，但很好判断：<strong>你改的那个数据，在当前模板（或计算属性、侦听器）里被读到了吗？</strong></p>
+
+<p>响应式的工作方式是"读到才记一笔"。如果某个字段从没被渲染逻辑读过，它变了也不会触发任何更新——<strong>这不是 bug，是设计如此</strong>。</p>
+
+<p>常见的三种踩法：</p>
+
+<table>
+  <thead><tr><th style="width:32%">场景</th><th>为什么会这样</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>数据放在组件里，但<strong>渲染用的是另一份拷贝</strong></td>
+      <td>你改了 A，模板读的是 B。常见于"初始化时把接口数据复制了一份"。<strong>要么直接用响应式那份，要么改完记得同步。</strong></td>
+    </tr>
+    <tr>
+      <td>数据在子组件里改，但<strong>父组件没监听</strong></td>
+      <td>子组件改了 prop 对应的副本，父组件那份没动。正确做法是<strong>通知父组件改</strong>，而不是自己改副本。</td>
+    </tr>
+    <tr>
+      <td>只在<code>mounted</code>里读了一次，之后靠 JS 直接改 DOM</td>
+      <td>绕过框架改 DOM，框架不知道，下次渲染会把它覆盖回去。<strong>这是"改了闪一下又变回来"的典型原因。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 第 ④ 层：渲染了但你看不见</h2>
+
+<p>走到这一层说明<strong>响应式是好的</strong>，问题在别处。常见四类：</p>
+
+<div class="pipeline">
+  <details class="node d"><summary>条件渲染挡住了</summary><div class="body">外面套着 <code>v-if</code>，条件没成立，整个块根本没渲染。改了里面的数据当然没反应。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>被缓存了</summary><div class="body">列表用了 <code>key</code> 做复用，或者组件被 <code>keep-alive</code> 缓存。数据换了但复用了旧节点。<strong><code>key</code> 用下标是经典错误</strong>——删掉中间一项后，后面的项全都错位复用。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>样式把它藏了</summary><div class="body">DOM 确实更新了，但被别的元素盖住、透明度为 0、或者高度为 0。<strong>用调试面板看一眼节点内容就知道。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>第三方库接管了这块 DOM</summary><div class="body">图表库、富文本编辑器这类会自己管理 DOM。它们渲染过之后，框架的更新可能被覆盖。<strong>解法是让它们跟着数据重绘，而不是指望框架改它们。</strong></div></details>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. Vue 3 做了哪些优化（<code>SH-37</code>）</h2>
+
+<p>这道题问的是<strong>整条链路</strong>，不只是响应式。分两层答，条理立刻就出来了：</p>
+
+<table>
+  <thead><tr><th style="width:20%">层面</th><th style="width:38%">做了什么</th><th>解决了什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>数据层</strong></td>
+      <td>用 <code>Proxy</code>，并且<strong>用到哪一层才代理哪一层</strong></td>
+      <td>初始化时不用把所有层级都递归处理一遍，大对象启动更快；同时把上一节那批"改不到的写法"全都覆盖了。</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>渲染层</strong><br><span class="lbl-muted">编译阶段完成</span></td>
+      <td><strong>静态提升</strong>：模板里不变的部分只创建一次，之后复用</td>
+      <td>不用每次渲染都重新创建这些节点。</td>
+    </tr>
+    <tr>
+      <td><strong>补丁标记</strong>：编译时就标出"这个节点会变、变的是文字还是属性"</td>
+      <td>更新时<strong>跳过静态节点的比对</strong>，直奔该改的地方，省掉大量比对开销。</td>
+    </tr>
+    <tr>
+      <td><strong>事件缓存</strong>：绑定的事件函数缓存复用，不每次重建</td>
+      <td>减少无谓的函数创建和比对。</td>
+    </tr>
+    <tr>
+      <td><strong>打包层</strong></td>
+      <td>功能拆成按需引入的模块，没用到的会被摇掉</td>
+      <td>运行时体积更小，首屏更快。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>大多数人的答案是"用了 Proxy，所以更快"——<strong>这个答案只对了一小半</strong>。</p>
+  <p>更好的答法：「Vue 3 的提速<strong>主要来自编译阶段</strong>：静态提升和补丁标记让它在编译期就知道哪里会变，运行时可以跳过大量比对。<strong>Proxy 解决的是"能不能感知变化"的问题，不是"快不快"的问题</strong>——反倒是它在单次读写上多了一层拦截开销。」</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「数据变了视图没更新，你怎么排查」</span>
+  <p><strong>【结论】</strong>我会<strong>按四层顺序查，不跳步</strong>：数据变没变 → 改的方式对不对 → 模板有没有用到 → 渲染了是不是被挡住。每往下一层，可能性就少一半。</p>
+  <p><strong>【第一层】</strong>先确认数据真的改了。<strong>很多人卡在这里</strong>——以为是响应式问题，其实是赋值那行根本没执行（异步没回来、条件没进）。</p>
+  <p><strong>【第二层】</strong>这是绝大多数问题的所在。判断标准是<strong>"这次修改有没有经过框架能感知的路径"</strong>。Vue 2 里下标赋值、改长度、增删属性都绕开了监听；Vue 3 里这几种基本没了，但多了<strong>解构丢响应性</strong>这个坑。</p>
+  <p><strong>【第三层】</strong>数据改了、改的方式也对，但模板从没读过它，依赖没收集，自然不更新。常见于"渲染用的是另一份拷贝"。</p>
+  <p><strong>【第四层】</strong>如果 DOM 确实更新了只是看不见，那就和响应式无关了：条件渲染、`key` 复用、样式遮挡、或者第三方库接管了这块 DOM。</p>
+  <p><strong>【数字/经验】</strong>实际项目里我遇到最多的是第二层——Vue 2 老代码里给列表项补字段，直接点上去，红点不消失；换成 <code>$set</code> 就好了。<strong>定位花了不到两分钟，因为按顺序走的，没有靠猜。</strong></p>
+  <p><strong>【权衡】</strong>不建议一上来就用强制刷新那种粗暴手段——它能"修好"现象，但会<strong>掩盖真正的依赖问题</strong>，而且让后续渲染变慢。先定位，再决定要不要绕。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「为什么会设计成这样？不能一开始就把所有情况都覆盖吗？」</summary>
+  <p>这是个<strong>好问题</strong>，答好了能显出你理解取舍：</p>
+  <ul>
+    <li><strong>能力所限</strong>：Vue 2 用的那个 API <strong>只能对已存在的属性定义读写拦截</strong>，它没有"监听对象结构变化"的能力。这不是设计者偷懒，是当时语言层面只有这个工具。</li>
+    <li><strong>代价问题</strong>：就算能，也未必值得。<strong>遍历得越深、初始化越慢</strong>。Vue 2 对深层次的大对象启动慢，就是这个原因。</li>
+    <li><strong>所以 Vue 3 换了工具</strong>：新工具能在<strong>对象这一层</strong>拦截，结构变化自然就覆盖了，而且能做成"用到才代理"。</li>
+  </ul>
+  <p>收尾：<strong>"框架的很多限制，都是它诞生那个年代的技术约束留下的痕迹。"</strong>这句话能显出你不是只会用 API。</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「那 React 有类似的问题吗？」</summary>
+  <p>有，但形态不同，<strong>能说清区别很加分</strong>：</p>
+  <ul>
+    <li>React <strong>没有"监听数据"这回事</strong>，它靠你主动调更新函数触发重渲染。所以不存在"改了但框架不知道"——你改的如果是普通变量，<strong>它压根不会重渲染</strong>，这反而是更直白的表现。</li>
+    <li>React 的经典坑是另一个：<strong>直接改原对象/数组</strong>（<code>list.push(x)</code>、<code>obj.a = 1</code>）之后调更新函数，因为<strong>引用没变</strong>，比对时被认为"没变"，可能跳过更新。所以 React 里要<strong>返回新对象</strong>（展开运算符那套）。</li>
+  </ul>
+  <p>一句话对比：<strong>Vue 的问题是"改的方式框架看不见"，React 的问题是"引用没变所以框架认为没改"。</strong></p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>同事说"我改了 <code>this.userInfo.name</code>，页面没变"，但你看了代码，<code>userInfo</code> 是 <code>data</code> 里定义的、<code>name</code> 也是初始化时就有的。<strong>这时候你怎么查？</strong></p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>注意：<strong>这个场景已经排除了第二层最典型的那批原因</strong>（不是新增属性、不是下标赋值），所以更要按顺序走：</p>
+    <ol>
+      <li><strong>先确认数据真变了</strong>：打印一下 <code>userInfo.name</code>。有可能代码根本没执行到，或者异步还没回来。</li>
+      <li><strong>看改的是不是同一份数据</strong>：经常是 <code>userInfo</code> 被整体替换过，或者模板里绑的是父组件传进来的那份，你改的是本地那份。<strong>这一层最容易中招。</strong></li>
+      <li><strong>看模板读到了没</strong>：模板里是不是写了 <code>userInfo.name</code>？如果只在某个 <code>v-if</code> 分支里、而那个分支没渲染，那它压根没被读到。</li>
+      <li><strong>看是不是渲染了但看不见</strong>：节点内容变了但被样式或兄弟元素盖住。</li>
+    </ol>
+    <p>如果四层都不是，再考虑<strong>异步更新队列</strong>的问题——数据改了但渲染还没轮到，此时立刻去读 DOM 会拿到旧值，要用等待更新完成之后再读。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>Vue 2 里清空一个列表，下面三种写法哪种能触发更新？为什么？<br><code>list = []</code>　/　<code>list.length = 0</code>　/　<code>list.splice(0)</code></p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ul>
+      <li><code>list = []</code> —— ✅ <strong>可以</strong>。这是给 <code>list</code> 这个<strong>字段本身</strong>赋值，而这个字段是初始化时就定义好的响应式属性，所以能被感知。<strong>注意：前提是它得是 <code>data</code> 里的字段。</strong></li>
+      <li><code>list.length = 0</code> —— ❌ <strong>不行</strong>。改长度不经过任何被重写的数组方法，框架收不到通知。</li>
+      <li><code>list.splice(0)</code> —— ✅ <strong>可以</strong>。<code>splice</code> 是被重写的 7 个方法之一，调用后框架会收到通知。</li>
+    </ul>
+    <p>这题的关键区分是：<strong>"改字段本身"和"改数组内部"是两条不同的路径</strong>。前者天然响应，后者要看有没有走那几个被重写的方法。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="02-vue-reactivity.html">← 上一篇：Vue 响应式原理</a>
+  <a href="04-css3-and-animation.html">下一篇：CSS3 与动画 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

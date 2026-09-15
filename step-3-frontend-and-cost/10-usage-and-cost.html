@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · 用量与成本口径 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 10/11 份 ｜ F 域 · 量化指标与成本</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item cur" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>10 · 用量与成本口径</h1>
+<p class="lead">
+  这一页是 F 域的地基：<strong>教你怎么把数字一层层推出来</strong>。
+  数字本身不重要，重要的是<strong>它能不能自圆其说</strong>——被追问时能当场推导，和背下来的，听起来完全是两回事。
+</p>
+
+<div class="qbadges"><span class="q">ML-11</span><span class="q">ML-12</span><span class="q">ML-13</span><span class="q">HJ-1</span><span class="q">HJ-9</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页<strong>依赖你已经有一个真的跑过的系统</strong>（步骤 2 做的那个）。没有项目的话，这些数字填不出来——先回去把项目跑起来，或者自己搭一个最小可用的版本。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图——记住那条推导链。</div>
+  <div><b>第二遍（15 分钟）</b>读第 1、3 节，然后<strong>拿笔把自己的数字填一遍</strong>。</div>
+  <div><b>第三遍</b>做页尾回忆卡，检查你的数字互相之间有没有矛盾。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「你这个系统日活多少？」</strong></p>
+
+<p>你答：「日活一万。」</p>
+
+<p>对方接着问：<strong>「那并发峰值大概多少？」</strong></p>
+
+<p>你随口答：「五万吧。」</p>
+
+<p><strong>这一下就露了。</strong></p>
+
+<p>不是因为你答错了数字，而是因为这两个数字<strong>互相矛盾</strong>——日活一万的系统，同一时刻在线的怎么可能是五万？对方一句"日活一万怎么会同时有五万人在线"就能把你问住。</p>
+
+<p>F 域这 8 道题，考的从来不是"数字大不大"，而是<strong>你知不知道自己说的数字意味着什么</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 数字要一条链推出来，不能一个个背</p>
+  <h3>业务规模 → 用户量 → 调用量 → 用量 → 成本</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 330" role="img" aria-label="用量与成本的推导链">
+    <text x="20" y="26" class="lbl-muted">每一层都由上一层推出来 —— 这样怎么追问都不会矛盾</text>
+
+    <!-- 第一层 -->
+    <rect class="box-d" x="20" y="42" width="150" height="58" rx="8"></rect>
+    <text x="95" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">① 业务规模</text>
+    <text x="95" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">面向多少人</text>
+    <text x="95" y="96" text-anchor="middle" font-size="11.5" class="lbl-muted">内网？对外？</text>
+
+    <text x="178" y="76" class="lbl-muted" font-size="15">→</text>
+
+    <!-- 第二层 -->
+    <rect class="box-d" x="202" y="42" width="150" height="58" rx="8"></rect>
+    <text x="277" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">② 用户量</text>
+    <text x="277" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">注册 / 日活 / 周活</text>
+    <text x="277" y="96" text-anchor="middle" font-size="11.5" class="lbl-muted">说清是哪个口径</text>
+
+    <text x="360" y="76" class="lbl-muted" font-size="15">→</text>
+
+    <!-- 第三层 -->
+    <rect class="box-m" x="384" y="42" width="150" height="58" rx="8"></rect>
+    <text x="459" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 调用量</text>
+    <text x="459" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">日活 × 人均次数</text>
+    <text x="459" y="96" text-anchor="middle" font-size="11.5" class="lbl-muted">再推峰值</text>
+
+    <text x="542" y="76" class="lbl-muted" font-size="15">→</text>
+
+    <!-- 第四层 -->
+    <rect class="box-m" x="566" y="42" width="214" height="58" rx="8"></rect>
+    <text x="673" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">④ 用量与成本</text>
+    <text x="673" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">token 分输入输出算</text>
+    <text x="673" y="96" text-anchor="middle" font-size="11.5" class="lbl-muted">单价 × 用量</text>
+
+    <!-- 三个最容易自相矛盾的地方 -->
+    <text x="20" y="140" class="lbl-muted" font-size="13">三个最常见的自相矛盾</text>
+
+    <rect x="20" y="156" width="242" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="141" y="178" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">① 把注册量当日活</text>
+    <text x="141" y="198" text-anchor="middle" font-size="11.5" class="lbl-muted">注册量通常远大于日活</text>
+    <text x="141" y="216" text-anchor="middle" font-size="11.5" class="lbl-muted">一追问"每天多少人在线"就露</text>
+
+    <rect x="279" y="156" width="242" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="400" y="178" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">② 把日活当并发</text>
+    <text x="400" y="198" text-anchor="middle" font-size="11.5" class="lbl-muted">这两个不是一回事</text>
+    <text x="400" y="216" text-anchor="middle" font-size="11.5" class="lbl-muted">并发要除以时间再乘峰值系数</text>
+
+    <rect x="538" y="156" width="242" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="659" y="178" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">③ 成本只算输出</text>
+    <text x="659" y="198" text-anchor="middle" font-size="11.5" class="lbl-muted">输入和输出都要算</text>
+    <text x="659" y="216" text-anchor="middle" font-size="11.5" class="lbl-muted">而且输入往往是更大的那块</text>
+
+    <!-- 口径纪律 -->
+    <rect class="box-s" x="20" y="250" width="760" height="66" rx="8"></rect>
+    <text x="400" y="272" text-anchor="middle" font-size="13" style="font-weight:600">说数字时永远带上口径</text>
+    <text x="400" y="294" text-anchor="middle" font-size="12">不说"日活一万"，说"累计注册 X 万，其中日活一万左右"</text>
+    <text x="400" y="310" text-anchor="middle" font-size="12" class="lbl-muted">带上口径，对方就知道你分得清这些概念</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：数字要<strong>一条链推出来</strong>——先有业务规模，才有用户量；有用户量才能推调用量；有调用量才能算用量和成本。这样推出来的数字，<strong>怎么追问都不会互相打架</strong>。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">反过来，一个个单独背数字，就一定会出现"日活一万、并发五万"这种矛盾——<strong>因为背的时候没想过它们之间的关系</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-data)"></i>业务的客观事实</span>
+  <span><i style="background:var(--c-model)"></i>由事实推导出来的</span>
+  <span><i style="background:var(--c-risk)"></i>容易矛盾的地方</span>
+  <span><i style="background:var(--c-store)"></i>纪律</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 用户量怎么答（<code>ML-11</code>）</h2>
+
+<p>这题看起来只是报数，其实在测<strong>你分不分得清几个"用户量"的概念</strong>。它们差别很大，混用会立刻暴露。</p>
+
+<table>
+  <thead><tr><th style="width:20%">口径</th><th style="width:32%">什么意思</th><th>什么时候用</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>注册量</strong></td>
+      <td>累计注册过的总数，<strong>只增不减</strong>。</td>
+      <td>说"系统规模"时可以用，但<strong>不能拿来当活跃度</strong>——很多人注册完就再没来过。</td>
+    </tr>
+    <tr>
+      <td><strong>日活</strong></td>
+      <td>某一天里真正用过的去重人数。</td>
+      <td><strong>最常用的口径</strong>，因为它能往下推调用量。答题时说这个最稳。</td>
+    </tr>
+    <tr>
+      <td><strong>周活 / 月活</strong></td>
+      <td>一周或一个月内的去重人数。</td>
+      <td>比日活大（时间窗口更长）。<strong>说的时候一定要带上限定词</strong>，否则听的人会默认你在说日活。</td>
+    </tr>
+    <tr>
+      <td><strong>峰值在线</strong></td>
+      <td>某一刻同时在线的人数。</td>
+      <td>这个才和"并发"相关，<strong>但也不等于并发</strong>——在线不等于正在发请求。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">回答模板</span>
+  <p>「<strong>累计注册大概 X 万，日活稳定在 Y 左右，周活大概是日活的三倍。</strong>这是内部系统，所以用户增长比较平缓，日均使用时长大概十几分钟。」</p>
+  <p>这个答法的好处：<strong>一次给出三个口径并说清关系，还补了业务性质</strong>——对方立刻知道你分得清，也知道你的系统是什么形态。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 调用量和并发怎么推（<code>ML-12</code>、<code>HJ-9</code>）</h2>
+
+<p>这两题是<strong>最容易答出矛盾</strong>的地方，因为大部分人会把"日活"和"并发"混为一谈。先把它们彻底分开：</p>
+
+<div class="tree">
+  <p class="q">① 日活 ≠ 并发，差在哪？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">日活是"一天里有多少人"</span>是一整天累积的、去重的<strong>人数</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">并发是"某一刻有多少请求"</span>是同一个瞬间的<strong>请求数</strong>。一万日活用了一整天，平均到每一秒其实没几个</div>
+  </div>
+
+  <p class="q">② 那并发怎么估？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">第一步：算日调用量</span>日活 × 人均调用次数。<strong>人均次数要说得出来源</strong>（比如"每个用户平均问 5 次"），别凭空给。</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">第二步：摊到时间上</span>把日调用量除以"真正有流量的时长"。<strong>不要除以 24 小时</strong>——业务通常集中在工作时间，算出来会偏小。</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">第三步：乘峰值系数</span>真实流量不是均匀的，早晚高峰会集中。<strong>一般乘 3 到 5 倍</strong>，得到峰值每秒请求数。</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">结果检验</span>如果算出来的峰值<strong>比日活还大</strong>，那一定算错了——说明前面某一步用错了口径。</div>
+  </div>
+
+  <p class="q">③ 部署在哪里？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">说清形态</span>云主机还是自建机房；几台机器、什么规格；有没有做负载均衡</div>
+    <div class="a"><span class="yn" style="color:var(--c-data)">说清分布</span>服务、数据库、向量库分别部署在哪；静态资源走不走内容分发</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">别夸张</span><strong>"几十台机器扛百万并发"这种话，一追问配置就崩。</strong>诚实说"两台云主机 + 托管数据库"完全没问题——<strong>量级不大不是缺点，说不清才是。</strong></div>
+  </div>
+</div>
+
+<div class="analogy">
+  <span class="tag">一个能救场的话术</span>
+  <p>如果被问到"你们有没有做高并发优化"，而你的系统量级其实不大，<strong>不要硬撑</strong>：</p>
+  <p>「我们的量级还不算高并发——<strong>峰值每秒也就几十个请求</strong>，所以目前的架构是够用的。但我做过压力测试，也了解量级上去之后要先做什么：<strong>先加缓存、再读写分离、然后是队列削峰，最后才考虑分库分表</strong>。」</p>
+  <p>这样答<strong>既诚实又显示了判断力</strong>——比编一个"我们扛住了百万并发"安全得多。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. token 用量怎么算（<code>ML-13</code>、<code>HJ-1</code>）</h2>
+
+<p>token 是成本的主要构成，<strong>必须分开算输入和输出</strong>——两者单价差好几倍，而且<strong>在 RAG 类场景里输入通常是大头</strong>（因为要把检索到的资料塞进去）。</p>
+
+<table>
+  <thead><tr><th style="width:22%">要算的</th><th style="width:34%">怎么算</th><th>注意</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>单次请求的用量</strong></td>
+      <td><strong>输入和输出分开估</strong>。输入包括：系统提示 + 历史对话 + 检索到的资料 + 用户问题。输出就是模型生成的内容。</td>
+      <td><strong>RAG 场景下输入会远大于输出</strong>——检索回来几段资料就是几百上千 token。这一点要说出来，很显专业。</td>
+    </tr>
+    <tr>
+      <td><strong>日均总量</strong></td>
+      <td>日调用量 × 单次用量，输入输出分别乘。</td>
+      <td>别忘了<strong>失败重试也会消耗</strong>，实际用量通常比理论值高一些。</td>
+    </tr>
+    <tr>
+      <td><strong>成本</strong></td>
+      <td>输入用量 × 输入单价 + 输出用量 × 输出单价，再加上其他部分（向量库、服务器、存储）。</td>
+      <td><strong>模型调用通常占大头</strong>，其他部分占比小但也别漏。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">「你个人一个月用多少 token」（<code>HJ-1</code>）—— 这题要特别小心</span>
+  <p>这道题<strong>不考算术，考的是"你本人到底用不用 AI"</strong>。答"没算过"或者给一个离谱的数（比如"几百万"），都会让对方怀疑你日常根本不用。</p>
+  <p><strong>正确的答法是把用量拆开说</strong>，这样既真实又能推导：</p>
+  <ul>
+    <li><strong>日常对话</strong>：每天多少次、每次大概多少量。写代码、查资料这类，单次输入输出都不小。</li>
+    <li><strong>跑自动化任务</strong>：比如让 AI 批量处理文件、生成文档，这部分往往是<strong>用量的大头</strong>。</li>
+    <li><strong>自己的小项目</strong>：开发调试时的调用量。</li>
+  </ul>
+  <p>最后给一个<strong>能对上的总数</strong>，并说明"我主要用在哪"——<strong>重点不是数字大小，是你能说出它花在哪</strong>。</p>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这组题的统一纪律</span>
+  <p><strong>说任何数字，都带上口径和推导。</strong></p>
+  <p>❌ "日活一万，并发五万。"<br>✅ "累计注册 X 万，日活一万左右；人均每天问 5 次，算下来日调用 5 万次；<strong>集中在工作时间</strong>，平均每秒一两次，<strong>乘个 3 到 5 倍的峰值系数</strong>，峰值大概每秒十几次。"</p>
+  <p>后者长很多，但<strong>每一句都能接追问</strong>——这才是这一组题要的东西。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「用户量多少 / 调用量多少 / token 多少 / 并发多少」</span>
+  <p><strong>【结论】</strong>我习惯<strong>把数字当成一条链来说，而不是一个个报</strong>：业务规模 → 用户量 → 调用量 → token 用量 → 成本。<strong>后面每一项都由前面推出来。</strong></p>
+  <p><strong>【用户量】</strong>累计注册 X 万，<strong>日活稳定在 Y 左右</strong>，周活大概是日活的三倍。这是内部系统，增长平缓。</p>
+  <p><strong>【调用量】</strong>日活 × 人均调用次数 = 日调用量；<strong>摊到真正的业务时长上</strong>（不是 24 小时），再乘 3 到 5 倍的峰值系数，得到峰值每秒请求数。<strong>并发和日活是两个概念</strong>——日活是一天累积的人数，并发是某一刻的请求数。</p>
+  <p><strong>【token】</strong><strong>输入和输出分开算</strong>。输入包括系统提示、历史对话和检索回来的资料——<strong>在 RAG 场景里输入远大于输出</strong>，这是成本的主要来源。日均总量等于日调用量乘单次用量，还要考虑失败重试的额外消耗。</p>
+  <p><strong>【部署】</strong>两台云主机加托管数据库，前面有负载均衡；向量库是托管服务；静态资源走内容分发。<strong>量级不算大，所以没做分库分表。</strong></p>
+  <p><strong>【开销】</strong>成本里模型调用占大头，向量库和服务器占小头。具体降本做了什么、降了多少，见<a href="11-cost-optimization.html">下一份</a>。</p>
+  <p><strong>【权衡】</strong>我不会为了让数字好看而夸大——<strong>量级不大不是问题，说不清口径才是问题</strong>。而且这些数字我都能当场推导一遍，不是背下来的。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>你的系统日活 2000，估算一下峰值每秒请求数，说出每一步。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>先定人均调用次数</strong>：假设每个活跃用户每天问 5 次。这个数要说得出来源，不能凭空给。</li>
+      <li><strong>算日调用量</strong>：2000 × 5 = <strong>1 万次/天</strong>。</li>
+      <li><strong>摊到业务时长</strong>：假设流量集中在 8 小时内（<strong>不要除 24 小时</strong>），1 万 ÷ (8×3600) ≈ <strong>每秒 0.35 次</strong>。</li>
+      <li><strong>乘峰值系数</strong>：取 5 倍，得到峰值大约 <strong>每秒 2 次</strong>。</li>
+      <li><strong>检验</strong>：峰值 2 次/秒远远小于日活 2000，<strong>数量级合理</strong>。</li>
+    </ol>
+    <p>然后主动补一句体现分寸的话：「<strong>这个量级其实很轻，一台普通服务器绰绰有余</strong>。所以我们的难点不在并发，而在响应质量和成本控制。」</p>
+    <p><strong>注意</strong>：具体数字按你自己的系统说，这里是演示推导过程。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「我们日活十万」和「我们峰值每秒一万请求」——哪一个更能说明系统压力大？为什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>第二个更能说明压力</strong>，因为并发才是真正压垮系统的东西。</p>
+    <ul>
+      <li><strong>日活十万</strong>听起来大，但它是一整天累积的。如果这十万人分散在 12 小时里、每人只操作几次，<strong>平均每秒可能就几个请求</strong>，一台机器就能扛。</li>
+      <li><strong>峰值每秒一万</strong>是实打实的瞬时压力，这个量级就必须认真设计架构了。</li>
+    </ul>
+    <p>所以这两个数字<strong>不能直接比较，也不能互相替代</strong>。日活是业务规模，并发是技术压力。</p>
+    <p>加分句：「<strong>所以我上报指标时会同时给两个：日活用来说明业务体量，峰值请求数用来说明技术要求。</strong>只说一个，听的人会自己脑补，很容易理解偏。」</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="09-ai-ui-quality.html">← 上一篇：AI 生成界面的质量</a>
+  <a href="11-cost-optimization.html">下一篇：成本优化与收益 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

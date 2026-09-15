@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · 这一步骤怎么学 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 导读</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item cur" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>00 · 这一步骤怎么学</h1>
+<p class="lead">
+  步骤 1 是"看懂"，步骤 2 是"做出来"，步骤 3 是"<strong>把已经会的说利索，把该说的数字填上</strong>"。
+  这一步骤<strong>不教新东西</strong>，它只做两件收尾的事。
+</p>
+
+<div class="qbadges"><span class="q">E 域 44 题</span><span class="q">F 域 8 题</span><span class="q">合计 52 题</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一步骤默认你已经完成<a href="../step-2-systems/index.html">步骤 2</a>——<strong>项目真的跑起来了、真的有数据</strong>。F 域没有项目就填不出数字，写了也是空的。</p>
+  <p>前端基础概念看着眼生的话，先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍</b>只看每页的主图和加粗句，判断"这题我会不会"——会的直接跳过。</div>
+  <div><b>第二遍</b>只读你<strong>答不利索</strong>的那几页，会的不要重看，这是这一步骤最重要的纪律。</div>
+  <div><b>第三遍</b>做页尾回忆卡，然后<strong>开着计时器讲一遍</strong>，超 3 分钟就是没讲清。</div>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这一步为什么不能按前两步的方式学</p>
+  <h3>前两步是「补缺口」，这一步是「防超支」</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 270" role="img" aria-label="步骤 3 的投入分配示意">
+    <text x="20" y="30" class="lbl-muted">你现在的状态</text>
+
+    <rect class="box-s" x="20" y="46" width="300" height="40" rx="8"></rect>
+    <text x="170" y="71" text-anchor="middle" style="font-weight:600">E 域 · 存量优势区</text>
+    <rect class="box-d" x="336" y="46" width="180" height="40" rx="8"></rect>
+    <text x="426" y="71" text-anchor="middle" style="font-weight:600">F 域 · 数字题</text>
+    <rect x="532" y="46" width="248" height="40" rx="8" fill="none" stroke="var(--line-strong)" stroke-dasharray="5 4"></rect>
+    <text x="656" y="71" text-anchor="middle" class="lbl-muted">项目还在迭代</text>
+
+    <text x="20" y="126" class="lbl-muted">投入应该怎么放</text>
+
+    <rect class="box-s" x="20" y="142" width="150" height="30" rx="7"></rect>
+    <text x="95" y="162" text-anchor="middle" font-size="13">过一遍就够</text>
+
+    <rect class="box-m" x="182" y="142" width="230" height="30" rx="7"></rect>
+    <text x="297" y="162" text-anchor="middle" font-size="13">真的去测，逐项填满</text>
+
+    <rect class="box-t" x="424" y="142" width="356" height="30" rx="7"></rect>
+    <text x="602" y="162" text-anchor="middle" font-size="13" style="font-weight:600">大头在这里：继续做项目</text>
+
+    <text x="20" y="216" class="lbl-muted">常见错误</text>
+    <rect x="20" y="232" width="380" height="28" rx="7" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="210" y="251" text-anchor="middle" fill="var(--c-risk)" font-size="13">在 E 域刷得太深，把项目时间挤没了</text>
+    <rect x="424" y="232" width="356" height="28" rx="7" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="602" y="251" text-anchor="middle" fill="var(--c-risk)" font-size="13">F 域靠估，数字彼此对不上</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：E 域题量最大（44 题），但它<strong>恰恰最不该占你的时间</strong>——那是你本来就会的东西，目标只是"说利索"。真正要花力气的是 F 域的 8 道数字题，因为<strong>它们只能靠真项目测出来</strong>，而项目本身又还在迭代。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>已掌握 / 快速过</span>
+  <span><i style="background:var(--c-model)"></i>要实测的数字</span>
+  <span><i style="background:var(--c-tool)"></i>真正该投入的</span>
+  <span><i style="background:var(--c-risk)"></i>常见错误</span>
+</div>
+
+<!-- ============ 和前两步的区别 ============ -->
+<h2 id="diff">和前两步有什么不一样</h2>
+
+<table>
+  <thead><tr><th style="width:18%"></th><th style="width:27%">步骤 1</th><th style="width:27%">步骤 2</th><th>步骤 3</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>性质</strong></td>
+      <td>学新概念</td>
+      <td>动手做系统</td>
+      <td><strong>把会的说利索 + 补数字</strong></td>
+    </tr>
+    <tr>
+      <td><strong>你的状态</strong></td>
+      <td>基本不会</td>
+      <td>边做边学</td>
+      <td><strong>本来就会大半</strong></td>
+    </tr>
+    <tr>
+      <td><strong>该怎么用</strong></td>
+      <td>按顺序读完</td>
+      <td>边做边翻</td>
+      <td><strong>跳着读，只补不会的</strong></td>
+    </tr>
+    <tr>
+      <td><strong>典型的错</strong></td>
+      <td>跳过前置页，后面全卡</td>
+      <td>先通读再动手</td>
+      <td><strong>从头读到尾，把时间花在已经会的东西上</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">这一步骤的目标不是"学完"，是"够用"</span>
+  <p>E 域的完成标准写得很清楚：<strong>随机抽 10 题，能答上来 8 题</strong>。不是 10 题全对，更不是"把 Vue 源码读一遍"。</p>
+  <p>那 2 题答不上来是正常的——没有人前端全都会。<strong>把这个标准当成止损线</strong>，达标就停手。</p>
+</div>
+
+<!-- ============ 两部分怎么用 ============ -->
+<h2 id="howto-two">两部分分别怎么用</h2>
+
+<h3 id="e">E 域 · 前端与浏览器（44 题）—— 快过</h3>
+
+<p>这一域的题有一个共同特征：<strong>答案都是"我知道有这么回事"，而不是"我做过"</strong>。所以它的准备方式和前两步完全不同——不需要动手做实验，只需要把话说清楚。</p>
+
+<div class="pipeline">
+  <details class="node s"><summary>先做题，不要先读书</summary><div class="body">把 E 域那 44 道题扫一遍，每题给自己打一个标：<strong>能讲 1 分钟</strong> / <strong>只能讲两句</strong> / <strong>完全不会</strong>。这一步 20 分钟就够，但能省掉你几小时。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>只读后两类</summary><div class="body">打「能讲 1 分钟」的直接跳过，不要重看。你要读的通常只有 <strong>8~15 题</strong>的量，而不是 44 题。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>对着回忆卡计时讲</summary><div class="body">讲不顺的地方往往不是"不会"，是<strong>缺一个开头</strong>。照抄页尾的讲解骨架，把话术固定下来。</div></details>
+</div>
+
+<h3 id="f">F 域 · 量化指标与成本（8 题）—— 真测</h3>
+
+<p>这 8 道题和前 44 道是<strong>两种题型</strong>：它们问的是数字，而数字<strong>编不出来</strong>——对方会顺着追问口径，前后对不上立刻就露。</p>
+
+<div class="warn">
+  <span class="tag">最容易翻车的地方</span>
+  <p>数字不是"越大越好"，也不是"越精确越好"，而是要<strong>自洽</strong>。典型的翻车是：说日活 1 万，又说并发峰值 5 万——<strong>日活 1 万的系统不太可能同时有 5 万人在线</strong>。</p>
+  <p>所以填数字的正确顺序是：<strong>先定业务规模 → 再推调用量 → 再推 token → 再推成本</strong>。后面每一项都由前面推出来，这样怎么追问都不会矛盾。</p>
+</div>
+
+<div class="tree">
+  <p class="q">① 用户规模从哪来？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">注册量</span>累计口径，一般最大，适合说"系统规模"</div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">日活 / 周活</span>真实使用口径，<strong>说规模时优先用这个</strong>，因为它能推出调用量</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">把注册量当日活说</span>一追问"每天多少人在线"就露</div>
+  </div>
+
+  <p class="q">② 调用量怎么推？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">日活 × 人均次数</span>别报一个孤立的数字，要能当场算出来</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">峰值 QPS</span>= 日调用 ÷ 有效时长 × 峰谷系数（一般取 3~5 倍）</div>
+  </div>
+
+  <p class="q">③ 成本怎么拆？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">模型费</span>= 调用量 × 单次 token × 单价，<strong>input 和 output 要分开算</strong>，两者单价差好几倍</div>
+    <div class="a"><span class="yn" style="color:var(--c-data)">向量库 / 存储</span>按数据量和索引大小估</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">服务器</span>按部署形态估，通常占比最小</div>
+  </div>
+</div>
+
+<!-- ============ 材料清单 ============ -->
+<h2 id="list">这一步骤的材料</h2>
+
+<p>E 域 9 份、F 域 2 份。<strong>不要按顺序读</strong>——先做题、打标，再回来挑需要的看。</p>
+
+<table>
+  <thead><tr><th style="width:36%">材料</th><th style="width:16%">题数</th><th>什么时候看</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3" style="background:var(--code-bg);font-weight:600">E 域 · 前端与浏览器（44 题）</td></tr>
+    <tr><td><a href="01-framework-comparison.html"><code>01-框架选型：Vue 与 React</code></a></td><td>5 题</td><td>被问"你更熟哪个框架""两者区别"时</td></tr>
+    <tr><td><a href="02-vue-reactivity.html"><code>02-Vue 响应式原理</code></a></td><td>4 题</td><td>被问响应式原理时（高频）</td></tr>
+    <tr><td><a href="03-reactivity-pitfalls.html"><code>03-响应式失效与排查</code></a></td><td>7 题</td><td>被追问答不利索时——这页是深水区</td></tr>
+    <tr><td><a href="04-css3-and-animation.html"><code>04-CSS3 与动画</code></a></td><td>4 题</td><td>被问 CSS3 / 动画实现时</td></tr>
+    <tr><td><a href="05-canvas-and-effects.html"><code>05-Canvas 与动效实战</code></a></td><td>6 题</td><td>被问 Canvas / 红包动效 / 无限画布时</td></tr>
+    <tr><td><a href="06-es6-features.html"><code>06-ES6 语言特性</code></a></td><td>7 题</td><td>被问语言基础时</td></tr>
+    <tr><td><a href="07-browser-compat.html"><code>07-浏览器兼容</code></a></td><td>5 题</td><td>被问兼容处理 / 低版本浏览器时</td></tr>
+    <tr><td><a href="08-loading-and-rendering.html"><code>08-加载与渲染性能</code></a></td><td>4 题</td><td>被问性能优化 / 加载慢 / 大数据量渲染时</td></tr>
+    <tr><td><a href="09-ai-ui-quality.html"><code>09-AI 生成界面的质量</code></a></td><td>2 题</td><td>被问 AI 生成界面 / UI 经验时</td></tr>
+    <tr><td colspan="3" style="background:var(--code-bg);font-weight:600">F 域 · 量化指标与成本（8 题）</td></tr>
+    <tr><td><a href="10-usage-and-cost.html"><code>10-用量与成本口径</code></a></td><td>5 题</td><td><strong>动笔之前先看这页</strong>——它给的是填数字的顺序</td></tr>
+    <tr><td><a href="11-cost-optimization.html"><code>11-成本优化与收益</code></a></td><td>3 题</td><td>数字填完之后，准备"降本"和"收益"的故事</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 完成标志 ============ -->
+<div class="analogy">
+  <span class="tag">步骤 3 的完成标志</span>
+  <ul class="checklist">
+    <li>数字表<strong>全部填满</strong>，且口径自洽（不会出现"日活 1 万但并发峰值 5 万"）</li>
+    <li>E 域随机抽 10 题，<strong>能答上来 8 题</strong></li>
+    <li>每个数字都能当场<strong>推导一遍</strong>，而不是背下来的</li>
+    <li>能说出至少一条成本优化的措施，以及它<strong>降了多少百分比</strong></li>
+  </ul>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这一步骤唯一的纪律</span>
+  <p><strong>E 域达标即止。</strong>它的题量最大（44 题，占全部题目的 18%），但它是你的存量优势区——继续深挖的边际收益极低。</p>
+  <p>把省下来的时间还给项目。<strong>项目每多迭代一轮，F 域和后面 G 域能讲的东西就多一分</strong>，而 E 域刷再多也还是那些东西。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 · 开始之前先回答自己</span>
+  <p>为什么 E 域题量最大，反而最不该投入时间？</p>
+  <details>
+    <summary>想完了，展开看看</summary>
+    <p>两个原因：</p>
+    <ul>
+      <li><strong>边际收益递减</strong>：E 域是你本来就会的，从"能讲 1 分钟"提到"能讲 3 分钟"收益很小；而 F、G 域从"完全没有"到"能讲 1 分钟"收益极大。</li>
+      <li><strong>它撑不起差异化</strong>：前端题几乎人人都会答一些，答得再好也只是"没扣分"。真正拉开差距的是<strong>项目深度和数字</strong>，那两项都在后面。</li>
+    </ul>
+    <p>所以这一步骤的正确姿势是：<strong>用最短的时间把 E 域从"会"变成"说得利索"，然后把主要精力投在数字和项目上。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="../step-2-systems/index.html">← 回步骤 2</a>
+  <a href="01-framework-comparison.html">开始：框架选型 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

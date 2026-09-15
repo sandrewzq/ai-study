@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · CSS3 与动画 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 4/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item cur" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>04 · CSS3 与动画</h1>
+<p class="lead">
+  这一组题看起来是"背特性"，其实只考一件事：<strong>做动画时，你知道该用 CSS 还是 JS 吗？</strong>
+  答对这题的前提，是理解浏览器渲染的三个阶段。
+</p>
+
+<div class="qbadges"><span class="q">SH-1</span><span class="q">SH-2</span><span class="q">SH-3</span><span class="q">SH-4</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>需要知道 CSS 选择器大概怎么写、什么是"样式属性"。<strong>不要求你会写动画</strong>——这一页从零讲起。完全没碰过的话先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图——记住"改哪个属性决定快慢"。</div>
+  <div><b>第二遍（12 分钟）</b>读第 3 节，那是这一组题真正的分界线。</div>
+  <div><b>第三遍</b>做页尾回忆卡，然后<strong>打开浏览器控制台，手动改几个属性看渲染帧</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>要做个"消息卡片从右边滑入"的效果。你随手写了三行：</p>
+
+<div class="skeleton">
+  <span class="tag">第一种写法</span>
+  <p><code>transition: left .3s;</code>　然后 JS 里改 <code>el.style.left = '0'</code></p>
+</div>
+
+<p>效果对了。但上线后有人反馈：<strong>卡片滑入的时候，整个页面会卡一下</strong>，尤其是列表里有几十条消息时。</p>
+
+<p>你把 <code>left</code> 换成 <code>transform: translateX()</code>，<strong>同样的视觉效果，卡顿没了</strong>。</p>
+
+<p>原因就是这一页要讲的：<strong>同样是"从一个位置移动到另一个位置"，改 <code>left</code> 和改 <code>transform</code> 在浏览器内部走的是两条完全不同的路。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 决定动画快慢的不是"用 CSS 还是 JS"</p>
+  <h3>而是你改的属性，让浏览器做到哪一步</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 320" role="img" aria-label="浏览器渲染三阶段与不同属性的代价">
+    <text x="20" y="26" class="lbl-muted">浏览器把一次样式变化</text>
+
+    <!-- 三阶段 -->
+    <rect class="box-m" x="20" y="44" width="170" height="42" rx="8"></rect>
+    <text x="105" y="64" text-anchor="middle" font-size="13" style="font-weight:600">① 重新布局</text>
+    <text x="105" y="80" text-anchor="middle" font-size="12" class="lbl-muted">算每个元素在哪、多大</text>
+
+    <text x="200" y="71" class="lbl-muted" font-size="15">→</text>
+
+    <rect class="box-m" x="224" y="44" width="170" height="42" rx="8"></rect>
+    <text x="309" y="64" text-anchor="middle" font-size="13" style="font-weight:600">② 重新绘制</text>
+    <text x="309" y="80" text-anchor="middle" font-size="12" class="lbl-muted">把像素真的画出来</text>
+
+    <text x="404" y="71" class="lbl-muted" font-size="15">→</text>
+
+    <rect class="box-m" x="428" y="44" width="170" height="42" rx="8"></rect>
+    <text x="513" y="64" text-anchor="middle" font-size="13" style="font-weight:600">③ 合成</text>
+    <text x="513" y="80" text-anchor="middle" font-size="12" class="lbl-muted">把图层拼成最终画面</text>
+
+    <text x="608" y="60" class="lbl-muted" font-size="12.5">越靠左越贵</text>
+    <text x="608" y="78" class="lbl-muted" font-size="12.5">③ 可以交给显卡</text>
+
+    <!-- 属性分类 -->
+    <text x="20" y="130" class="lbl-muted">改这些属性，做到哪一步</text>
+
+    <rect x="20" y="146" width="758" height="34" rx="7" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="36" y="168" font-size="13" fill="var(--c-risk)" style="font-weight:600">width / height / top / left / margin / padding</text>
+    <text x="470" y="168" font-size="12.5" fill="var(--c-risk)">→ 走完 ①②③，每次都要重算布局</text>
+
+    <rect x="20" y="188" width="758" height="34" rx="7" fill="none" stroke="var(--c-data)" stroke-dasharray="5 4"></rect>
+    <text x="36" y="210" font-size="13" fill="var(--c-data)" style="font-weight:600">color / background / box-shadow / border-radius</text>
+    <text x="470" y="210" font-size="12.5" fill="var(--c-data)">→ 跳过 ①，但要重新绘制</text>
+
+    <rect class="box-s" x="20" y="230" width="758" height="34" rx="7"></rect>
+    <text x="36" y="252" font-size="13" style="font-weight:600">transform / opacity</text>
+    <text x="470" y="252" font-size="12.5">→ 通常只需 ③，直接交给显卡合成</text>
+
+    <text x="20" y="292" class="lbl-muted" font-size="13">所以同一个"滑动"效果：</text>
+    <text x="20" y="312" font-size="13"><tspan fill="var(--c-risk)">改 left</tspan>　每帧都要重新布局整页　　<tspan fill="var(--c-store)">改 transform</tspan>　每帧只让显卡挪一下图层</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：动画卡不卡，<strong>取决于你改的属性会让浏览器做到哪一步</strong>。改 <code>left</code> 要重新算布局，改 <code>transform</code> 常常只需要合成——后者可以交给显卡，不占主线程。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">记住这个，第 3 节那道"CSS 动画和 JS 动画有什么区别"就自然有答案了：<strong>真正的分界线不是"谁来实现"，而是"改的是不是那两类便宜属性"。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>渲染阶段</span>
+  <span><i style="background:var(--c-risk)"></i>代价最高</span>
+  <span><i style="background:var(--c-data)"></i>代价中等</span>
+  <span><i style="background:var(--c-store)"></i>代价最低</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 「CSS3 你常用哪些」（<code>SH-1</code>）</h2>
+
+<p>这题<strong>没有标准答案，但有个陷阱</strong>：很多人一开口就是"圆角、阴影、渐变"——这些是<strong>视觉装饰</strong>，说出来显得你只用过皮毛。</p>
+
+<p>更稳的答法是<strong>按用途分组</strong>，让人听出你的使用场景：</p>
+
+<table>
+  <thead><tr><th style="width:22%">用途</th><th style="width:36%">常用特性</th><th>用在哪</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>布局</strong></td>
+      <td>弹性布局（<code>flex</code>）、网格布局（<code>grid</code>）</td>
+      <td><strong>这是最该先说的</strong>，因为它体现的是"我天天在写页面"，而不是"我背过特性表"。一句话：简单的一维排列用弹性布局，复杂的二维网格用网格布局。</td>
+    </tr>
+    <tr>
+      <td><strong>响应式</strong></td>
+      <td>媒体查询、相对单位（<code>rem</code> / <code>vw</code>）、<code>clamp()</code> 做流体字号</td>
+      <td>适配不同屏幕宽度。比"我写了两套样式"更专业的说法是"<strong>用相对单位 + 媒体查询做断点</strong>"。</td>
+    </tr>
+    <tr>
+      <td><strong>动画与过渡</strong></td>
+      <td><code>transition</code>、<code>transform</code>、<code>animation</code> + <code>@keyframes</code></td>
+      <td>交互反馈和入场效果。注意区分：<strong>状态之间平滑变化用过渡，需要循环或多段的关键帧用动画。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>变量与主题</strong></td>
+      <td>自定义属性（<code>--xxx</code>）配合 <code>var()</code></td>
+      <td>做主题色和深色模式。<strong>这个点很多人忽略，但说出来很加分</strong>——它说明你考虑过可维护性，不只是"把样式写出来"。</td>
+    </tr>
+    <tr>
+      <td><strong>视觉装饰</strong></td>
+      <td>圆角、阴影、渐变、毛玻璃</td>
+      <td>放最后说，一带而过即可。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">为什么顺序很重要</span>
+  <p>同样列五个特性，<strong>按"布局 → 响应式 → 动画 → 变量 → 装饰"说</strong>，听起来是"我在做工程"；按"圆角 → 阴影 → 渐变 → 旋转 → 缩放"说，听起来是"我照着教程做过几个效果"。</p>
+  <p>内容差不多，<strong>组织方式决定了对方怎么判断你</strong>。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 渐变 / 旋转 / 缩放到底怎么用（<code>SH-2</code>）</h2>
+
+<p>这几样都属于"用过就会、没用过就说不出细节"的类型。答的时候<strong>说清"它是什么 + 我拿它做过什么"</strong>就够，不用背语法。</p>
+
+<table>
+  <thead><tr><th style="width:20%">特性</th><th style="width:38%">一句话说清它</th><th>典型用途</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>渐变</strong></td>
+      <td>让背景从一种颜色平滑过渡到另一种，<strong>不用图片</strong>。线性渐变按方向过渡，径向渐变从中心向外扩散。</td>
+      <td>按钮、卡片背景、骨架屏的加载动效。<strong>最大的好处是省一张图</strong>，体积小还能随容器自适应。</td>
+    </tr>
+    <tr>
+      <td><strong>旋转 / 缩放 / 位移</strong></td>
+      <td>都属于 <code>transform</code>，<strong>它们不改变元素在布局里占的位置</strong>——只是在画的时候换了样子。</td>
+      <td>加载转圈、hover 放大、滑入滑出。<strong>"不改变布局位置"这一点很关键</strong>，正是它让这类改动更便宜。</td>
+    </tr>
+    <tr>
+      <td><strong>关键帧动画</strong></td>
+      <td><code>@keyframes</code> 定义几个时间点上的样子，浏览器负责补中间过程。可以设循环、方向、缓动。</td>
+      <td>呼吸灯、脉冲、循环漂浮、多段入场。<strong>需要"反复播放"或"多个阶段"时用它</strong>，单纯两个状态之间的变化用过渡就够了。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">一个容易被追问的点</span>
+  <p>对方可能接着问：<strong>"那 <code>transform</code> 会不会影响旁边元素的位置？"</strong></p>
+  <p>答案：<strong>不会</strong>。它作用在渲染阶段，元素在文档流里占的位置不变，所以旁边的元素不会跟着挪。这正是它便宜的原因——<strong>不需要重新计算布局</strong>。</p>
+  <p>反过来，如果你改 <code>width</code> 或 <code>margin</code>，旁边元素会被挤走，浏览器就必须重新算一遍布局。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. CSS 动画和 JS 动画的区别（<code>SH-3</code>、<code>SH-4</code>）</h2>
+
+<p>这是这一组的主菜。<strong>先说一个反常识的结论</strong>：两者的核心区别<strong>不是"谁来实现"，而是"改的是哪类属性"</strong>。</p>
+
+<p>因为 JS 也可以去改 <code>transform</code>——那样它同样便宜。所以真正的区别在下面这三个维度：</p>
+
+<table>
+  <thead><tr><th style="width:20%">维度</th><th style="width:36%">CSS 动画</th><th>JS 动画</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>谁来驱动</strong></td>
+      <td>浏览器自己按样式规则跑，<strong>不占 JS 主线程</strong>。改的是那两类便宜属性时，还能交给显卡。</td>
+      <td>一般用 <code>requestAnimationFrame</code> 每帧算一次位置，<strong>跑在 JS 主线程上</strong>。主线程一忙（比如在算数据），动画就掉帧。</td>
+    </tr>
+    <tr>
+      <td><strong>能不能中途干预</strong></td>
+      <td>弱：可以暂停、改速度，但<strong>中途改目标值、动态调轨迹很别扭</strong>。</td>
+      <td>强：随时能读当前位置、改目标、反转、按物理规律算（弹簧、惯性）。</td>
+    </tr>
+    <tr>
+      <td><strong>适合什么</strong></td>
+      <td>状态之间固定的过渡：hover、展开收起、入场退出。</td>
+      <td>需要"跟着手势走"的：拖拽、滚动联动、跟随鼠标、路径动画。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>大多数人会答"CSS 性能好、JS 灵活"，这不算错但太浅。加上这一句立刻不一样：</p>
+  <p>「<strong>其实用 JS 改 <code>transform</code> 一样快</strong>，因为决定开销的是属性而不是驱动方式。CSS 的真正优势是<strong>不占主线程</strong>——主线程在忙着处理数据时，CSS 动画照样流畅；而 JS 动画会和业务逻辑抢主线程。<strong>所以我的做法是：能用 CSS 的就用 CSS，只有需要跟着手势实时算的时候才上 JS。</strong>」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那为什么有时候 JS 动画反而更流畅？」</summary>
+  <p>这通常发生在<strong>JS 动画用了便宜属性（<code>transform</code>），而 CSS 动画用了贵属性（<code>left</code>）</strong>的时候。所以不是"JS 更快"，是"那个 JS 写对了、那个 CSS 写错了"。</p>
+  <p>还有一种情况：某些浏览器对复杂的关键帧动画（很多元素、很多属性同时变）调度得不好，此时 JS 自己控制节奏反而更稳。<strong>但这是特例，不是通例。</strong></p>
+  <p>回答时把结论收在标准上："<strong>判断标准是改的属性，不是驱动方式。先看属性，再看谁来驱动。</strong>"</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「那到底该用哪个？你的选择标准是什么？」</summary>
+  <p>给一个<strong>可执行的标准</strong>，比说"看情况"强得多：</p>
+  <ol>
+    <li><strong>效果是固定的两三个状态之间切换吗？</strong>是 → 用 CSS 过渡，最省事也最流畅。</li>
+    <li><strong>需要循环或多段关键帧吗？</strong>是 → 用 CSS 动画。</li>
+    <li><strong>需要跟着用户的手势实时变吗？</strong>是 → 用 JS，但<strong>仍然只改便宜属性</strong>。</li>
+    <li><strong>动画里有大量元素各自独立运动（比如上百个粒子）？</strong>→ 那就别用 DOM 了，考虑用 Canvas，见<a href="05-canvas-and-effects.html">下一份</a>。</li>
+  </ol>
+</details>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「CSS3 你常用哪些 / CSS 动画和 JS 动画有什么区别」</span>
+  <p><strong>【结论】</strong>CSS3 我按用途分：<strong>布局用弹性布局和网格布局，响应式用媒体查询和相对单位，动画用过渡和关键帧，主题用自定义属性管理颜色</strong>；圆角阴影渐变这些装饰性的也用，但优先级低。</p>
+  <p><strong>【动画实现】</strong>CSS 侧就是 <code>transition</code> 做状态过渡、<code>@keyframes</code> 做多段或循环；JS 侧一般用 <code>requestAnimationFrame</code> 每帧改样式。</p>
+  <p><strong>【区别】</strong>关键要说清一点：<strong>区别不在"谁来实现"，而在"改的是哪类属性"</strong>。改宽高、位置这些会触发重新布局；改 <code>transform</code> 和 <code>opacity</code> 通常只需要合成，可以交给显卡。<strong>JS 改 <code>transform</code> 一样便宜。</strong></p>
+  <p><strong>【真正差异】</strong>CSS 动画<strong>不占主线程</strong>，所以业务逻辑忙的时候它照样流畅；JS 动画跑在主线程上，会和业务逻辑抢资源，但胜在<strong>可以实时干预</strong>——跟着手势、按物理规律算。</p>
+  <p><strong>【数字】</strong>有一次消息列表滑入卡顿，原因是用了 <code>left</code> 做位移，每帧都要重新布局；换成 <code>transform</code> 之后，几十条消息同时入场也不掉帧。</p>
+  <p><strong>【权衡】</strong>所以选择标准是：<strong>能用 CSS 就用 CSS，需要实时跟随手势才用 JS——而且无论哪种，都优先用 <code>transform</code> 和 <code>opacity</code>。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>一个元素要从屏幕左侧滑到中间，下面两种写法效果一样，性能一样吗？为什么？<br>① 用过渡改 <code>left</code>　② 用过渡改 <code>transform</code></p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>不一样，差很多。</strong></p>
+    <ul>
+      <li><strong>改 <code>left</code></strong>：位置变化会<strong>影响布局</strong>，浏览器每一帧都得重新计算元素位置（甚至整页），再重新绘制，最后合成。元素多的时候，这些计算都在主线程上做，就容易掉帧。</li>
+      <li><strong>改 <code>transform</code></strong>：它<strong>不改变元素在布局里占的位置</strong>，只是渲染时换个画法，所以通常<strong>跳过布局和绘制，直接合成</strong>，这一步可以交给显卡。</li>
+    </ul>
+    <p>一句话：<strong>同样的视觉效果，一个要重算布局，一个只要显卡挪一下图层。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「CSS 动画比 JS 动画性能好」——这句话对吗？怎么答才完整？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>不完全对，要拆开说。</strong></p>
+    <ol>
+      <li><strong>先说条件</strong>：性能取决于改的属性。两类属性便宜（<code>transform</code> 和 <code>opacity</code>），其他大多更贵。<strong>JS 改便宜属性一样快。</strong></li>
+      <li><strong>再说 CSS 的真实优势</strong>：它由浏览器自己驱动，<strong>不占 JS 主线程</strong>。所以主线程在忙着算数据时，CSS 动画仍然流畅；JS 动画会和业务逻辑抢主线程。</li>
+      <li><strong>最后说 JS 的不可替代</strong>：需要跟着手势实时变、按物理规律算（弹簧、惯性）、随时中断反转的动画，CSS 做不了或很难做。</li>
+    </ol>
+    <p>收尾："所以我的标准是<strong>能 CSS 就 CSS，需要实时跟随才上 JS，但两边都优先用 <code>transform</code> 和 <code>opacity</code></strong>。"</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="03-reactivity-pitfalls.html">← 上一篇：响应式失效与排查</a>
+  <a href="05-canvas-and-effects.html">下一篇：Canvas 与动效实战 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

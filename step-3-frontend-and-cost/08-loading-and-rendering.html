@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · 加载与渲染性能 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 8/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item cur" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>08 · 加载与渲染性能</h1>
+<p class="lead">
+  性能题有个通用陷阱：<strong>一上来就报优化手段</strong>。这一页给你一个更好用的结构——
+  <strong>先分层定位，再说手段</strong>，这样答什么场景都不会乱。
+</p>
+
+<div class="qbadges"><span class="q">FN-4</span><span class="q">YF-19</span><span class="q">YF-21</span><span class="q">YF-22</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>需要知道"请求""响应""缓存"这几个词的大概意思。<strong>没用过小程序也没关系</strong>，相关那道题会单独讲清它的特殊之处。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住"先分层再谈手段"。</div>
+  <div><b>第二遍（15 分钟）</b>读第 2、4 节——那是最常被追问的两块。</div>
+  <div><b>第三遍</b>做页尾回忆卡，然后<strong>拿你自己的项目跑一次面板，看时间花在哪</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「首页加载慢、图片体积大，你会从哪些方向优化？」</strong></p>
+
+<p>很多人立刻开始报：压缩图片、上 CDN、懒加载、代码分割、骨架屏……一口气说七八条。</p>
+
+<p>说完对方问一句：<strong>「那你怎么知道瓶颈在哪？」</strong></p>
+
+<p>这就卡住了。因为上面那些是<strong>手段清单</strong>，不是<strong>判断方法</strong>。真实项目里，你不可能把七八条全做一遍——<strong>你得先知道时间花在哪一段。</strong></p>
+
+<p>所以这道题正确的打开方式是：<strong>先分层，再定位，最后才谈手段。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 一次页面加载，时间花在四个地方</p>
+  <h3>优化之前先问：慢在哪一段？</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 340" role="img" aria-label="页面加载的四个阶段与各自的优化手段">
+    <text x="20" y="26" class="lbl-muted">一次页面加载的时间轴</text>
+
+    <!-- 四段 -->
+    <rect class="box-m" x="20" y="42" width="180" height="60" rx="8"></rect>
+    <text x="110" y="64" text-anchor="middle" font-size="13" style="font-weight:600">① 建立连接</text>
+    <text x="110" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">域名解析、握手、加密协商</text>
+    <text x="110" y="97" text-anchor="middle" font-size="11.5" class="lbl-muted">几个来回，几十毫秒起</text>
+
+    <rect class="box-m" x="212" y="42" width="180" height="60" rx="8"></rect>
+    <text x="302" y="64" text-anchor="middle" font-size="13" style="font-weight:600">② 下载资源</text>
+    <text x="302" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">HTML、脚本、样式、图片</text>
+    <text x="302" y="97" text-anchor="middle" font-size="11.5" class="lbl-muted">体积越大越慢</text>
+
+    <rect class="box-m" x="404" y="42" width="180" height="60" rx="8"></rect>
+    <text x="494" y="64" text-anchor="middle" font-size="13" style="font-weight:600">③ 解析执行</text>
+    <text x="494" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">脚本执行、框架初始化</text>
+    <text x="494" y="97" text-anchor="middle" font-size="11.5" class="lbl-muted">主线程被占住</text>
+
+    <rect class="box-m" x="596" y="42" width="184" height="60" rx="8"></rect>
+    <text x="688" y="64" text-anchor="middle" font-size="13" style="font-weight:600">④ 渲染</text>
+    <text x="688" y="82" text-anchor="middle" font-size="11.5" class="lbl-muted">布局、绘制、首屏出现</text>
+    <text x="688" y="97" text-anchor="middle" font-size="11.5" class="lbl-muted">元素越多越慢</text>
+
+    <!-- 对应手段 -->
+    <text x="20" y="136" class="lbl-muted">每一段对应的手段完全不同</text>
+
+    <rect class="box-s" x="20" y="152" width="180" height="74" rx="7"></rect>
+    <text x="110" y="172" text-anchor="middle" font-size="12">域名预解析</text>
+    <text x="110" y="190" text-anchor="middle" font-size="12">提前建连</text>
+    <text x="110" y="208" text-anchor="middle" font-size="12">只用一种协议版本</text>
+
+    <rect class="box-s" x="212" y="152" width="180" height="74" rx="7"></rect>
+    <text x="302" y="172" text-anchor="middle" font-size="12">图片压缩与换格式</text>
+    <text x="302" y="190" text-anchor="middle" font-size="12">代码压缩与按需加载</text>
+    <text x="302" y="208" text-anchor="middle" font-size="12">用缓存少下一遍</text>
+
+    <rect class="box-s" x="404" y="152" width="180" height="74" rx="7"></rect>
+    <text x="494" y="172" text-anchor="middle" font-size="12">减少主线程占用</text>
+    <text x="494" y="190" text-anchor="middle" font-size="12">脚本放在合适位置</text>
+    <text x="494" y="208" text-anchor="middle" font-size="12">拆小初始化开销</text>
+
+    <rect class="box-s" x="596" y="152" width="184" height="74" rx="7"></rect>
+    <text x="688" y="172" text-anchor="middle" font-size="12">只渲染看得见的</text>
+    <text x="688" y="190" text-anchor="middle" font-size="12">减少重排重绘</text>
+    <text x="688" y="208" text-anchor="middle" font-size="12">先出骨架再填内容</text>
+
+    <!-- 缓存 -->
+    <text x="20" y="256" class="lbl-muted">还有一条贯穿全部四段的：缓存</text>
+
+    <rect class="box-d" x="20" y="272" width="360" height="52" rx="7"></rect>
+    <text x="200" y="292" text-anchor="middle" font-size="12.5" style="font-weight:600">强缓存：连请求都不发</text>
+    <text x="200" y="312" text-anchor="middle" font-size="11.5" class="lbl-muted">最快，但内容更新不及时</text>
+
+    <rect class="box-d" x="396" y="272" width="384" height="52" rx="7"></rect>
+    <text x="588" y="292" text-anchor="middle" font-size="12.5" style="font-weight:600">协商缓存：发请求，但可能只回一句"没变"</text>
+    <text x="588" y="312" text-anchor="middle" font-size="11.5" class="lbl-muted">省下传输体积，慢一点点但内容可控</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：页面慢，<strong>一定慢在这四段里的某一段</strong>。每一段的手段完全不同——你在②段做图片压缩，对③段的脚本执行时间一点帮助都没有。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">所以答题的正确顺序是：<strong>先说怎么定位（看性能面板，看时间花在哪一段），再说针对那一段的手段。</strong>这个结构比报清单有用得多。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>加载阶段</span>
+  <span><i style="background:var(--c-store)"></i>对应手段</span>
+  <span><i style="background:var(--c-data)"></i>缓存策略</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 网络请求经历了什么、缓存发生在哪（<code>FN-4</code>）</h2>
+
+<p>这道题分两问：<strong>过程</strong>和<strong>缓存位置</strong>。第一问按顺序说清，第二问<strong>要答出"多层缓存"</strong>——只说浏览器缓存会显得没做过线上项目。</p>
+
+<table>
+  <thead><tr><th style="width:20%">阶段</th><th style="width:38%">发生了什么</th><th>能优化什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>域名解析</strong></td>
+      <td>把网址换成服务器的地址。<strong>这一步本身也有缓存</strong>——操作系统和浏览器都会记一段时间。</td>
+      <td>域名预解析、减少重定向。</td>
+    </tr>
+    <tr>
+      <td><strong>建立连接</strong></td>
+      <td>和服务器打招呼、确认双方都在（三次握手）。如果是加密的，还要<strong>再协商一次加密方式</strong>，多几个来回。</td>
+      <td>提前建连、复用连接、用更新的协议版本。</td>
+    </tr>
+    <tr>
+      <td><strong>发送与处理</strong></td>
+      <td>带上请求头发出去，服务器处理完返回响应。</td>
+      <td>减少请求数、合并请求、服务端处理提速。</td>
+    </tr>
+    <tr>
+      <td><strong>接收与渲染</strong></td>
+      <td>浏览器拿到内容后解析、构建页面、画出来。</td>
+      <td>减少体积、减少阻塞、优化渲染路径。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">缓存发生在哪些地方 —— 这一问才是重点</span>
+  <p>按<strong>离用户的远近</strong>从近到远说，条理一下就出来了：</p>
+  <ol>
+    <li><strong>浏览器内存 / 磁盘缓存</strong>：最常用的一层。分<strong>强缓存</strong>（直接判断还没过期，<strong>连请求都不发</strong>）和<strong>协商缓存</strong>（发请求，带上上次拿到的标记，服务器比对后如果没变，只回一个"没变"的状态码，<strong>省下传输体积</strong>）。</li>
+    <li><strong>前端自己写的缓存</strong>：把接口结果存起来，下次先读本地。要注意<strong>什么时候失效</strong>，否则用户会看到旧数据。</li>
+    <li><strong>中间层缓存</strong>：比如内容分发节点。<strong>用户实际是从离他最近的节点拿的</strong>，这是静态资源提速的主要手段。</li>
+    <li><strong>服务端缓存</strong>：数据库查询结果、页面片段等，减少后端计算。</li>
+    <li><strong>域名解析缓存</strong>：前面提过，也别忘了。</li>
+  </ol>
+  <p><strong>答题时的加分句</strong>：「强缓存最快，但更新不及时；协商缓存慢一点点，但内容可控。<strong>所以实践里通常把长期不变的资源用强缓存配上很长的有效期，而入口页面用协商缓存</strong>——这样既能利用缓存，发版时又能立刻生效。」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 上万条数据怎么渲染（<code>YF-19</code>）</h2>
+
+<p>这题几乎必问，而且<strong>有标准答案</strong>——核心思路只有一句：<strong>别把上万条都交给浏览器。</strong></p>
+
+<div class="tree">
+  <p class="q">① 首先想到的：虚拟滚动</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">只渲染可视区</span>页面高度按总数撑出来，但<strong>只挂载当前看得见的那几十条</strong>，滚动时替换内容。这样节点数永远是几十个，和总数无关。</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">关键细节</span>每行高度要么固定、要么提前测量好，否则滚动条位置会跳。这是实现时最容易出问题的地方。</div>
+  </div>
+
+  <p class="q">② 如果不用虚拟滚动，还能怎么分批</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">分页</span>最省事，但体验上多了点击成本。适合管理后台。</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">滚动加载</span>先渲染一批，滚到底再追加。<strong>要注意做"加载中"和"没有更多了"的状态</strong>，否则用户不知道发生了什么。</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">空闲时分批渲染</span>首屏先出一部分，剩下的等浏览器闲下来再一点点补上。<strong>页面上要能看出来还在加载</strong>，否则用户以为卡住了。</div>
+  </div>
+
+  <p class="q">③ 数据本身也要处理</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">别让全部数据都变成响应式</span>只做展示、后续不变的大数组，<strong>可以标记成"不需要追踪"</strong>。上万条数据每条都装一套监听，初始化就会卡住——<strong>这是很多人忽略的一环。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">视图和数据分开</span>原始数据保留完整的一份（用于搜索、导出），但渲染用的那份可以按需裁剪。</div>
+  </div>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 小程序的状态管理和它的性能问题（<code>YF-21</code>）</h2>
+
+<p>这题的关键在于<strong>理解小程序和网页的结构差异</strong>：网页里逻辑和界面在同一层，小程序里它们是<strong>两个独立的层</strong>，中间靠通信。</p>
+
+<table>
+  <thead><tr><th style="width:24%">问题</th><th>答案</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>怎么改界面</strong></td>
+      <td>只能通过<strong>那个专门的数据更新接口</strong>。它做的事情是：把你给的数据<strong>传给界面层</strong>，界面层再去更新。你直接改内存里的变量，界面是不会动的。</td>
+    </tr>
+    <tr>
+      <td><strong>怎么做状态管理</strong></td>
+      <td>简单场景：把共享状态放在<strong>全局数据</strong>里，各页面读取。<br>复杂场景：用一个<strong>统一的状态容器</strong>（单向数据流那套），或者干脆用小程序框架官方/社区提供的状态方案。<strong>核心诉求和网页一样</strong>：状态集中、变更可追踪、跨页面共享。</td>
+    </tr>
+    <tr>
+      <td><strong>性能问题在哪</strong></td>
+      <td>那个接口是<strong>跨层通信</strong>，代价比网页里改个变量高得多。三个典型问题：<br>① <strong>传的数据量大</strong>——跨层传输要序列化，传一个很大的对象很贵；<br>② <strong>调用太频繁</strong>——每次调用都是一次通信，循环里连续调用几十次就是灾难；<br>③ <strong>容易全量更新</strong>——直接把整个大列表重新传一遍，而不是只传变化的那一项。</td>
+    </tr>
+    <tr>
+      <td><strong>怎么优化</strong></td>
+      <td>① <strong>只传变化的部分</strong>，不要整个对象重传；<br>② <strong>用路径精确更新</strong>——直接指明改的是列表里第几项的哪个字段，这样只传一小段数据；<br>③ <strong>合并调用</strong>——把多次更新攒成一次，别在循环里分别调用；<br>④ <strong>不参与渲染的数据不要放进去</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>把结论收到<strong>一句能记住的话</strong>上：</p>
+  <p>「小程序的本质是<strong>逻辑层和界面层分开，中间的通信是瓶颈</strong>。所以优化的方向和网页不太一样——网页关心"减少重排重绘"，小程序<strong>首先要关心"减少跨层通信的数据量和次数"</strong>。」</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 图片和首屏怎么优化（<code>YF-22</code>）</h2>
+
+<p>这题问得很具体（"图片体积大"），所以<strong>图片要单独说一段</strong>，不能混在通用优化里带过。</p>
+
+<table>
+  <thead><tr><th style="width:22%">方向</th><th style="width:38%">做什么</th><th>为什么有效</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>图片格式</strong></td>
+      <td>换成压缩率更高的新格式，并对不支持的老浏览器<strong>留一个退路</strong>（用标签的降级能力，而不是靠脚本判断）。</td>
+      <td><strong>格式的差别比压缩参数大得多</strong>，同样的画质能小一大截。</td>
+    </tr>
+    <tr>
+      <td><strong>图片尺寸</strong></td>
+      <td>按实际显示尺寸出图，不要用一张大图靠样式缩小；不同屏幕给不同尺寸。</td>
+      <td>移动端拿一张桌面尺寸的大图，<strong>绝大部分像素都浪费了</strong>。</td>
+    </tr>
+    <tr>
+      <td><strong>图片加载时机</strong></td>
+      <td>首屏之外的图片延后加载；<strong>提前占好位置</strong>避免内容跳动。</td>
+      <td>减少首屏要下载的东西；占位能避免布局抖动，体验差别很明显。</td>
+    </tr>
+    <tr>
+      <td><strong>代码体积</strong></td>
+      <td>按路由拆分、按需加载、去掉没用到的代码。</td>
+      <td>首屏只需要一个页面的代码，不是整个应用。</td>
+    </tr>
+    <tr>
+      <td><strong>首屏呈现</strong></td>
+      <td>先把页面骨架显示出来，内容到了再填；关键的样式<strong>内联进页面</strong>。</td>
+      <td>用户"看到了东西"和"什么都看不到"的心理感受差别极大，<strong>即使总时间一样</strong>。</td>
+    </tr>
+    <tr>
+      <td><strong>缓存与分发</strong></td>
+      <td>静态资源用内容指纹做文件名、配长期缓存；走内容分发网络。</td>
+      <td>文件名随内容变，就能放心用很长的缓存期——<strong>发版时自动失效，平时一直命中</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「首页加载慢 / 图片大，你怎么优化」</span>
+  <p><strong>【结论】</strong>我不会直接列手段，<strong>先用性能面板看时间花在哪一段</strong>：建连、下载、解析执行、还是渲染。这四段的手段完全不同，<strong>定位错了就白干</strong>。</p>
+  <p><strong>【实际经验】</strong>线上项目里，大多数首屏问题出在<strong>下载体积</strong>这一段的图片上——格式没换、尺寸没按屏幕给，一张图顶一个页面的脚本。</p>
+  <p><strong>【图片】</strong>四个动作：<strong>换压缩率更高的格式并留降级、按显示尺寸出图、延后加载非首屏图片、提前占位避免跳动</strong>。</p>
+  <p><strong>【代码与网络】</strong>代码按路由拆分、去掉没用到的部分；静态资源用内容指纹命名配长期缓存，走内容分发网络；入口页面用协商缓存，保证发版立刻生效。</p>
+  <p><strong>【渲染】</strong>上万条数据用<strong>虚拟滚动</strong>，只渲染可视区那几十条，节点数和总数脱钩。<strong>要注意先让全部数据都变成响应式会拖慢初始化</strong>——只展示、不改的那部分应该跳过追踪。</p>
+  <p><strong>【数字】</strong>做过一次列表页优化：原来一次性渲染两万多行，首屏要好几秒；改成虚拟滚动后，节点数稳定在几十个，首屏基本无感。另一次是首页图片从一张大图换成按屏幕尺寸出图，首屏体积降了一大截。</p>
+  <p><strong>【权衡】</strong>虚拟滚动不是万能的——行高不固定时实现复杂，而且<strong>浏览器的页内搜索会失效</strong>（因为大部分内容根本不在页面上）。所以长文档这类需要搜索的场景不能这么做，要换成别的分批策略。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「虚拟滚动有什么代价？」</summary>
+  <p>能主动说出代价<strong>比只会夸它好用更可信</strong>。三条实际的：</p>
+  <ul>
+    <li><strong>页内搜索失效</strong>：用户按快捷键搜索只能搜到当前渲染的那几十条，因为其余内容压根不在页面上。<strong>这是最实质的限制</strong>，长文档、报表类场景要慎用。</li>
+    <li><strong>行高必须可控</strong>：滚动条位置是按总高度算的。行高不固定就得提前测量，实现复杂度陡增，还可能出现滚动跳动。</li>
+    <li><strong>和"打印 / 导出"冲突</strong>：用户想打印整页时会发现只有可视区的内容。</li>
+  </ul>
+  <p>收尾："所以我的判断是——<strong>列表类、行高固定、数据量大</strong>，用虚拟滚动；<strong>需要搜索或打印的长内容</strong>，换成滚动加载。"</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「强缓存和协商缓存，你项目里怎么配的？」</summary>
+  <p>这题在<strong>验证你是不是真的配过</strong>，说清"哪类资源配哪种"就行：</p>
+  <ul>
+    <li><strong>带内容指纹的静态资源</strong>（脚本、样式、图片）：用<strong>强缓存 + 很长的有效期</strong>。因为文件名随内容变，内容一改文件名就变了，等于自动失效——所以可以放心缓存很久。</li>
+    <li><strong>入口页面</strong>：用<strong>协商缓存</strong>。入口页面通常文件名是固定的，如果用强缓存，发版后用户可能还在用旧版本。</li>
+    <li><strong>接口数据</strong>：一般<strong>不靠浏览器缓存</strong>，由前端自己控制（要不要缓存、缓存多久、什么时候失效），因为业务上对时效的要求各不相同。</li>
+  </ul>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>用户说"首页很慢"，你怎么定位？说出你的分层和每一步看什么。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>先分层——<strong>一次加载分四段</strong>：建立连接、下载资源、解析执行、渲染。</p>
+    <ol>
+      <li><strong>打开性能面板</strong>，看整条时间轴。哪一段最长，问题就在哪一段。</li>
+      <li><strong>如果是下载段</strong>：看是哪个资源大。通常是图片，也可能是没拆分的脚本。</li>
+      <li><strong>如果是解析执行段</strong>：看主线程有没有长时间被占住。常见原因是脚本太大、或者初始化时处理了太多数据。</li>
+      <li><strong>如果是渲染段</strong>：看是不是一次渲染了太多节点。</li>
+      <li><strong>如果都很短但还是慢</strong>：看是不是请求数太多、或者连接没复用、或者服务端响应本身慢——<strong>这时候问题可能不在前端</strong>。</li>
+    </ol>
+    <p>最后说一句体现分寸的话：「<strong>我不会一上来就压缩图片</strong>——如果瓶颈在执行段，压图片是白费功夫。」</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>小程序里为什么"改一个字段"比网页里贵得多？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>因为<strong>小程序把逻辑和界面拆成了两层</strong>，你改的数据在逻辑层，要显示出来必须<strong>跨层传过去</strong>。这个传输过程要序列化，代价远高于网页里直接改内存。</p>
+    <p>所以三件事都很贵：<strong>传的数据量大、调用次数多、每次都传全量</strong>。</p>
+    <p>对应的优化就是反着来：</p>
+    <ul>
+      <li><strong>只传变化的字段</strong>，而且用路径精确指明改的是哪一项的哪个字段，别整个对象重传。</li>
+      <li><strong>合并调用</strong>，别在循环里一次次调。</li>
+      <li><strong>不参与显示的数据不要放进去</strong>，放了就是白白多传。</li>
+    </ul>
+    <p>一句话：<strong>"网页优化关心减少重排重绘，小程序首先要关心减少跨层通信。"</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="07-browser-compat.html">← 上一篇：浏览器兼容</a>
+  <a href="09-ai-ui-quality.html">下一篇：AI 生成界面的质量 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

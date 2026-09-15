@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · 框架选型：Vue 与 React — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 1/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item cur" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>01 · 框架选型：Vue 与 React</h1>
+<p class="lead">
+  这一页解决一个问题：<strong>被问"Vue 和 React 有什么区别"时，怎么答得不像背的。</strong>
+  这道题不难，但答成"一个是模板一个是 JSX"就浪费了——它其实是道<strong>设计哲学题</strong>。
+</p>
+
+<div class="qbadges"><span class="q">FN-1</span><span class="q">FN-2</span><span class="q">FN-3</span><span class="q">HQ-1</span><span class="q">SH-33</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页假设你写过 Vue 或 React 中的至少一个。<strong>如果两个都只跟着教程写过 todo list</strong>，先补 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>，再回来看。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，抓住"谁在替你做决定"这一条。</div>
+  <div><b>第二遍（12 分钟）</b>读第 2、3 节——区别和性能上限是真正会被追问的。</div>
+  <div><b>第三遍</b>做页尾回忆卡，用你自己的项目举例讲一遍。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方翻着你的项目，随口问了一句：<strong>「你 React 用得多，还是 Vue 用得多？」</strong></p>
+
+<p>这是个<strong>送分题，也是个陷阱题</strong>。</p>
+
+<p>答「Vue 多」结束了——对方只能接着问下一个。但如果你的项目写的是 Vue，你又答「React 多」，那就等于自己给对方递了把刀：<em>那你项目里那套东西是怎么写的？</em></p>
+
+<p>正确的答法是：<strong>先说清楚你的主战场，再用一句话讲明白两者的本质区别，最后落到"所以我当时为什么选它"。</strong>这样一句话就把话题从"你熟不熟"引到了"你会不会做技术决策"。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 两者的真正区别只有一条</p>
+  <h3>框架替你做的决定，多还是少</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 300" role="img" aria-label="Vue 与 React 的设计取向对比">
+    <text x="20" y="26" class="lbl-muted">你改了一行数据之后，发生了什么</text>
+
+    <!-- Vue 一侧 -->
+    <rect class="box-s" x="20" y="44" width="370" height="98" rx="9"></rect>
+    <text x="205" y="68" text-anchor="middle" style="font-weight:600">Vue：数据是「活」的</text>
+    <rect class="box-s" x="40" y="82" width="100" height="28" rx="6"></rect>
+    <text x="90" y="101" text-anchor="middle" font-size="12.5">改 this.count</text>
+    <text x="152" y="101" class="lbl-muted">→</text>
+    <rect class="box-s" x="170" y="82" width="90" height="28" rx="6"></rect>
+    <text x="215" y="101" text-anchor="middle" font-size="12.5">框架收到通知</text>
+    <text x="272" y="101" class="lbl-muted">→</text>
+    <rect class="box-s" x="290" y="82" width="84" height="28" rx="6"></rect>
+    <text x="332" y="101" text-anchor="middle" font-size="12.5">精确更新</text>
+    <text x="40" y="130" class="lbl-muted" font-size="12.5">你不用告诉它哪里变了，它自己知道</text>
+
+    <!-- React 一侧 -->
+    <rect class="box-m" x="410" y="44" width="370" height="98" rx="9"></rect>
+    <text x="595" y="68" text-anchor="middle" style="font-weight:600">React：数据是「快照」</text>
+    <rect class="box-m" x="430" y="82" width="96" height="28" rx="6"></rect>
+    <text x="478" y="101" text-anchor="middle" font-size="12.5">setCount(...)</text>
+    <text x="538" y="101" class="lbl-muted">→</text>
+    <rect class="box-m" x="556" y="82" width="100" height="28" rx="6"></rect>
+    <text x="606" y="101" text-anchor="middle" font-size="12.5">整段重跑</text>
+    <text x="668" y="101" class="lbl-muted">→</text>
+    <rect class="box-m" x="686" y="82" width="74" height="28" rx="6"></rect>
+    <text x="723" y="101" text-anchor="middle" font-size="12.5">比对差异</text>
+    <text x="430" y="130" class="lbl-muted" font-size="12.5">你重新描述"界面该长什么样"，它负责比</text>
+
+    <!-- 下方：决定权归属 -->
+    <text x="20" y="176" class="lbl-muted">这个区别往下推，会带出一整串不同</text>
+
+    <rect class="box-d" x="20" y="192" width="185" height="34" rx="7"></rect>
+    <text x="112" y="214" text-anchor="middle" font-size="13">模板 / 编译时优化</text>
+    <rect class="box-d" x="20" y="234" width="185" height="34" rx="7"></rect>
+    <text x="112" y="256" text-anchor="middle" font-size="13">官方全家桶</text>
+
+    <text x="222" y="214" class="lbl-muted" font-size="13">↔ 谁写模板</text>
+    <text x="222" y="256" class="lbl-muted" font-size="13">↔ 路由状态库谁提供</text>
+
+    <rect class="box-d" x="410" y="192" width="185" height="34" rx="7"></rect>
+    <text x="502" y="214" text-anchor="middle" font-size="13">JSX / 运行时调度</text>
+    <rect class="box-d" x="410" y="234" width="185" height="34" rx="7"></rect>
+    <text x="502" y="256" text-anchor="middle" font-size="13">生态自己挑</text>
+
+    <text x="612" y="214" class="lbl-muted" font-size="13">↔ 模板就是 JS</text>
+    <text x="612" y="256" class="lbl-muted" font-size="13">↔ 每样都要选型</text>
+
+    <text x="222" y="288" class="lbl-muted" font-size="12.5">一句话：Vue 替你做的决定多，React 留给你的自由多</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：Vue 是<strong>「响应式」</strong>的——你改数据，它自动知道哪里变了，只更新那一小块；React 是<strong>「快照」</strong>的——你重新描述整个界面，它自己比对出哪里不一样。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">这个底层差异往下推，就带出了模板 vs JSX、官方全家桶 vs 自己选生态、编译时优化 vs 运行时调度这一整串区别。<strong>别去背那一串，记住源头就够了。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>Vue 路线</span>
+  <span><i style="background:var(--c-model)"></i>React 路线</span>
+  <span><i style="background:var(--c-data)"></i>由底层差异推出的结果</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 回答这道题的三句话结构</h2>
+
+<p>被问区别时，不要一口气列十条。用这个结构，<strong>三句话就够，而且每句都能接追问</strong>：</p>
+
+<table>
+  <thead><tr><th style="width:16%">顺序</th><th style="width:32%">说什么</th><th>为什么这么说</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>先说结论</strong></td>
+      <td>本质区别是<strong>「谁负责知道哪里变了」</strong>：Vue 靠响应式自动追踪，React 靠你重新描述、它来比对。</td>
+      <td>一句话把话题从"背知识点"抬到"讲设计取向"，后面所有细节都能挂在这句话上。</td>
+    </tr>
+    <tr>
+      <td><strong>再说表现</strong></td>
+      <td>这个差异带来的直接结果是：<strong>Vue 写得少，React 管得多</strong>。Vue 语法更收敛、上手快；React 更自由、但要自己做更多决策。</td>
+      <td>把抽象差异翻译成"写代码时的体感"，对方一听就知道你真用过。</td>
+    </tr>
+    <tr>
+      <td><strong>最后落到自己</strong></td>
+      <td>结合你的项目：<strong>我当时用 X，是因为 Y</strong>（团队已有基础 / 需要服务端渲染 / 只是做个中后台）。</td>
+      <td>这一句是把话题引向"你会做技术决策"的关键，<strong>不要省</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">「写得少」具体少在哪</span>
+  <p>举两个能立刻说出口的例子，比空讲"更简单"有说服力：</p>
+  <ul>
+    <li><strong>表单双向绑定</strong>：Vue 写 <code>v-model</code> 一行；React 要写 <code>value</code> + <code>onChange</code> 两个属性，还要自己处理取值。</li>
+    <li><strong>依赖收集</strong>：Vue 里把数据放进模板或 <code>computed</code>，它自动就追踪了；React 里你得理解"闭包捕获的是哪一次渲染的值"，否则会踩到「拿到旧值」的坑。</li>
+  </ul>
+  <p>反过来说，React 的"自由"也不是空话：<strong>状态放哪、什么时候重渲染、要不要手动 memo</strong>，这些都是你来定。定得好性能上限更高，定不好就一卡一卡的。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「谁性能上限更高」——这是道送命题</h2>
+
+<p>这道题（<code>FN-2</code>）没有标准答案，但<strong>有三种答法，只有一种不扣分</strong>：</p>
+
+<div class="tree">
+  <p class="q">❌ 「Vue 更快」/「React 更快」</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">直接给结论</span>不管说哪个，对方只要追一句"为什么"就接不下去了。而且这个结论本身就是错的——两者在常见场景下都够快。</div>
+  </div>
+
+  <p class="q">⚠️ 「都差不多」</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">和稀泥</span>不算错，但等于没答。对方会觉得你没有判断。</div>
+  </div>
+
+  <p class="q">✅ 「看场景，而且取决于优化能力」</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">常见场景</span>Vue 的<strong>编译时优化</strong>让它默认就快：模板在编译阶段就能标记出"哪块是静态的、哪块会变"，运行时跳过大量比对。<strong>不动手优化的情况下，Vue 通常更容易跑到好成绩。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">极端场景</span>React 的<strong>运行时调度能力强</strong>——它能把一次大更新拆成很多小片，穿插着响应用户输入（就是所谓的"并发渲染"）。<strong>数据量极大、又必须保证输入不卡时，React 有更大的优化空间。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">更重要的半句</span>"但真正决定性能的，是<strong>有没有人认真优化</strong>——列表有没有做虚拟滚动、有没有乱重建对象导致全量重渲染。这些做不好，用哪个框架都慢。"</div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>"这个问题的答案取决于<strong>你在哪个层面比</strong>。如果比'不优化能跑多快'，Vue 因为编译期做了静态分析，通常更占优；如果比'优化后的天花板'，React 的调度能力给了更大的空间。"</p>
+  <p><strong>把"性能"拆成"默认表现"和"优化上限"两个维度</strong>——这一下就把一道没有答案的题，答成了一道有结构的题。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「最新版本在做什么」（<code>FN-3</code>）</h2>
+
+<p>这题考的是<strong>你有没有持续跟进</strong>，不是考你背版本号。所以<strong>说方向比说版本号重要</strong>——版本号说错很尴尬，方向说错才是真问题。</p>
+
+<table>
+  <thead><tr><th style="width:18%">框架</th><th style="width:30%">大方向</th><th>怎么说得像真在用</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Vue</strong></td>
+      <td>继续压榨<strong>编译时</strong>的能力</td>
+      <td>"Vue 这几年的主线一直是<strong>把更多工作放到编译阶段</strong>——静态提升、补丁标记都是这个思路。再往前是探索<strong>不依赖虚拟 DOM</strong> 的编译模式，官方叫 Vapor Mode，思路是把响应式直接编译成精确的 DOM 操作。"</td>
+    </tr>
+    <tr>
+      <td><strong>React</strong></td>
+      <td>继续强化<strong>运行时调度</strong> + 把优化自动化</td>
+      <td>"React 这边最近两块：一是<strong>服务端组件</strong>，把一部分渲染放回服务端，减少传到浏览器的 JS；二是<strong>编译器</strong>，目标是让你不用手写那些 memo 优化，它自动帮你加。方向都是'让开发者少操心性能'。"</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">说错版本号的代价</span>
+  <p>版本号记不准就<strong>模糊着说</strong>："大概从 3.4 之后"「最近一两个大版本」——没人会揪这个。</p>
+  <p>但<strong>不要说反方向</strong>。比如把 Vue 说成"也在搞并发渲染"，或者把 React 说成"主要靠编译优化"——这会让对方判断你只是看了两篇公众号。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 剩下两道零散的题</h2>
+
+<table>
+  <thead><tr><th style="width:26%">题</th><th>怎么答</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>你哪个用得多（<code>SH-33</code>）</strong></td>
+      <td>如实说，然后<strong>补半句另外一个的情况</strong>。例："Vue 是我的主战场，项目从 2 到 3 都是我做的；React 我写过一些，主要用来做独立的小工具，所以生态那套（路由、状态管理怎么选）我知道大概但不常做决策。"<br><strong>不要硬撑两边都精通</strong>——追两个细节就露了，而且显得不稳。</td>
+    </tr>
+    <tr>
+      <td><strong>NextJS 用得多吗（<code>HQ-1</code>）</strong></td>
+      <td>如果用过，就讲<strong>你用它解决了什么</strong>："我们的文档站要做 SEO，纯前端渲染抓不到内容，所以用了它的服务端渲染。"<br>如果没用过，别硬编，说："我目前项目是纯前端渲染，没有 SEO 需求所以没上；我知道它主要解决首屏和 SEO，也支持把一部分渲染放服务端。"<br><strong>关键是说清"解决什么问题"，而不是背特性列表。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「Vue 和 React 有什么区别 / 你更熟哪个」</span>
+  <p><strong>【结论】</strong>我两个都用过，主力是 Vue。<strong>它们的本质区别是"谁负责知道哪里变了"</strong>——Vue 靠响应式自动追踪依赖，React 靠你重新描述界面、它来比对差异。</p>
+  <p><strong>【展开】</strong>这个差异往下推，就是模板对 JSX、官方全家桶对自由选生态、编译时优化对运行时调度。</p>
+  <p><strong>【性能】</strong>比性能要看层面：<strong>不优化的情况下 Vue 通常更占优</strong>，因为它在编译阶段就能标出静态内容；<strong>优化上限上 React 空间更大</strong>，它的调度能把大更新拆片。但真正决定性能的是有没有做虚拟滚动、有没有避免无谓的重渲染。</p>
+  <p><strong>【自己的项目】</strong>我项目用 Vue 3，选它是因为团队已有基础、而且主要是中后台场景，开发效率比极致性能更重要。响应式那套我用得比较熟，包括 2 和 3 的实现差异。</p>
+  <p><strong>【权衡】</strong>如果重来一次、且要做 SEO 或需要服务端渲染，我会认真考虑 React 那一套。选型不是选"更好的框架"，是选<strong>更匹配当前约束的</strong>。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那 React 的 hooks 你了解吗？」</summary>
+  <p>这多半是在<strong>验证你刚才说的"写过一些"是不是真的</strong>。诚实回答，但要把你知道的那部分说实：</p>
+  <ul>
+    <li>说清它的<strong>目的</strong>：让函数组件也能有状态和副作用，替代了以前的 class 组件写法。</li>
+    <li>说出<strong>最常用的一两个</strong>：<code>useState</code> 管状态、<code>useEffect</code> 管副作用，以及依赖数组决定它什么时候重跑。</li>
+    <li>如果能说出一个<strong>真实的坑</strong>，可信度会陡增：比如"<code>useEffect</code> 依赖数组漏了一项会导致拿到旧值，早期踩过"。</li>
+  </ul>
+  <p><strong>不要不懂装懂。</strong>被追问到"手写一个 useDebounce"这种程度，硬编会翻车得很难看；直接说"这类自定义 hook 我写过简单的，复杂的不敢说熟"反而安全。</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「那你觉得新项目该选哪个？」</summary>
+  <p>这是一道<strong>没有正确答案、但能看出判断力</strong>的题。答的时候围绕三条约束展开：</p>
+  <ul>
+    <li><strong>团队</strong>：现有成员熟哪个？招人好不好招？<strong>这一条通常权重最高。</strong></li>
+    <li><strong>场景</strong>：要不要 SEO / 服务端渲染（偏 React 生态成熟）、是不是中后台（偏 Vue 上手快）、要不要跨端。</li>
+    <li><strong>生态</strong>：Vue 官方把路由和状态管理都给了，省选型；React 每样都要自己挑，灵活但费决策。</li>
+  </ul>
+  <p>一句话收尾："<strong>没有更好的框架，只有更匹配当前约束的</strong>。"</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「虚拟 DOM 到底快不快？」</summary>
+  <p>这是个<strong>反直觉的点</strong>，能答对很加分：</p>
+  <p>虚拟 DOM <strong>不是因为它比直接操作 DOM 快</strong>——直接操作理论上更快。<strong>它的价值是"让你不用自己算哪里变了"</strong>：你重新描述整个界面，它比对出最小改动，然后只改那些地方。</p>
+  <p>比对手写的 DOM 操作，它多了一层比对开销，但<strong>比"整块重新渲染"快得多</strong>，而且把"什么时候该更新"这个难题从人手里拿走了。</p>
+  <p>再补一句就完整了：<strong>Vue 3 的思路是"能编译出来的就别留到运行时比对"</strong>——静态内容直接提升出去，动态部分打标记，等于把一部分虚拟 DOM 的开销省掉了。</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>用一个具体例子，说明 Vue 和 React 在「数据变了之后」的处理有什么不同。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>假设页面上有个计数器，点了按钮要 +1：</p>
+    <ul>
+      <li><strong>Vue</strong>：你直接写 <code>this.count++</code>。这个 <code>count</code> 是<strong>被追踪过的</strong>，它一变，框架就知道"模板里用到它的那几处"需要更新，只改那几处。</li>
+      <li><strong>React</strong>：你调 <code>setCount(count + 1)</code>。<strong>整个组件函数重新执行一遍</strong>，生成一份新的界面描述，框架拿新的和旧的比对，找出差异再去改 DOM。</li>
+    </ul>
+    <p>一句话概括：<strong>Vue 是"数据活着，框架盯着它"；React 是"你重新描述，框架帮你比"。</strong></p>
+    <p>顺带能说出代价就更好了：Vue 的代价是数据要经过处理才能被追踪（所以有那些"数据变了视图没变"的坑）；React 的代价是你要理解"每次渲染都是一个快照"，否则会踩到闭包拿旧值的问题。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「Vue 和 React 谁性能更好？」——列出你的答法结构。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>先否掉二选一</strong>："这个问题要看在哪个层面比，不能直接给结论。"</li>
+      <li><strong>默认表现</strong>：Vue 的编译时优化（静态提升、补丁标记）让它<strong>不额外优化就更容易快</strong>。</li>
+      <li><strong>优化上限</strong>：React 的调度能把一次大更新拆成小片、保证输入不卡，<strong>极端场景空间更大</strong>。</li>
+      <li><strong>落到真正决定因素</strong>：列表有没有虚拟滚动、有没有避免无谓重渲染、有没有乱建对象——<strong>这些做不好，用哪个都慢</strong>。</li>
+      <li><strong>收尾</strong>：所以选型时性能通常不是第一权重，团队熟练度和场景匹配更重要。</li>
+    </ol>
+    <p>关键在第四步：<strong>把话题从"框架之争"拉回"工程实践"</strong>，这是拉分的地方。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="00-how-to-study.html">← 上一篇：这一步骤怎么学</a>
+  <a href="02-vue-reactivity.html">下一篇：Vue 响应式原理 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

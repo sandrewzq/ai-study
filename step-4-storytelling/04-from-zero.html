@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · 从 0 到 1 与搭框架 — 步骤 4 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 4 · 第 4/7 份 ｜ G 域 · 项目叙事与方案设计</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 4 · 讲故事</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-project-overview.html"><span class="n">01</span><span>项目整体怎么讲</span></a></li>
+    <li><a class="item" href="02-project-facts.html"><span class="n">02</span><span>用户、功能与工期</span></a></li>
+    <li><a class="item" href="03-architecture-layers.html"><span class="n">03</span><span>架构分层与技术选型</span></a></li>
+    <li><a class="item cur" href="04-from-zero.html"><span class="n">04</span><span>从 0 到 1 与搭框架</span></a></li>
+    <li><a class="item" href="05-design-cases.html"><span class="n">05</span><span>方案设计题</span></a></li>
+    <li><a class="item" href="06-wecom-ecosystem.html"><span class="n">06</span><span>企微生态专题</span></a></li>
+    <li><a class="item" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>04 · 从 0 到 1 与搭框架</h1>
+<p class="lead">
+  「新项目你怎么起手」这类题，考的<strong>不是你的技术栈有多全</strong>，而是你有没有一套<strong>固定的推进顺序</strong>。
+  这一页给的就是那套顺序，以及三个最常见的错误。
+</p>
+
+<div class="qbadges"><span class="q">YC-2</span><span class="q">HJ-7</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页接着<a href="03-architecture-layers.html">上一份（架构分层）</a>。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住那五步的顺序。</div>
+  <div><b>第二遍（12 分钟）</b>读第 2 节——三个错误比正确做法更值得记。</div>
+  <div><b>第三遍</b>做页尾回忆卡，用你真实做过的项目走一遍这五步。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「如果现在让你从零搭一个新项目，你的整体思路是什么？」</strong></p>
+
+<p>你开始讲：<em>「我会用 NestJS 做后端，前端 Vue3，数据库 PostgreSQL，缓存 Redis，向量库用 Milvus，用 Docker 部署……」</em></p>
+
+<p>对方打断了一下：<strong>「这些是技术选型。我是问思路。」</strong></p>
+
+<p>——这一下就分出来了。</p>
+
+<div class="analogy">
+  <span class="tag">「技术选型」不是「思路」</span>
+  <p><strong>技术选型是结论，思路是得出这个结论的过程。</strong></p>
+  <p>对方想听的是：你先看什么、再定什么、怎么判断该用什么。<strong>因为选型结果会随项目变，但那个判断过程是可迁移的</strong>——这才是他们真正想雇的东西。</p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 从 0 到 1 的五步</p>
+  <h3>先摸约束，再跑最小闭环，最后才谈扩展</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 330" role="img" aria-label="从零搭建项目的五个步骤">
+    <!-- 五步 -->
+    <rect class="box-d" x="20" y="42" width="142" height="72" rx="8"></rect>
+    <text x="91" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">① 摸约束</text>
+    <text x="91" y="84" text-anchor="middle" font-size="11" class="lbl-muted">谁用、多少人</text>
+    <text x="91" y="100" text-anchor="middle" font-size="11" class="lbl-muted">合规、团队会什么</text>
+
+    <text x="170" y="82" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-d" x="190" y="42" width="142" height="72" rx="8"></rect>
+    <text x="261" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">② 划边界</text>
+    <text x="261" y="84" text-anchor="middle" font-size="11" class="lbl-muted">什么自己做</text>
+    <text x="261" y="100" text-anchor="middle" font-size="11" class="lbl-muted">什么用现成的</text>
+
+    <text x="340" y="82" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-d" x="360" y="42" width="142" height="72" rx="8"></rect>
+    <text x="431" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 想数据</text>
+    <text x="431" y="84" text-anchor="middle" font-size="11" class="lbl-muted">数据长什么样</text>
+    <text x="431" y="100" text-anchor="middle" font-size="11" class="lbl-muted">怎么流、放哪</text>
+
+    <text x="510" y="82" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-m" x="530" y="42" width="120" height="72" rx="8"></rect>
+    <text x="590" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">④ 最小闭环</text>
+    <text x="590" y="84" text-anchor="middle" font-size="11" class="lbl-muted">跑通一条</text>
+    <text x="590" y="100" text-anchor="middle" font-size="11" class="lbl-muted">最短路径</text>
+
+    <text x="658" y="82" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-s" x="678" y="42" width="102" height="72" rx="8"></rect>
+    <text x="729" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">⑤ 再扩展</text>
+    <text x="729" y="84" text-anchor="middle" font-size="11" class="lbl-muted">按需加</text>
+    <text x="729" y="100" text-anchor="middle" font-size="11" class="lbl-muted">不过度设计</text>
+
+    <!-- 三个错误 -->
+    <text x="20" y="150" class="lbl-muted" font-size="13">三个最常见的错误（比正确做法更值得记）</text>
+
+    <rect x="20" y="166" width="240" height="106" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="140" y="188" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">① 先画大架构图</text>
+    <text x="140" y="210" text-anchor="middle" font-size="11.5" class="lbl-muted">还没验证效果就设计</text>
+    <text x="140" y="228" text-anchor="middle" font-size="11.5" class="lbl-muted">微服务、消息队列、</text>
+    <text x="140" y="246" text-anchor="middle" font-size="11.5" class="lbl-muted">多级缓存全都安排上</text>
+    <text x="140" y="264" text-anchor="middle" font-size="11" fill="var(--c-risk)">结果一半用不上</text>
+
+    <rect x="278" y="166" width="240" height="106" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="398" y="188" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">② 过早抽象</text>
+    <text x="398" y="210" text-anchor="middle" font-size="11.5" class="lbl-muted">只有一处用的东西</text>
+    <text x="398" y="228" text-anchor="middle" font-size="11.5" class="lbl-muted">也抽成通用组件</text>
+    <text x="398" y="246" text-anchor="middle" font-size="11.5" class="lbl-muted">加一堆用不上的参数</text>
+    <text x="398" y="264" text-anchor="middle" font-size="11" fill="var(--c-risk)">改起来更慢</text>
+
+    <rect x="536" y="166" width="244" height="106" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="658" y="188" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">③ 忽略数据</text>
+    <text x="658" y="210" text-anchor="middle" font-size="11.5" class="lbl-muted">先搭架子，最后才看</text>
+    <text x="658" y="228" text-anchor="middle" font-size="11.5" class="lbl-muted">真实数据长什么样</text>
+    <text x="658" y="246" text-anchor="middle" font-size="11.5" class="lbl-muted">结果格式对不上</text>
+    <text x="658" y="264" text-anchor="middle" font-size="11" fill="var(--c-risk)">推倒重来</text>
+
+    <!-- 收尾 -->
+    <rect class="box-t" x="20" y="288" width="760" height="34" rx="7"></rect>
+    <text x="400" y="310" text-anchor="middle" font-size="12.5" style="font-weight:600">AI 项目尤其如此：效果能不能达标，比架构先不先进重要得多</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：从 0 到 1 的正确顺序是<strong>先摸清约束、划清边界、想清楚数据，然后跑通一条最短路径，最后才按需扩展</strong>。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">这三个错误有个共同点：<strong>都是在还没验证效果的时候就开始做架构决策</strong>。而 AI 项目最不确定的恰恰是效果——<strong>方案再漂亮，检索不准就是白搭</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-data)"></i>前期判断</span>
+  <span><i style="background:var(--c-model)"></i>核心动作</span>
+  <span><i style="background:var(--c-store)"></i>后期扩展</span>
+  <span><i style="background:var(--c-risk)"></i>常见错误</span>
+  <span><i style="background:var(--c-tool)"></i>结论</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 五步分别做什么（<code>YC-2</code>）</h2>
+
+<table>
+  <thead><tr><th style="width:16%">步骤</th><th style="width:34%">具体做什么</th><th>为什么排在这个位置</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 摸约束</strong></td>
+      <td>谁用、多少人用、有没有合规或数据不能出内网的要求、团队熟什么、给多少时间。</td>
+      <td><strong>约束决定了方案空间。</strong>比如数据不能出内网，模型就只能私有化部署，后面所有选型都被这一条锁死。</td>
+    </tr>
+    <tr>
+      <td><strong>② 划边界</strong></td>
+      <td>哪些是核心必须自己做的，哪些用现成的。</td>
+      <td>AI 应用里，<strong>框架、检索组件、向量库大多是现成的</strong>；真正要自己做的是<strong>数据准备和效果调优</strong>——这两块没有现成方案能替你解决。</td>
+    </tr>
+    <tr>
+      <td><strong>③ 想数据</strong></td>
+      <td>数据的来源、格式、量级、更新频率，以及存在哪、怎么流。</td>
+      <td><strong>这一步最容易被跳过，代价也最大。</strong>很多项目做到一半才发现源数据格式对不上，要推倒重来。</td>
+    </tr>
+    <tr>
+      <td><strong>④ 跑最小闭环</strong></td>
+      <td>先让一条最短路径跑通，哪怕只有几份文档、界面很简陋。</td>
+      <td><strong>目的是尽早验证效果。</strong>RAG 类项目最不确定的就是"检索准不准"，这件事必须最早知道。</td>
+    </tr>
+    <tr>
+      <td><strong>⑤ 再扩展</strong></td>
+      <td>效果达标之后，再补权限、看板、异步任务、缓存这些。</td>
+      <td>这些东西<strong>不验证效果就去做，很有可能白做</strong>——效果不行的话，整个方案要换。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>补一句<strong>"我实际吃过哪个亏"</strong>，比讲方法论有说服力得多：</p>
+  <p>「我踩过的坑是<strong>第 ③ 步跳太快</strong>。当时直接拿几份格式规整的文档去验证，效果很好，就放心往下做了。<strong>结果接入真实资料时才发现，几百份文档来源不同、格式各异，光统一解析就花了一周多</strong>。如果一开始就抽一小批真实数据来试，这个问题会更早暴露。」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「搭框架的整体思路」（<code>HJ-7</code>）</h2>
+
+<p>这题比上一题多一点——它问的是<strong>你搭的那套骨架是什么样的</strong>。所以除了顺序，还要说清<strong>骨架里预留了什么、刻意没留什么</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:24%">骨架里必须有</th><th>为什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>一条清晰的请求链路</strong></td>
+      <td>从入口到模型调用，中间每一跳的职责要明确。<strong>后面加功能都是往这条链路上挂，链路清楚才好挂。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>模型调用的统一出口</strong></td>
+      <td>所有调模型的地方都走同一层。<strong>这样换模型、加缓存、统计用量、做降级都只改一个地方</strong>——这是 AI 应用框架里最值钱的一个抽象。</td>
+    </tr>
+    <tr>
+      <td><strong>配置与密钥的集中管理</strong></td>
+      <td>模型地址、密钥、各种阈值不能散在代码里。<strong>换环境、调参数的时候能省大量时间。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>日志与用量记录</strong></td>
+      <td><strong>从第一天就要有。</strong>不然等你想算命中率、想排查效果问题时，会发现历史数据根本没有。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">骨架里刻意先不放的</span>
+  <p>能主动说出"我故意没做这些"，比列一堆做过的更有判断力：</p>
+  <ul>
+    <li><strong>没做多级缓存</strong>：量级没到，加了只会让数据更新变得难排查。</li>
+    <li><strong>没做微服务</strong>：一个团队一个项目，拆开只会增加部署和联调成本。</li>
+    <li><strong>没做通用 Agent 编排引擎</strong>：当时只有两条固定链路，抽象成引擎是给自己找麻烦。</li>
+  </ul>
+  <p>收一句：「<strong>这些不是"不该有"，是"还没到时候"。骨架的作用是留出位置，而不是提前把东西都塞进去。</strong>」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「如果团队只有一两个人，这套思路还成立吗？」</summary>
+  <p><strong>更成立，而且更该严格执行。</strong>人少的时候，试错成本反而更高——因为没人帮你兜底。</p>
+  <ul>
+    <li><strong>① 摸约束可以更快</strong>：人少的项目通常约束也简单，几句话说清就行，不用做正式调研。</li>
+    <li><strong>② 划边界要更狠</strong>：人少意味着<strong>自己做的每一块都是成本</strong>。能用现成的绝不自己写，能用托管服务绝不自己运维。</li>
+    <li><strong>③ 想数据不能省</strong>：这一条和人多人少无关。<strong>数据不对，人再多也做不出来。</strong></li>
+    <li><strong>④ 最小闭环更重要</strong>：一个人做项目最怕的是埋头两周，抬头发现方向错了。<strong>闭环跑得越早，纠偏越便宜。</strong></li>
+    <li><strong>⑤ 扩展要更保守</strong>：没有余力维护的东西不要引入。<strong>多一个组件就多一份运维负担，人少时这份负担是致命的。</strong></li>
+  </ul>
+  <p>收尾：「所以人少的时候，<strong>我的取舍会更偏向"用现成的"和"先不做"</strong>——把有限的精力全压在效果上。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「你怎么知道自己的骨架搭得好不好？」</summary>
+  <p>这题在<strong>看你会不会自评</strong>。给几个<strong>可观察的迹象</strong>，别说"感觉还不错"：</p>
+  <ul>
+    <li><strong>加一个新功能要改几个地方</strong>：如果加一个接口要动五六个文件，说明边界没划好；<strong>理想情况是只加一块、动一两处配置。</strong></li>
+    <li><strong>换一个模型要改几处</strong>：因为模型调用走了统一出口，<strong>理论上只改配置</strong>。如果发现要在十几个文件里搜替换，说明这个抽象没做到位。</li>
+    <li><strong>出问题时能不能只靠日志定位</strong>：如果每次排查都要临时加打印，说明观测性没从第一天做进去。</li>
+    <li><strong>新人接手要多久能改出第一个东西</strong>：这是最直观的检验——<strong>骨架的作用就是让不熟悉的人也能快速上手。</strong></li>
+  </ul>
+  <p>收尾：「这几个都是我实际用来检验的。其中<strong>"换模型要改几处"是最灵敏的</strong>——它会立刻暴露出你的抽象有没有到位。」</p>
+</details>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「从 0 到 1 你怎么设计架构 / 搭框架的思路」</span>
+  <p><strong>【结论】</strong>我的顺序是<strong>五步</strong>：摸约束 → 划边界 → 想数据 → 跑最小闭环 → 再扩展。<strong>核心原则是先把效果验证掉，再谈架构。</strong></p>
+  <p><strong>【摸约束】</strong>先问清楚谁用、多少人用、有没有数据不能出内网的要求、团队熟什么。<strong>这些条件会直接锁死后面的选型空间</strong>，所以必须最先问。</p>
+  <p><strong>【划边界】</strong>AI 应用里框架和检索组件都有现成的，<strong>真正要自己做的是数据准备和效果调优</strong>——这两块没有现成方案，也是决定成败的地方。</p>
+  <p><strong>【想数据】</strong>数据的来源、格式、量级、更新频率，以及怎么存怎么流。<strong>这一步最容易跳过，代价最大</strong>——我踩过这个坑，一开始只拿格式规整的文档验证，接入真实资料时才发现光统一解析就花了一周多。</p>
+  <p><strong>【最小闭环】</strong>先让"提问 → 检索 → 回答"这条最短路径跑通，哪怕界面很简陋。<strong>目的是尽早知道效果能不能达标</strong>——RAG 类项目最不确定的就是这件事。</p>
+  <p><strong>【骨架里放什么】</strong>四样：清晰的请求链路、<strong>模型调用的统一出口</strong>（换模型、加缓存、统计用量都只改这一处）、配置与密钥集中管理、<strong>从第一天就有的日志和用量记录</strong>。</p>
+  <p><strong>【刻意没放的】</strong>没做多级缓存、没拆微服务、没做通用的 Agent 编排引擎。<strong>不是不该有，是还没到时候</strong>——量级和复杂度没到，加了只会增加排查成本。</p>
+  <p><strong>【权衡】</strong>这套思路的代价是<strong>前期看起来"不够专业"</strong>——没有漂亮的架构图，也没有炫技的组件。但我更愿意把时间花在验证效果上，<strong>因为方案再漂亮，检索不准就是白搭。</strong></p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你怎么判断什么时候该扩展了？」</summary>
+  <p>这题在<strong>看你会不会"过早优化"</strong>。给一个可判断的信号，比说"看情况"强：</p>
+  <ul>
+    <li><strong>效果达标了</strong>——这是最硬的前置条件。效果不达标，讨论扩展没有意义。</li>
+    <li><strong>出现具体的瓶颈了</strong>——不是"以后可能会慢"，而是**已经慢了、并且量出来是哪里慢**。比如检索耗时涨到一秒以上、或者用量增长导致成本失控。</li>
+    <li><strong>有重复出现了</strong>——同一类需求被做了三遍以上，这时候才值得抽象成通用的东西。</li>
+  </ul>
+  <p>收尾：「所以我的判断标准是<strong>"先有问题，再找方案"，而不是"先备着，以防万一"</strong>。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「如果时间很紧，这五步里你会砍掉哪步？」</summary>
+  <p>这题<strong>没有标准答案，但要能说出取舍逻辑</strong>。别答"一个都不能砍"，那等于没答。</p>
+  <p>可以说：<strong>能压缩顺序，不能压缩验证。</strong></p>
+  <ul>
+    <li><strong>能压的</strong>：① 摸约束可以简化成几个关键问题；② 划边界可以边做边定；⑤ 扩展本来就不在前期做。</li>
+    <li><strong>不能压的</strong>：<strong>④ 最小闭环</strong>。哪怕只有一个页面、只接十份文档，也必须先跑通——<strong>因为它是唯一能提前暴露"这条路走不通"的环节。</strong></li>
+    <li><strong>③ 想数据可以并行</strong>：不用等前面全做完才开始看数据，但<strong>必须在正式开发前摸过一遍真实数据</strong>。</li>
+  </ul>
+  <p>一句话：「<strong>时间紧的时候我会压缩流程，但不会跳过验证。</strong>」</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>说不出五步的名字，只说出「哪一步最不能省」和「为什么」。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>最不能省的是"跑最小闭环"。</strong></p>
+    <p>原因：<strong>AI 项目最大的不确定性在效果上，而不在架构上。</strong>检索准不准、模型答得好不好，这些只有真跑一遍才知道。而架构、部署、缓存这些东西，做法是确定的——先做后做，结果不会差太多。</p>
+    <p>所以顺序上的逻辑是：<strong>把不确定性高的先验证掉，把确定的往后放。</strong></p>
+    <p>如果还想更完整，可以说第三名是"想数据"——因为<strong>真实数据的脏乱差，是仅次于效果的第二个不确定性来源</strong>，而且是"不看不发现"的那种。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「先画大架构图」和「先跑最小闭环」——这两种做法在同一个项目里会导致什么不同结果？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>用一个具体场景对比：假设这是个 RAG 问答系统。</p>
+    <p><strong>先画架构图</strong>：你会先设计出微服务拆分、消息队列、多级缓存、完整的权限体系……<strong>花掉一个月</strong>。然后接入真实文档，发现<strong>检索命中率只有四成</strong>——效果不达标。</p>
+    <p>这时候问题来了：<strong>你搭的那一堆东西，没有一样能解决"检索不准"</strong>。而且如果最后的结论是"要换一套检索方案"，那前面按旧方案设计的接口和数据结构还得改。</p>
+    <p><strong>先跑最小闭环</strong>：一周之内用十几份真实文档跑通全流程，<strong>发现命中率不行</strong>。于是接下来所有时间都投在切分策略和精排上，直到效果可用，<strong>再按最终确定下来的方案去补缓存、权限、看板</strong>。</p>
+    <p>结论：<strong>两者的差别不是"快慢"，是"把时间花在哪个不确定性上"。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="03-architecture-layers.html">← 上一篇：架构分层与技术选型</a>
+  <a href="05-design-cases.html">下一篇：方案设计题 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

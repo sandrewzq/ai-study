@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · 浏览器兼容 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 7/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item cur" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>07 · 浏览器兼容</h1>
+<p class="lead">
+  这一组题的核心只有一个区分：<strong>「语法」和「接口」是两回事</strong>——一个能转译，一个转译不出来。
+  想清楚这条，后面所有题都能自己推出来。
+</p>
+
+<div class="qbadges"><span class="q">SH-28</span><span class="q">SH-29</span><span class="q">SH-30</span><span class="q">SH-31</span><span class="q">SH-32</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>需要知道什么是"打包"、什么是"转译"。<strong>没配过打包工具也没关系</strong>，这页讲的是判断逻辑。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图——记住"语法能转、接口要补"。</div>
+  <div><b>第二遍（12 分钟）</b>读第 2、3 节，那是会连环追问的部分。</div>
+  <div><b>第三遍</b>做页尾回忆卡，里面有道"路由不跳转"的排查题。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>项目上线后，有人反馈：<strong>「点菜单，地址栏变了，但页面不动。」</strong></p>
+
+<p>你本地怎么试都正常。让对方报了下浏览器版本——<strong>是一个很老的版本</strong>。</p>
+
+<p>你去看控制台，发现一行报错：<em>某个方法不是一个函数</em>。</p>
+
+<p>这不是你的代码写错了。<strong>是那个浏览器根本没有这个方法</strong>——代码在它上面压根跑不到跳转那一步。</p>
+
+<p>类似的问题，根源都一样：<strong>你写的新语法被打包工具转成了老语法，但有些"新东西"是转不出来的，只能另外补。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这一组题的题眼</p>
+  <h3>语法（写法）能转译，接口（能力）转译不出来</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 316" role="img" aria-label="语法与接口两类兼容问题的区别">
+    <text x="20" y="26" class="lbl-muted">你写的代码里有两类"新东西"</text>
+
+    <!-- 语法一侧 -->
+    <rect class="box-s" x="20" y="42" width="370" height="150" rx="9"></rect>
+    <text x="205" y="66" text-anchor="middle" style="font-weight:600">① 语法 · 写法变了</text>
+
+    <text x="42" y="92" class="lbl-muted" font-size="12.5">例子：箭头函数、class、解构、可选链、模板字符串</text>
+
+    <rect class="box-s" x="42" y="106" width="326" height="30" rx="6"></rect>
+    <text x="205" y="126" text-anchor="middle" font-size="12.5">打包工具把它改写成老的等价写法</text>
+
+    <rect class="box-s" x="42" y="146" width="326" height="30" rx="6"></rect>
+    <text x="205" y="166" text-anchor="middle" font-size="12.5" style="font-weight:600">✅ 转译就够了，不用你操心</text>
+
+    <!-- 接口一侧 -->
+    <rect x="410" y="42" width="370" height="150" rx="9" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="595" y="66" text-anchor="middle" font-size="13" fill="var(--c-risk)" style="font-weight:600">② 接口 · 能力缺失</text>
+
+    <text x="432" y="92" class="lbl-muted" font-size="12.5">例子：Promise、Object.assign、数组新方法、观察器类</text>
+
+    <rect x="432" y="106" width="326" height="30" rx="6" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="595" y="126" text-anchor="middle" font-size="12.5" fill="var(--c-risk)">转译工具改不了 —— 它本来就不存在</text>
+
+    <rect x="432" y="146" width="326" height="30" rx="6" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="595" y="166" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">❌ 必须额外补一段实现进去</text>
+
+    <!-- 三者对照 -->
+    <text x="20" y="222" class="lbl-muted">还有第三类，谁都帮不了你</text>
+
+    <rect class="box-d" x="20" y="238" width="240" height="60" rx="7"></rect>
+    <text x="140" y="258" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 样式与布局</text>
+    <text x="140" y="276" text-anchor="middle" font-size="12" class="lbl-muted">新选择器、新布局</text>
+    <text x="140" y="292" text-anchor="middle" font-size="12" class="lbl-muted">要自己写前缀 / 留退路</text>
+
+    <rect class="box-d" x="274" y="238" width="240" height="60" rx="7"></rect>
+    <text x="394" y="258" text-anchor="middle" font-size="12.5" style="font-weight:600">④ 框架也抹不平的部分</text>
+    <text x="394" y="276" text-anchor="middle" font-size="12" class="lbl-muted">框架自己就依赖 ②</text>
+    <text x="394" y="292" text-anchor="middle" font-size="12" class="lbl-muted">所以它也得靠你补</text>
+
+    <rect class="box-m" x="528" y="238" width="252" height="60" rx="7"></rect>
+    <text x="654" y="258" text-anchor="middle" font-size="12.5" style="font-weight:600">所以排查顺序是</text>
+    <text x="654" y="276" text-anchor="middle" font-size="12" class="lbl-muted">先看控制台报什么</text>
+    <text x="654" y="292" text-anchor="middle" font-size="12" class="lbl-muted">再判断是①②③哪一类</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：兼容问题分两类，<strong>处理方式完全不同</strong>。语法是"写法新"，打包工具能改成老写法；接口是"能力缺"，那个东西在那个浏览器里<strong>根本不存在</strong>，转译器变不出来，只能额外补一段实现塞进去。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">开头的"路由不跳转"就是第二类：<strong>转译让代码语法上能跑，但运行到某个不存在的方法上就断了</strong>，后面的跳转自然没执行。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>工具能自动处理</span>
+  <span><i style="background:var(--c-risk)"></i>必须额外补</span>
+  <span><i style="background:var(--c-data)"></i>需要人工设计</span>
+  <span><i style="background:var(--c-model)"></i>排查方法</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 「有做过浏览器兼容吗」怎么答（<code>SH-28</code>）</h2>
+
+<p>这题<strong>最忌讳答"有，我用工具自动处理的"</strong>——听起来像没操心过。也忌讳答"现在不用管兼容了"，那等于没做过正经项目。</p>
+
+<p>一个稳的答法是<strong>三段式</strong>：先说清你面对的现实，再说你怎么处理，最后说你踩过的坑。</p>
+
+<table>
+  <thead><tr><th style="width:22%">层次</th><th>说什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 现实</strong></td>
+      <td>先明确<strong>要支持到什么范围</strong>。这一步很关键——兼容不是"越多越好"，而是"按用户实际分布定一个清单"。定完清单，后面的工作才有边界。</td>
+    </tr>
+    <tr>
+      <td><strong>② 手段</strong></td>
+      <td>三件事：<strong>语法统一转译</strong>（一份源码，打包时按目标清单降级）、<strong>缺失的接口按需补</strong>、<strong>样式交给自动加前缀的工具 + 留退路写法</strong>。</td>
+    </tr>
+    <tr>
+      <td><strong>③ 坑</strong></td>
+      <td>说一个真实踩过的：<strong>"转译只保证语法能跑，不保证用到的接口存在"</strong>。这是最典型的一类问题，见下一节。</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 打包降级会遇到什么问题（<code>SH-29</code>、<code>SH-30</code>）</h2>
+
+<p>这两题是一体的。<strong>最该说清的一个坑是"静默失败"</strong>：代码能编译通过、能打包成功、语法检查也不报错，<strong>但一到那个浏览器上运行就崩</strong>。</p>
+
+<p>原因是转译器<strong>只认识语法</strong>。它看到你用了箭头函数，知道怎么改成普通函数；但它看到你调用了某个方法，<strong>默认你运行的环境里有这个东西</strong>——它不会去检查。</p>
+
+<table>
+  <thead><tr><th style="width:26%">问题</th><th style="width:34%">为什么会出现</th><th>怎么处理</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>语法转了，接口没补</strong></td>
+      <td>转译只管写法，不管运行环境有没有那个能力。</td>
+      <td>按目标范围<strong>引入补齐实现</strong>，而且要按需引入——全量引入会让包变大很多。</td>
+    </tr>
+    <tr>
+      <td><strong>补多了，包变大</strong></td>
+      <td>为了保险把所有补齐实现都打进去，结果一大半用不上。</td>
+      <td>用"按实际使用引入"的策略，配合目标范围配置，只补真正缺的。</td>
+    </tr>
+    <tr>
+      <td><strong>有些东西补不了</strong></td>
+      <td>像 <code>Proxy</code> 这类是<strong>语言底层能力</strong>，没法用普通代码模拟出来。</td>
+      <td>只能在选型阶段就避开——<strong>这正是 Vue 3 不支持老浏览器的根本原因</strong>，见 <a href="02-vue-reactivity.html">02 · Vue 响应式原理</a>。</td>
+    </tr>
+    <tr>
+      <td><strong>三方库拖后腿</strong></td>
+      <td>你自己代码降级了，但依赖的某个库用了新语法，打包时可能被跳过。</td>
+      <td>把依赖也纳入转译范围，或者换掉不兼容的库。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>把结论收在<strong>"兼容是设计出来的，不是补出来的"</strong>：</p>
+  <p>「真正的做法是<strong>先定支持范围</strong>，再让工具按范围自动处理。最怕的是"先写完再说"——等到测试阶段才发现某个接口在老浏览器上没有，那时候改起来成本很高，因为可能整块交互都要换实现。」</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「路由变了但页面不跳转」（<code>SH-31</code>）</h2>
+
+<p>这是一道<strong>排查题</strong>，答的时候要有顺序，不要直接给答案。而且要先做一个区分——<strong>"不跳转"和"打不开"是两回事</strong>。</p>
+
+<div class="tree">
+  <p class="q">① 先分清是哪种现象</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">地址变了，页面内容没变</span>属于<strong>运行到一半断了</strong>——跳转逻辑没执行完，或者执行了但渲染失败</div>
+    <div class="a"><span class="yn" style="color:var(--c-data)">地址变了，刷新一下是空白或者报错</span>属于<strong>服务端没配好</strong>——这类和浏览器兼容无关，是部署配置问题</div>
+  </div>
+
+  <p class="q">② 如果是"内容没变"：控制台报什么？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">某个方法不是一个函数</span><strong>最典型</strong>：跳转链路上用到了老浏览器没有的接口，执行到那里就断了，后面的渲染自然没发生</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">异步加载失败</span>路由对应的页面是<strong>按需加载</strong>的，而加载机制依赖老浏览器没有的能力 → 页面永远等不到</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">路由模式不支持</span>用的<strong>不带井号</strong>的那种地址模式，它依赖的底层能力在老浏览器上不存在</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">没有报错</span>那可能是路由守卫里<strong>被拦住了</strong>，或者条件判断没通过——属于业务逻辑问题，不是兼容问题</div>
+  </div>
+
+  <p class="q">③ 接口不支持时怎么办？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">能补的就补</span>补一段等价实现——大部分接口类问题都能这么解决</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">补不了的换方案</span>比如路由模式换成<strong>带井号的那种</strong>，它不依赖那个底层能力，兼容性最好</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">先检测再决定</span>运行时<strong>判断能力是否存在</strong>，不存在就降级成简单模式，或者直接提示用户升级浏览器</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">不要静默失败</span>最糟的处理是让用户看到一个永远转圈的页面——<strong>宁可明确提示"你的浏览器版本过低"</strong></div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>答完排查路径后，补一句<strong>预防措施</strong>，层次立刻不同：</p>
+  <p>「这类问题最好的解法是<strong>不让它发生</strong>：一是在选型阶段就定好支持范围，避开注定不兼容的能力；二是<strong>在页面最前面做一次能力检测</strong>，缺什么就直接给提示，而不是让用户对着一个转圈的页面猜。」</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 「框架帮你抹平了吗」（<code>SH-32</code>）</h2>
+
+<p>这题<strong>答"是"或"不是"都会丢分</strong>，正确答案是"抹平了一部分，但有一部分抹不平，还有一部分它故意不抹"。</p>
+
+<table>
+  <thead><tr><th style="width:24%">层面</th><th style="width:16%">抹平了吗</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>事件与 DOM 操作</strong></td>
+      <td style="color:var(--c-store)">✅ 抹平了</td>
+      <td>事件对象的差异、绑定解绑、样式类名的操作，框架内部已经统一处理了，你写一套代码就行。<strong>这是框架最实在的兼容贡献。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>框架依赖的底层能力</strong></td>
+      <td style="color:var(--c-risk)">❌ 抹不平</td>
+      <td>框架自己的代码也建立在那些底层能力上。<strong>它没法凭空变出老浏览器没有的东西</strong>——所以框架本身也需要你补。</td>
+    </tr>
+    <tr>
+      <td><strong>样式与布局</strong></td>
+      <td style="color:var(--c-risk)">❌ 完全不负责</td>
+      <td>CSS 是你自己写的，框架一点忙都帮不上。前缀、新选择器、布局差异都得自己处理。</td>
+    </tr>
+    <tr>
+      <td><strong>新版框架的整体取向</strong></td>
+      <td style="color:var(--c-data)">⚠️ 主动放弃</td>
+      <td>新版框架用到了老浏览器不支持的底层能力，<strong>等于直接把老浏览器排除在外</strong>。这不是"没做好"，是明确的取舍——<strong>用兼容性换性能和开发体验</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">一个能显出理解的说法</span>
+  <p>「框架抹平的是<strong>「你写代码时的差异」</strong>，抹不平的是<strong>「运行环境的差异」</strong>。」</p>
+  <p>前半句是它帮你省了事，后半句是你还得自己扛——<strong>把这两件事分清楚，就不会高估框架的能力</strong>。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「浏览器兼容你怎么处理的」</span>
+  <p><strong>【结论】</strong>我的做法是<strong>先定支持范围，再让工具按范围自动降级</strong>，而不是写完了再补。兼容不是越多越好，是按用户实际分布划一条线。</p>
+  <p><strong>【核心区分】</strong>兼容问题分两类：<strong>「语法」和「接口」</strong>。语法是写法新，打包工具能改写成老写法；接口是那个能力在那个浏览器里<strong>根本不存在</strong>，转译器变不出来，必须额外补一段实现。<strong>这条区分想清楚了，大部分问题都能自己判断。</strong></p>
+  <p><strong>【具体手段】</strong>语法交给打包工具按目标范围降级；缺失的接口按需补齐，不能全量引入否则包会变大；样式用自动加前缀的工具，同时用"留退路"的写法——先写老浏览器能认的，再写新特性。</p>
+  <p><strong>【踩过的坑】</strong>最典型的一类是<strong>静默失败</strong>：转译只保证语法能跑，不保证用到的接口存在。<strong>编译和打包都不报错，但一到老浏览器上运行就崩</strong>。我遇到过一次路由点了不跳转——地址变了、页面没动，最后定位到跳转链路上用了一个老浏览器没有的接口，执行到那里就断了。</p>
+  <p><strong>【框架的作用】</strong>框架抹平的是<strong>"写代码时的差异"</strong>——事件、DOM 操作这些它内部统一了；但<strong>运行环境的差异抹不平</strong>，它自己也依赖那些底层能力。新版框架更是直接用到了老浏览器不支持的东西，等于主动放弃兼容，这是拿兼容性换性能的取舍。</p>
+  <p><strong>【权衡】</strong>有些能力是补不了的，比如语言底层的那种。<strong>所以真正的解法是选型阶段就避开</strong>，而不是等测试发现问题再改——那时候可能要换掉整块实现。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么"箭头函数能兼容"但"Promise 不能自动兼容"？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>因为<strong>它们属于两类不同的东西</strong>：</p>
+    <ul>
+      <li><strong>箭头函数是语法</strong>——它只是一种<strong>写法</strong>的简写。打包工具完全知道它的等价老写法是什么（普通函数加手动绑定 this），直接改写就行。</li>
+      <li><strong>Promise 是接口</strong>——它是运行环境<strong>提供的一个能力</strong>。老浏览器里根本没有这个东西，转译器没有任何"等价的旧写法"可以替换，它只能如实保留你的调用。<strong>而你调用的那一刻，那个东西不存在，就报错了。</strong></li>
+    </ul>
+    <p>所以判断标准很简单：<strong>"这个新东西是换了个写法，还是多了一个能力？"</strong>换写法 → 工具能处理；加能力 → 得自己补。</p>
+    <p>补的方式就是<strong>把一段等价的实现提前塞进运行环境</strong>，让后面的代码能调到。但<strong>有些底层能力没法用普通代码模拟</strong>（比如拦截对象的所有操作），那种就真的补不了。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>用户反馈"点菜单地址变了但页面不动"，列出你的排查顺序。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>先确认现象</strong>：是"内容没变"还是"刷新后打不开"？后者是服务端路由配置问题，<strong>和浏览器兼容无关</strong>，先排除掉。</li>
+      <li><strong>拿到环境信息</strong>：哪个浏览器、什么版本。这一步能直接缩小范围。</li>
+      <li><strong>看控制台报错</strong>：如果报"某个方法不是函数"，基本就锁定了——跳转链路上用了老浏览器没有的接口。</li>
+      <li><strong>确认断点在哪</strong>：在跳转函数前后各打一个日志，看是没进来、还是进来一半断了。<strong>没进来 = 路由守卫拦了（业务问题）；进来一半 = 兼容问题。</strong></li>
+      <li><strong>对症处理</strong>：能补就补一段实现；补不了就换方案（比如路由模式换成兼容性更好的那种）；实在不行做能力检测，明确提示用户升级浏览器。</li>
+    </ol>
+    <p>最后补一句预防：「<strong>根本解法是选型阶段就定好范围，并在页面前面做一次能力检测</strong>，缺什么直接提示，别让用户对着转圈的页面猜。」</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="06-es6-features.html">← 上一篇：ES6 语言特性</a>
+  <a href="08-loading-and-rendering.html">下一篇：加载与渲染性能 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>步骤 3 · 保分与填数字 — 材料目录</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 保分与填数字（E + F 域，52 题）</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>步骤 3 · 保分与填数字</h1>
+<p class="lead">
+  覆盖 <strong>前端与浏览器（44 题）</strong>和 <strong>量化指标与成本（8 题）</strong>，合计 52 题。
+  这一步骤<strong>不教新东西</strong>：E 域是把你本来就会的说明白，F 域是把该报的数字真的测出来。
+</p>
+
+<div class="analogy">
+  <span class="tag">和步骤 1、2 最大的不同</span>
+  <p>步骤 1 是"学新概念"，步骤 2 是"做出来"。步骤 3 是"<strong>把会的说利索，把该说的数字填上</strong>"——所以<strong>不要从头读到尾</strong>，会的直接跳过。</p>
+</div>
+
+<div class="warn">
+  <span class="tag">建议先读导读</span>
+  <p><a href="00-how-to-study.html"><strong>00 · 这一步骤怎么学</strong></a>：讲清了为什么"题量最大的 E 域反而最不该投入时间"、F 域的数字该怎么推、以及这一步骤唯一的纪律。花 8 分钟看完再动手。</p>
+</div>
+
+<h2 id="e">前端与浏览器（44 题）</h2>
+
+<div class="cards">
+  <a class="card" href="01-framework-comparison.html">
+    <div class="num">01</div>
+    <h3>框架选型：Vue 与 React</h3>
+    <p>两者的本质区别只有一条：谁负责知道哪里变了。"谁性能上限更高"是道送命题，答法要拆成两层；最新版本的方向比版本号重要。</p>
+    <div class="qbadges"><span class="q">FN-1</span><span class="q">FN-2</span><span class="q">FN-3</span><span class="q">HQ-1</span><span class="q">SH-33</span></div>
+  </a>
+
+  <a class="card" href="02-vue-reactivity.html">
+    <div class="num">02</div>
+    <h3>Vue 响应式原理</h3>
+    <p>Vue 2 是给每个属性装监听器，Vue 3 是给整个对象套代理。一个问题讲透：为什么"新增属性不响应"这个坑，Vue 3 里没有了。</p>
+    <div class="qbadges"><span class="q">SH-34</span><span class="q">SH-35</span><span class="q">SH-36</span><span class="q">YF-18</span><span class="q">HQ-32</span><span class="q">HQ-33</span><span class="q">HQ-34</span><span class="q">HQ-35</span></div>
+  </a>
+
+  <a class="card" href="03-reactivity-pitfalls.html">
+    <div class="num">03</div>
+    <h3>响应式失效与排查</h3>
+    <p>"数据改了页面没变"怎么查。四层往下筛的顺序、哪些写法框架感知不到、模板没用到会怎样、渲染了但被挡住又是另一回事。</p>
+    <div class="qbadges"><span class="q">SH-37</span><span class="q">SH-38</span><span class="q">SH-39</span></div>
+  </a>
+
+  <a class="card" href="04-css3-and-animation.html">
+    <div class="num">04</div>
+    <h3>CSS3 与动画</h3>
+    <p>常用特性按用途分着说，别报菜名。真正要答对的是那道"CSS 动画和 JS 动画有什么区别"——分界线不在谁来驱动，而在改的是哪类属性。</p>
+    <div class="qbadges"><span class="q">SH-1</span><span class="q">SH-2</span><span class="q">SH-3</span><span class="q">SH-4</span></div>
+  </a>
+
+  <a class="card" href="05-canvas-and-effects.html">
+    <div class="num">05</div>
+    <h3>Canvas 与动效实战</h3>
+    <p>什么时候该用 Canvas、什么时候 DOM 就够。红包那类动效的三层分工（设计资产 / 粒子 / CSS 反馈），以及无限画布的坐标系怎么设计。</p>
+    <div class="qbadges"><span class="q">SH-5</span><span class="q">SH-6</span><span class="q">SH-7</span><span class="q">SH-8</span><span class="q">SH-9</span><span class="q">KJ-3</span></div>
+  </a>
+
+  <a class="card" href="06-es6-features.html">
+    <div class="num">06</div>
+    <h3>ES6 语言特性</h3>
+    <p>把"我背过特性表"变成"我知道它解决了什么"。另外两题：柯里化到底是什么、ES5 和 ES6 的构造函数差在哪（不只是语法糖）。</p>
+    <div class="qbadges"><span class="q">SH-22</span><span class="q">SH-23</span><span class="q">SH-24</span><span class="q">SH-25</span><span class="q">SH-26</span><span class="q">SH-27</span><span class="q">KJ-4</span></div>
+  </a>
+
+  <a class="card" href="07-browser-compat.html">
+    <div class="num">07</div>
+    <h3>浏览器兼容</h3>
+    <p>这一组的题眼只有一个：语法能转译，接口转译不出来。想清楚这条，"打包降级遇到什么问题""路由不跳转"都能自己推出来。</p>
+    <div class="qbadges"><span class="q">SH-28</span><span class="q">SH-29</span><span class="q">SH-30</span><span class="q">SH-31</span><span class="q">SH-32</span></div>
+  </a>
+
+  <a class="card" href="08-loading-and-rendering.html">
+    <div class="num">08</div>
+    <h3>加载与渲染性能</h3>
+    <p>别一上来就报优化手段——先看时间花在哪一段。请求全链路与多层缓存、上万条数据怎么渲染、小程序为什么特殊、图片怎么优化。</p>
+    <div class="qbadges"><span class="q">FN-4</span><span class="q">YF-19</span><span class="q">YF-21</span><span class="q">YF-22</span></div>
+  </a>
+
+  <a class="card" href="09-ai-ui-quality.html">
+    <div class="num">09</div>
+    <h3>AI 生成界面的质量</h3>
+    <p>AI 写的界面问题不在"不好看"，而在没有约束。三层问题清单、按性价比排的四步改法，以及"我该把自己放在什么位置"。</p>
+    <div class="qbadges"><span class="q">YU-15</span><span class="q">YU-23</span></div>
+  </a>
+</div>
+
+
+<h2 id="f">量化指标与成本（8 题）</h2>
+
+<div class="cards">
+  <a class="card" href="10-usage-and-cost.html">
+    <div class="num">10</div>
+    <h3>用量与成本口径</h3>
+    <p>这一域的地基。数字要一条链推出来：业务规模 → 用户量 → 调用量 → token → 成本。最常见的三个自相矛盾，以及"并发不等于日活"。</p>
+    <div class="qbadges"><span class="q">ML-11</span><span class="q">ML-12</span><span class="q">ML-13</span><span class="q">HJ-1</span><span class="q">HJ-9</span></div>
+  </a>
+
+  <a class="card" href="11-cost-optimization.html">
+    <div class="num">11</div>
+    <h3>成本优化与收益</h3>
+    <p>先拆成本构成，再按性价比排降本手段。最后那题是两笔账：降本算"省了多少"，收益算"赚了多少"，口径都要说清。</p>
+    <div class="qbadges"><span class="q">ML-14</span><span class="q">ML-15</span><span class="q">ML-16</span></div>
+  </a>
+</div>
+
+
+<h2 id="how">怎么用这一步骤的材料</h2>
+
+<table>
+  <thead><tr><th style="width:24%">阶段</th><th>做法</th></tr></thead>
+  <tbody>
+    <tr><td><strong>动手前</strong></td><td>读 <a href="00-how-to-study.html">00 导读</a>，然后<strong>先把 E 域那 44 道题扫一遍打标</strong>（能讲 1 分钟 / 只能讲两句 / 完全不会）</td></tr>
+    <tr><td><strong>E 域</strong></td><td>只读打了后两类的那些页。<strong>能讲 1 分钟的直接跳过</strong>，不要重看</td></tr>
+    <tr><td><strong>F 域</strong></td><td>先看 <a href="10-usage-and-cost.html">10</a> 把数字推一遍，再去项目里<strong>实测</strong>，最后看 <a href="11-cost-optimization.html">11</a> 准备降本和收益的说法</td></tr>
+    <tr><td><strong>每读完一份</strong></td><td>合上材料，对着页尾回忆卡<strong>计时讲一遍</strong>，超 3 分钟就是没讲清</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">完成标志（做到这些才算过关）</span>
+  <ul class="checklist">
+    <li>数字表<strong>全部填满</strong>，且口径自洽（不会出现"日活 1 万但并发峰值 5 万"）</li>
+    <li>每个数字都能<strong>当场推导一遍</strong>，不是背下来的</li>
+    <li>E 域随机抽 10 题，<strong>能答上来 8 题</strong></li>
+    <li>能说出至少一条成本优化措施，以及它<strong>降了多少百分比</strong></li>
+    <li>说得出"降本"和"收益"是两笔账，各自的算法和口径</li>
+  </ul>
+</div>
+
+<div class="warn">
+  <span class="tag">这一步骤唯一的纪律</span>
+  <p><strong>E 域达标即止。</strong>它的题量最大（44 题，占全部题目的 18%），但它是你的存量优势区——继续深挖的边际收益极低。</p>
+  <p>把省下来的时间还给项目。<strong>项目每多迭代一轮，F 域和后面步骤能讲的东西就多一分。</strong></p>
+</div>
+
+<hr>
+
+</main>
+</div>
+
+</body>
+</html>

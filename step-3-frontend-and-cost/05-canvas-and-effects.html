@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Canvas 与动效实战 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 5/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item cur" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>05 · Canvas 与动效实战</h1>
+<p class="lead">
+  这一组题表面在问"你会不会 Canvas"，实际在问两件事：<strong>你知道什么时候该用它吗</strong>，
+  以及<strong>那些效果你到底是自己写的，还是只知道有这么回事</strong>。
+</p>
+
+<div class="qbadges"><span class="q">SH-5</span><span class="q">SH-6</span><span class="q">SH-7</span><span class="q">SH-8</span><span class="q">SH-9</span><span class="q">KJ-3</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>需要知道 DOM 是什么、元素是怎么画到页面上的。Canvas 完全没碰过也没关系——这一页的重点是<strong>选型判断</strong>，不是 API 细节。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住"元素少用 DOM、元素多用 Canvas"。</div>
+  <div><b>第二遍（15 分钟）</b>读第 3、4 节——那是真正会被追问的实战部分。</div>
+  <div><b>第三遍</b>做页尾回忆卡，然后<strong>挑一个你做过的动效，说清它每一层是怎么实现的</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>要做一个"新年红包雨"的活动页：<strong>屏幕上飘落几百个金币</strong>，用户点一下金币有爆开效果。</p>
+
+<p>你第一反应可能是用 DOM：给每个金币建一个 <code>div</code>，用 CSS 动画让它往下飘。</p>
+
+<p>几十个还行，<strong>几百个就开始卡了</strong>。手机上一测，掉帧掉得厉害。</p>
+
+<p>换成 Canvas 之后，同样的视觉效果，<strong>几百个元素照样流畅</strong>——因为这时候页面上只有<strong>一个元素</strong>，其他的都是画上去的像素。</p>
+
+<p>这一页讲的就是这类判断：<strong>什么时候该用 DOM，什么时候该用 Canvas。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 选型的唯一标准：元素数量和交互复杂度</p>
+  <h3>DOM 是「每个元素都是一个对象」，Canvas 是「一张画布，自己往上画」</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 340" role="img" aria-label="DOM 与 Canvas 的选型对比">
+    <!-- DOM 一侧 -->
+    <rect class="box-s" x="20" y="40" width="370" height="152" rx="9"></rect>
+    <text x="205" y="64" text-anchor="middle" style="font-weight:600">DOM：给每个东西建一个元素</text>
+
+    <rect class="box-s" x="44" y="80" width="70" height="26" rx="5"></rect>
+    <text x="79" y="98" text-anchor="middle" font-size="11">元素 1</text>
+    <rect class="box-s" x="124" y="80" width="70" height="26" rx="5"></rect>
+    <text x="159" y="98" text-anchor="middle" font-size="11">元素 2</text>
+    <rect class="box-s" x="204" y="80" width="70" height="26" rx="5"></rect>
+    <text x="239" y="98" text-anchor="middle" font-size="11">元素 3</text>
+    <rect class="box-s" x="284" y="80" width="70" height="26" rx="5"></rect>
+    <text x="319" y="98" text-anchor="middle" font-size="11">…</text>
+
+    <text x="44" y="130" class="lbl-muted" font-size="12.5">优点：每个元素都能单独绑事件、单独改样式、能被无障碍读取</text>
+    <text x="44" y="152" class="lbl-muted" font-size="12.5">缺点：元素一多，浏览器要维护的对象就爆炸</text>
+
+    <rect x="44" y="162" width="322" height="22" rx="5" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="205" y="178" text-anchor="middle" fill="var(--c-risk)" font-size="12">几百个以上就开始明显掉帧</text>
+
+    <!-- Canvas 一侧 -->
+    <rect class="box-m" x="410" y="40" width="370" height="152" rx="9"></rect>
+    <text x="595" y="64" text-anchor="middle" style="font-weight:600">Canvas：一张画布，逐帧重画</text>
+
+    <rect class="box-m" x="434" y="80" width="322" height="60" rx="6"></rect>
+    <text x="595" y="106" text-anchor="middle" font-size="12.5">页面上只有这一个元素</text>
+    <text x="595" y="126" text-anchor="middle" font-size="12" class="lbl-muted">里面的内容全是像素，不是节点</text>
+
+    <text x="434" y="160" class="lbl-muted" font-size="12.5">优点：数量几乎不受限，适合像素级控制和大量元素</text>
+
+    <rect x="434" y="170" width="322" height="14" rx="4" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="595" y="181" text-anchor="middle" fill="var(--c-risk)" font-size="11">代价：里面画的东西无法单独绑事件、无法被搜索和朗读</text>
+
+    <!-- 判断 -->
+    <text x="20" y="222" class="lbl-muted">怎么选：先问自己两个问题</text>
+
+    <rect class="box-d" x="20" y="238" width="240" height="40" rx="7"></rect>
+    <text x="140" y="256" text-anchor="middle" font-size="12.5" style="font-weight:600">① 数量多吗</text>
+    <text x="140" y="272" text-anchor="middle" font-size="12" class="lbl-muted">几十个以内 → DOM 就够</text>
+
+    <rect class="box-d" x="274" y="238" width="240" height="40" rx="7"></rect>
+    <text x="394" y="256" text-anchor="middle" font-size="12.5" style="font-weight:600">② 要单独交互吗</text>
+    <text x="394" y="272" text-anchor="middle" font-size="12" class="lbl-muted">每个都要独立响应 → 倾向 DOM</text>
+
+    <rect class="box-s" x="528" y="238" width="252" height="40" rx="7"></rect>
+    <text x="654" y="256" text-anchor="middle" font-size="12.5" style="font-weight:600">两个都否 / 像素级控制</text>
+    <text x="654" y="272" text-anchor="middle" font-size="12" class="lbl-muted">→ Canvas</text>
+
+    <text x="20" y="306" class="lbl-muted">实际项目里最常见的答案是混用：</text>
+    <text x="20" y="326" font-size="13">主体内容和按钮用 DOM（要能被搜索、能被读屏软件识别），<tspan fill="var(--c-model)" style="font-weight:600">纯装饰的粒子、飘落物、连线用 Canvas</tspan></text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：DOM 把每个东西都变成一个<strong>有身份的对象</strong>——能单独绑事件、能被搜索、能被读屏；Canvas 只在页面上放<strong>一张画布</strong>，里面全是像素，<strong>画什么、画在哪、谁被点到了，全得你自己算</strong>。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">所以选型不是"哪个更高级"，而是<strong>你要不要那些"身份"</strong>：需要就给 DOM，不需要又量大，就上 Canvas。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>DOM 路线</span>
+  <span><i style="background:var(--c-model)"></i>Canvas 路线</span>
+  <span><i style="background:var(--c-data)"></i>判断维度</span>
+  <span><i style="background:var(--c-risk)"></i>各自的代价</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 「Canvas 做过什么场景」（<code>SH-5</code>、<code>SH-6</code>）</h2>
+
+<p>这两题是一组。<strong>答的时候不要只报项目名，要说清"为什么这里非用 Canvas 不可"</strong>——那才是对方想听的。</p>
+
+<table>
+  <thead><tr><th style="width:24%">场景</th><th style="width:32%">为什么用 Canvas</th><th>如果改用 DOM 会怎样</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>活动动效</strong><br><span class="lbl-muted">金币雨、粒子、烟花</span></td>
+      <td>元素数量极大且彼此独立，用 Canvas 一次画完，只有一次绘制开销。</td>
+      <td>几百上千个节点，浏览器要维护、要参与布局计算，直接掉帧。</td>
+    </tr>
+    <tr>
+      <td><strong>数据图表</strong><br><span class="lbl-muted">折线、热力图</span></td>
+      <td>需要像素级控制和精细的坐标计算，元素数量也随数据量增长。</td>
+      <td>数据点多的时候，节点数量同样爆炸；而且画斜线、曲线很别扭。</td>
+    </tr>
+    <tr>
+      <td><strong>图片处理</strong><br><span class="lbl-muted">裁剪、滤镜、加水印</span></td>
+      <td>直接操作像素，可以把结果导出成图片。</td>
+      <td>DOM 根本做不了像素级操作。</td>
+    </tr>
+    <tr>
+      <td><strong>白板 / 无限画布</strong><br><span class="lbl-muted">见第 4 节</span></td>
+      <td>画布可以无限大，但只渲染视口内的部分。</td>
+      <td>无限大的 DOM 区域放不下那么多节点。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">不要这样说</span>
+  <p>❌ "Canvas 性能比 DOM 好，所以我们用了 Canvas。"</p>
+  <p>这句话<strong>听起来就不像真做过</strong>——因为 Canvas 有明确的功能代价（不能绑事件、不能被读屏、不能被搜索）。真实项目里<strong>没人会为了性能把整个页面都换成 Canvas</strong>。</p>
+  <p>✅ 应该这样说："<strong>这个模块是纯装饰性的，用户不需要点它里面的东西，也不需要被搜索到</strong>，所以我们把它放进了 Canvas；<strong>外面的按钮和文字仍然是 DOM</strong>。"</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「红包动画是怎么做的」（<code>SH-7</code>、<code>SH-8</code>）</h2>
+
+<p>这两题几乎是绑在一起问的：<strong>先问整体怎么做，再追一句"打开那个动作是画出来的还是图片"</strong>。第二问才是关键——它在探你<strong>是不是真做过</strong>。</p>
+
+<p>先给结论：<strong>绝大多数商业项目的红包打开动效，用的是设计给的序列帧或矢量动画文件，不是前端用代码画出来的。</strong></p>
+
+<p>原因是成本：手绘级别的动效（红包撕开、金币迸射、绸带飘动）如果用代码画，工作量极大且还原不了设计稿。<strong>前端在这里的角色是"播放器"，不是"画家"。</strong></p>
+
+<table>
+  <thead><tr><th style="width:22%">做法</th><th style="width:26%">怎么实现</th><th>什么时候用它</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>纯 CSS</strong></td>
+      <td>变换 + 关键帧：缩放、旋转、抖动、阴影变化</td>
+      <td><strong>简单反馈</strong>：按钮按下缩小、卡片抖动、悬停浮起。<strong>这是自己写的那部分。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>序列帧</strong></td>
+      <td>设计输出一组连续图片，前端按固定帧率一张张切换</td>
+      <td><strong>手绘感强的连续动作</strong>（撕开、爆破）。缺点是要下载一堆图，体积大。</td>
+    </tr>
+    <tr>
+      <td><strong>矢量动画文件</strong><br><span class="lbl-muted">设计工具直接导出</span></td>
+      <td>播放一个 JSON 描述，前端用播放器渲染，可以缩放不失真</td>
+      <td><strong>目前最主流的做法</strong>。体积小、能动态换色改文案，设计改稿也方便。</td>
+    </tr>
+    <tr>
+      <td><strong>Canvas 粒子</strong></td>
+      <td>自己算每个粒子的位置、速度、生命周期，逐帧重画</td>
+      <td><strong>数量大、规则简单的部分</strong>：金币雨、星光。<strong>这部分是自己写的。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>答清"<strong>分工</strong>"，可信度立刻不一样：</p>
+  <p>「红包的<strong>打开动作</strong>是设计给的一版矢量动画，我们用播放器渲染——因为手绘质感的连续动作用代码画不现实，而且还原不了设计稿。<strong>周围的氛围</strong>（飘落的金币、点击迸射的粒子）是我们用 Canvas 写的，这部分规则简单、数量大，自己写反而更好控制。另外<strong>按钮的按下反馈</strong>就是普通的 CSS 变换。」</p>
+  <p>这一句同时交代了三层：<strong>设计资产、Canvas 粒子、CSS 反馈</strong>——一听就是真做过的人。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那序列帧和矢量动画文件，你怎么选？」</summary>
+  <p>给两三条实际标准就够，不用背参数：</p>
+  <ul>
+    <li><strong>体积</strong>：序列帧是一堆图片，动辄几兆；矢量动画就是一个文本文件，通常几十到几百 KB。<strong>移动端和弱网下这一点往往是决定性的。</strong></li>
+    <li><strong>能不能改</strong>：矢量动画可以运行时换颜色、换文案，不用重新找设计出图；序列帧改一个像素都得重新导一遍。</li>
+    <li><strong>还原度</strong>：如果设计效果特别写实（复杂的光影、纹理），矢量格式可能还原不了，这时候只能用序列帧。</li>
+  </ul>
+  <p>一句话：「默认用矢量动画，只有矢量还原不了才退到序列帧，同时算好体积预算。」</p>
+</details>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「打开 / 抖动 / 浮动 / 阴影 / 缩放做过吗」（<code>SH-9</code>）</h2>
+
+<p>这题列了五类效果，<strong>它其实在给你递梯子</strong>——你只要挑做过的说，说清怎么实现就行。这五类<strong>全部可以用 CSS 变换和关键帧搞定</strong>，正好接上<a href="04-css3-and-animation.html">上一份</a>。</p>
+
+<table>
+  <thead><tr><th style="width:18%">效果</th><th style="width:34%">怎么实现</th><th>要注意什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>缩放</strong></td>
+      <td>改 <code>transform: scale()</code>，配合过渡</td>
+      <td><strong>便宜属性</strong>，不会影响旁边元素位置。按下反馈最常用。</td>
+    </tr>
+    <tr>
+      <td><strong>抖动</strong></td>
+      <td>关键帧里让位移在左右（或上下）之间来回几次，最后归零</td>
+      <td>抖动幅度要小、要快，并且<strong>一定要有终点</strong>——不然会看起来像卡住了。</td>
+    </tr>
+    <tr>
+      <td><strong>浮动</strong></td>
+      <td>关键帧里做小幅上下位移，设置成无限循环 + 来回交替</td>
+      <td><strong>循环动画要避免所有元素同步</strong>，否则几十个东西一起动会很假；给每个加一点随机延迟。</td>
+    </tr>
+    <tr>
+      <td><strong>阴影</strong></td>
+      <td>改 <code>box-shadow</code>，或者配合缩放做"浮起来"的感觉</td>
+      <td><code>box-shadow</code> 属于<strong>需要重新绘制</strong>的属性，比变换贵。<strong>元素多的时候慎用</strong>，可以用伪元素 + 透明度代替。</td>
+    </tr>
+    <tr>
+      <td><strong>打开</strong></td>
+      <td>简单的是旋转+缩放组合；复杂的手绘动作见上一节</td>
+      <td>要区分"<strong>简单开盖</strong>"和"<strong>手绘爆破</strong>"——前者能自己写，后者得用设计资产。</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 无限画布怎么实现（<code>KJ-3</code>）</h2>
+
+<p>这道题是这一组里<strong>最能拉开差距</strong>的。它不考 API，考的是<strong>你脑子里有没有坐标系这个概念</strong>。</p>
+
+<p>先说清楚"无限"是什么意思：<strong>画布并不是真的无限大，而是"你永远走不到边"</strong>——因为只有视口里能看到的部分会被真正渲染出来。</p>
+
+<div class="pipeline">
+  <details class="node m"><summary>① 两套坐标系</summary><div class="body"><strong>世界坐标</strong>是元素在画布里的真实位置，固定不变；<strong>屏幕坐标</strong>是它此刻显示在屏幕哪里。两者之间靠<strong>平移量和缩放倍数</strong>换算。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>② 平移靠改偏移</summary><div class="body">拖拽时不去动每个元素，只改<strong>整个画布的偏移</strong>。所有元素的位置关系不变——这就是"视口移动"而不是"元素移动"。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>③ 缩放要绕指针</summary><div class="body">滚轮缩放时，<strong>要让鼠标指着的那个点保持不动</strong>，否则用户会觉得画面在乱跑。做法是先算出指针在世界坐标里的位置，缩放后反推需要补偿多少偏移。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>④ 只渲染看得见的</summary><div class="body">这是"无限"的关键：<strong>先算出当前视口覆盖的世界坐标范围，只渲染范围内的元素</strong>。缩放很小时，上万个元素里可能只有几十个需要画。</div></details>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>答完上面四步已经不错了，再补一句<strong>性能上的进阶做法</strong>就很完整：</p>
+  <p>「元素特别多的时候，<strong>遍历全部元素来判断"谁在视口里"本身就很慢</strong>。这时会用空间索引——比如把画布切成网格，或者用树形结构按区域组织元素，这样就能<strong>直接查出视口覆盖的那几块</strong>，不用逐个判断。」</p>
+  <p>再补一句实现选型：「<strong>DOM 方案</strong>是把所有元素放进一个容器、整体做变换，配合虚拟化只挂载可见的；<strong>Canvas 方案</strong>是自己算坐标逐帧重画。前者省事、能复用 DOM 的交互，后者能扛更大的数量。」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「缩放的时候画面为什么会飘？怎么解决？」</summary>
+  <p>这是<strong>真实做过的才会遇到的问题</strong>，答对了非常加分。</p>
+  <p><strong>现象</strong>：直接改缩放倍数，画面会以<strong>画布左上角</strong>为中心缩放——你鼠标在右下角，结果右下角的东西跑掉了。</p>
+  <p><strong>原因</strong>：缩放默认围绕原点。<strong>用户的心理预期是"以我指着的点为中心"</strong>，两者不一致。</p>
+  <p><strong>解决</strong>：分三步算——先把鼠标的屏幕坐标换算成世界坐标（记住这个点）；改完缩放后，再把它换算回去，看它偏移了多少；<strong>把这个偏移补回平移量</strong>。这样那个点在屏幕上就没动过。</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「画布上的元素怎么知道被点中了？」</summary>
+  <p>这是 Canvas 的<strong>固有代价</strong>——元素不是节点，浏览器不提供"点击检测"。两种做法：</p>
+  <ul>
+    <li><strong>自己算碰撞</strong>：把点击的屏幕坐标换算成世界坐标，然后遍历元素判断点是否落在它的范围内。元素多时要配合空间索引，否则很慢。</li>
+    <li><strong>用现成的库</strong>：成熟的 Canvas 绘图库都内置了"图形对象 + 命中检测"，你按对象的方式用，它内部帮你算。<strong>项目里通常直接用库，不自己造。</strong></li>
+  </ul>
+  <p>如果能补一句<strong>曲线救国</strong>的做法就更完整："有些交互复杂的场景，会把<strong>可交互的部分用 DOM 叠在 Canvas 上层</strong>——Canvas 负责画，DOM 负责接事件。"</p>
+</details>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「Canvas 用过吗 / 做过什么场景 / 无限画布怎么实现」</span>
+  <p><strong>【结论】</strong>用过。选型标准我一般看两点：<strong>元素数量</strong>和<strong>要不要单独交互</strong>。数量大、又不需要逐个响应事件、也不需要被搜索和读屏的，用 Canvas。</p>
+  <p><strong>【场景】</strong>主要用在<strong>纯装饰性的大批量动效</strong>上，比如活动页的飘落物和点击迸射的粒子——几百个元素用 DOM 会掉帧，用 Canvas 只有一次绘制开销。<strong>页面上的按钮和文字仍然是 DOM</strong>，因为它们需要能被点击、被搜索。</p>
+  <p><strong>【红包这类动效】</strong>要分三层说：手绘质感的<strong>打开动作</strong>用设计给的矢量动画文件播放，我们只做播放器；<strong>氛围粒子</strong>用 Canvas 自己写；<strong>按钮反馈</strong>就是普通的 CSS 变换。<strong>做不出来的不是技术问题，是美术资产问题。</strong></p>
+  <p><strong>【无限画布】</strong>核心是<strong>两套坐标系</strong>：世界坐标固定、屏幕坐标随视口变，中间靠平移量和缩放倍数换算。拖拽改的是整个画布的偏移；缩放要<strong>绕指针做</strong>，否则画面会飘；渲染时<strong>只画视口范围内的元素</strong>，元素极多时再配合空间索引来加速查询。</p>
+  <p><strong>【权衡】</strong>Canvas 的代价是<strong>失去 DOM 的那些能力</strong>——不能单独绑事件、不能被读屏、不能被搜索，命中检测也得自己算。所以我的原则是：<strong>能用 DOM 就用 DOM，只有数量和像素级控制这两个理由成立时才上 Canvas。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>要做"页面上飘落 300 个雪花"，你选 DOM 还是 Canvas？说出你的判断过程。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>先看数量</strong>：300 个已经超出 DOM 舒服的范围了。经验上几十个以内 DOM 没问题，几百个就要警惕。</li>
+      <li><strong>再看交互</strong>：雪花需要被单独点击吗？如果只是装饰，答案就明确了。如果要做"点雪花得分"，那要么自己算命中检测，要么给其中少数可交互的元素单独叠 DOM。</li>
+      <li><strong>再看无障碍和搜索</strong>：雪花需要被搜索或被读屏识别吗？不需要。</li>
+      <li><strong>结论</strong>：用 Canvas，元素数量是决定性因素。</li>
+    </ol>
+    <p>如果再加一句就更完整：<strong>"雪花是不规则图形、还要各自旋转，用 Canvas 画反而比用图片更省——不用下载 300 张图，也不用为每个元素创建节点。"</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>有人问你"无限画布是不是真的无限大"，你怎么解释？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>不是真的无限，是"感觉不到边界"。</strong></p>
+    <p>关键在渲染策略：<strong>任何时刻只有视口里那一片会被真正画出来</strong>。你把画布拖到很远的地方，之前那一片就不渲染了，新的那一片才开始渲染。所以内存和性能只和"当前看得见多少"有关，和"总共能走多远"无关。</p>
+    <p>实现上要三样东西配合：</p>
+    <ul>
+      <li><strong>坐标系换算</strong>：元素存在世界坐标里（固定），显示时换算成屏幕坐标。</li>
+      <li><strong>视口裁剪</strong>：只渲染落在视口范围内的元素。</li>
+      <li><strong>空间索引</strong>：元素很多时，用网格或树形结构快速查出"视口里有谁"，避免每次遍历全部。</li>
+    </ul>
+    <p>一句话：<strong>"无限"是效果，实现上是"只画看得见的那一块"。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="04-css3-and-animation.html">← 上一篇：CSS3 与动画</a>
+  <a href="06-es6-features.html">下一篇：ES6 语言特性 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

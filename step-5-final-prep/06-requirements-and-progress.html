@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · 接需求与推进项目 — 步骤 5 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 5 · 第 6/9 份 ｜ J 域 · 软性、职业与综合</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 5 · 冲刺</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-career-plan.html"><span class="n">01</span><span>职业规划与择业标准</span></a></li>
+    <li><a class="item" href="02-self-assessment.html"><span class="n">02</span><span>自我评价</span></a></li>
+    <li><a class="item" href="03-ai-era-value.html"><span class="n">03</span><span>AI 时代的价值</span></a></li>
+    <li><a class="item" href="04-experience-inventory.html"><span class="n">04</span><span>经历与角色盘点</span></a></li>
+    <li><a class="item" href="05-skill-inventory.html"><span class="n">05</span><span>技术栈自评</span></a></li>
+    <li><a class="item cur" href="06-requirements-and-progress.html"><span class="n">06</span><span>接需求与推进项目</span></a></li>
+    <li><a class="item" href="07-cross-team-collaboration.html"><span class="n">07</span><span>跨角色协作</span></a></li>
+    <li><a class="item" href="08-team-and-risk.html"><span class="n">08</span><span>团队与风险</span></a></li>
+    <li><a class="item" href="09-stories.html"><span class="n">09</span><span>讲一段经历</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>06 · 接需求与推进项目</h1>
+<p class="lead">
+  这四道题问的都是<strong>"你干活的习惯"</strong>。它们没有标准答案，但有一个共同的高分点：
+  <strong>先确认再动手，并且让进度可见。</strong>
+</p>
+
+<div class="qbadges"><span class="q">XZ-3</span><span class="q">KJ-11</span><span class="q">KJ-9</span><span class="q">PY-11</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页需要你从<a href="00-how-to-study.html">事实表</a>里调得出具体例子——<strong>这几道题没有例子就会很空</strong>。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住接需求的六步。</div>
+  <div><b>第二遍（12 分钟）</b>读第 2 节——"推动进度"那道最容易答空。</div>
+  <div><b>第三遍</b>做页尾回忆卡，把你最近接的一个需求按六步复盘一遍。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「接到一个需求，你一般怎么做？」</strong></p>
+
+<p>很多人会答："先理解需求，然后设计实现，再写代码，最后测试上线。"</p>
+
+<p>这个答案<strong>不算错，但太顺了</strong>——它描述的是一条理想路径，而真实的项目里，需求通常是模糊的、会变的、还带着没说的前提。</p>
+
+<div class="analogy">
+  <span class="tag">这道题真正想听的</span>
+  <p>对方想知道的不是"你知道开发的流程"，而是：</p>
+  <ul>
+    <li><strong>你会不会在动手前把不清楚的地方问清楚？</strong>还是先做出来再说。</li>
+    <li><strong>你会不会主动暴露风险？</strong>还是硬扛到 deadline 才说做不完。</li>
+    <li><strong>你返工过吗？因为什么？后来改了什么习惯？</strong></li>
+  </ul>
+  <p>所以答的时候，<strong>重点不放在"我怎么写代码"，放在"我怎么避免做错方向"。</strong></p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 接一个需求的六步</p>
+  <h3>前两步花的时间，决定后面会不会返工</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 350" role="img" aria-label="接需求的六个步骤">
+    <!-- 六步 -->
+    <rect class="box-s" x="20" y="42" width="150" height="76" rx="8"></rect>
+    <text x="95" y="64" text-anchor="middle" font-size="12" style="font-weight:600">① 确认目标</text>
+    <text x="95" y="84" text-anchor="middle" font-size="11" class="lbl-muted">要解决什么问题</text>
+    <text x="95" y="102" text-anchor="middle" font-size="11" class="lbl-muted">不是"要做什么"</text>
+
+    <rect class="box-s" x="184" y="42" width="150" height="76" rx="8"></rect>
+    <text x="259" y="64" text-anchor="middle" font-size="12" style="font-weight:600">② 确认边界</text>
+    <text x="259" y="84" text-anchor="middle" font-size="11" class="lbl-muted">做到哪、不做到哪</text>
+    <text x="259" y="102" text-anchor="middle" font-size="11" class="lbl-muted">异常情况怎么办</text>
+
+    <rect class="box-d" x="348" y="42" width="150" height="76" rx="8"></rect>
+    <text x="423" y="64" text-anchor="middle" font-size="12" style="font-weight:600">③ 拆解</text>
+    <text x="423" y="84" text-anchor="middle" font-size="11" class="lbl-muted">分成能独立验证的小块</text>
+    <text x="423" y="102" text-anchor="middle" font-size="11" class="lbl-muted">排出依赖顺序</text>
+
+    <rect class="box-d" x="512" y="42" width="150" height="76" rx="8"></rect>
+    <text x="587" y="64" text-anchor="middle" font-size="12" style="font-weight:600">④ 对齐</text>
+    <text x="587" y="84" text-anchor="middle" font-size="11" class="lbl-muted">把上面的结论同步出去</text>
+    <text x="587" y="102" text-anchor="middle" font-size="11" class="lbl-muted">让相关的人先确认</text>
+
+    <rect class="box-m" x="676" y="42" width="104" height="76" rx="8"></rect>
+    <text x="728" y="64" text-anchor="middle" font-size="12" style="font-weight:600">⑤ 做</text>
+    <text x="728" y="84" text-anchor="middle" font-size="11" class="lbl-muted">边做边同步</text>
+    <text x="728" y="102" text-anchor="middle" font-size="11" class="lbl-muted">有变化要说</text>
+
+    <!-- 常见错误 -->
+    <text x="20" y="152" class="lbl-muted" font-size="13">跳过前两步会发生什么</text>
+
+    <rect x="20" y="168" width="240" height="96" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="140" y="190" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">没确认目标</text>
+    <text x="140" y="212" text-anchor="middle" font-size="11" class="lbl-muted">做出来的东西</text>
+    <text x="140" y="230" text-anchor="middle" font-size="11" class="lbl-muted">没解决真正的问题</text>
+    <text x="140" y="252" text-anchor="middle" font-size="11" fill="var(--c-risk)">返工，而且是大返工</text>
+
+    <rect x="278" y="168" width="240" height="96" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="398" y="190" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">没确认边界</text>
+    <text x="398" y="212" text-anchor="middle" font-size="11" class="lbl-muted">做到一半发现</text>
+    <text x="398" y="230" text-anchor="middle" font-size="11" class="lbl-muted">还有一堆情况没考虑</text>
+    <text x="398" y="252" text-anchor="middle" font-size="11" fill="var(--c-risk)">工期失控</text>
+
+    <rect x="536" y="168" width="244" height="96" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="658" y="190" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">没对齐</text>
+    <text x="658" y="212" text-anchor="middle" font-size="11" class="lbl-muted">你理解的和对方要的</text>
+    <text x="658" y="230" text-anchor="middle" font-size="11" class="lbl-muted">不是一回事</text>
+    <text x="658" y="252" text-anchor="middle" font-size="11" fill="var(--c-risk)">交付当场被否</text>
+
+    <!-- 关键 -->
+    <rect class="box-t" x="20" y="278" width="760" height="60" rx="8"></rect>
+    <text x="400" y="300" text-anchor="middle" font-size="12.5" style="font-weight:600">一个实用的动作：把①和②的结论写成一页纸发出去，请对方确认</text>
+    <text x="400" y="322" text-anchor="middle" font-size="11.5" class="lbl-muted">这一页纸能挡掉大部分"我以为你要的是……"——而且是书面的，后面有变化也有据可查</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：接需求的关键在<strong>前两步——确认目标、确认边界</strong>。跳过它们，后面的努力大概率要返工。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">而"写一页纸发出去确认"是这一整套里<strong>最值得养成的习惯</strong>：它把口头理解变成书面对齐，既省了返工，也方便后来对账。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>最容易省掉、也最不该省</span>
+  <span><i style="background:var(--c-data)"></i>常规步骤</span>
+  <span><i style="background:var(--c-model)"></i>动手</span>
+  <span><i style="background:var(--c-risk)"></i>跳过的代价</span>
+  <span><i style="background:var(--c-tool)"></i>关键动作</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 接需求怎么做（<code>XZ-3</code>）</h2>
+
+<p>答这题有个技巧：<strong>别把六步平铺着说，重点讲前两步</strong>，然后用一个返工的例子说明为什么。</p>
+
+<table>
+  <thead><tr><th style="width:22%">步骤</th><th style="width:34%">具体问什么</th><th>为什么问这个</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>确认目标</strong></td>
+      <td>问"这个东西是给谁用、解决他什么问题"，而不是只听"要做什么功能"。</td>
+      <td><strong>同一个功能，背后可能是完全不同的目标。</strong>比如"加个导出按钮"，可能是为了给人看，也可能是为了喂给另一个系统——两种做法完全不同。</td>
+    </tr>
+    <tr>
+      <td><strong>确认边界</strong></td>
+      <td>做到哪算完、哪些不做、异常情况怎么处理、有没有非功能要求（性能、权限、兼容）。</td>
+      <td><strong>边界不清是工期失控的头号原因。</strong>功能本身可能只要两天，但"各种异常都要处理"能让它变成两周。</td>
+    </tr>
+    <tr>
+      <td><strong>拆解与对齐</strong></td>
+      <td>拆成能独立验证的小块，排出顺序，把结论写下来同步。</td>
+      <td>让对方看到你的拆法，<strong>他可能会立刻指出"这块不用做"或者"还漏了一块"</strong>——这时候改，成本最低。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>用一个<strong>返工的例子</strong>来说明你为什么养成这个习惯——比讲方法有效得多：</p>
+  <p>「我吃过一次亏。当时需求是"加一个数据导出"。我按最直接的理解做了——<strong>把列表导出成表格</strong>，两天做完了。</p>
+  <p>结果对方要的是<strong>给另一个系统导入用的</strong>，格式和字段都不对，等于白做。而且<strong>真正的问题不是格式错了，是我压根没问他拿去干嘛。</strong></p>
+  <p>从那之后我养成一个习惯：<strong>接到需求先问一句"这个东西最后是给谁用、解决什么问题"。</strong>听起来是句废话，但真的能挡掉很多次返工。」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 怎么推动进度（<code>KJ-9</code>）</h2>
+
+<p>这题最容易答空——很多人会说"保持沟通""及时同步"。<strong>这些话没有信息量，因为它们是态度不是动作。</strong></p>
+
+<p>好的答法是给出<strong>四个具体动作</strong>：</p>
+
+<div class="pipeline">
+  <details class="node t"><summary>① 拆小</summary><div class="body">把任务拆成<strong>两三天内能做完并看到结果</strong>的小块。<strong>块太大，进度就是黑盒</strong>——不到最后一天谁也不知道做到哪了。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>② 让进度可见</summary><div class="body">有一个大家都能看到的状态（看板、表格、哪怕一个群里的固定格式）。<strong>不是为了汇报，是为了让问题早暴露。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>③ 风险早说</summary><div class="body"><strong>这是最关键的一条。</strong>发现可能延期就立刻说，而不是硬扛到 deadline。<strong>早说还有调整空间，晚说只能延期。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>④ 卡住了就升级</summary><div class="body">有些事你推不动——比如要别的组配合、要人拍板。<strong>卡超过半天就找人，不要自己耗着。</strong></div></details>
+</div>
+
+<div class="analogy">
+  <span class="tag">这题最值钱的一句</span>
+  <p>「<strong>我认为推动进度最关键的不是催，是让问题尽早暴露。</strong>」</p>
+  <p>然后补一个真实的对比：</p>
+  <p>「我见过两种做法：一种是每次都汇报进展顺利，到最后一天说做不完；<strong>另一种是做到一半就说"这块比预想复杂，可能要多两天"。</strong></p>
+  <p>后者听起来像能力不行，但实际上<strong>前者才是灾难</strong>——因为到 deadline 那天，所有人都没有调整空间了。<strong>我现在倾向于早说不好的消息，越早越主动。</strong>」</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 怎么快速上手（<code>KJ-11</code>）</h2>
+
+<p>「入职后怎么快速上手业务」——这题问的是<strong>你面对陌生系统的方法</strong>。给一个可复述的顺序，别说"多问多学"。</p>
+
+<table>
+  <thead><tr><th style="width:20%">顺序</th><th style="width:34%">做什么</th><th>为什么这个顺序</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 先跑一遍</strong></td>
+      <td>把系统当成用户跑一遍主流程，自己动手点。</td>
+      <td><strong>比读文档快</strong>。有了体感之后，再看代码和文档就有落点。</td>
+    </tr>
+    <tr>
+      <td><strong>② 找到"主链路"</strong></td>
+      <td>搞清一个请求从进来到出去经过哪些模块。</td>
+      <td>有了主链路，<strong>新知识就都能挂上去</strong>；没有它，你看的东西都是散的。</td>
+    </tr>
+    <tr>
+      <td><strong>③ 从最小的改动开始</strong></td>
+      <td>先改一个文案、修一个小 bug，走完整个流程（改代码 → 提交 → 发布 → 验证）。</td>
+      <td><strong>这是最快熟悉工程链路的方式</strong>，而且能立刻发现环境、权限、发布流程上的坑。</td>
+    </tr>
+    <tr>
+      <td><strong>④ 问人，但问得更有效率</strong></td>
+      <td>先自己查、把问题攒起来，集中问；问的时候说清"我试过什么"。</td>
+      <td>零散地问会打扰别人；<strong>说清自己试过什么，对方也更容易给到有效答案。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>⑤ 记下来</strong></td>
+      <td>把踩过的坑、常用的命令、关键模块的位置整理成自己的笔记。</td>
+      <td>一是省得重复问，二是——<strong>如果你把这页分享出去，它就变成了你对团队的贡献。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>最后补一句体现主动性的：</p>
+  <p>「另外我会顺手做一件事：<strong>把上手过程中卡住的地方记下来</strong>。因为新人卡住的地方往往就是文档没写清楚的地方。</p>
+  <p><strong>等上手之后，我会拿这份记录去补文档</strong>——后来的人也少走一遍。这件事不花什么时间，但团队会记得。」</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 没经验的事怎么学（<code>PY-11</code>）</h2>
+
+<p>这题和<a href="05-skill-inventory.html">技术栈自评</a>里的"怎么转型"是一类，但更宽泛——<strong>它问的是通用方法论</strong>。</p>
+
+<div class="tree">
+  <p class="q">❌ 别答这些</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">"我学习能力比较强"</span>没有信息量，而且没法验证</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">"多看书、多看文档"</span>太笼统，而且"看"不等于"会"</div>
+  </div>
+
+  <p class="q">✅ 四步：找参照 → 跑最小版本 → 用真实问题验证 → 补原理</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">① 找参照</span>先看有没有现成的做法、别人怎么解决的。<strong>不要一上来就自己从零想——大多数问题别人解过。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">② 跑最小版本</span>用最简单的方式让它先动起来。<strong>有了能跑的东西，再学原理才有落点。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">③ 用真实问题验证</span>拿自己项目里的实际情况去试。<strong>"跑通了"和"能用"之间差着很远。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">④ 回头补原理</span>能用了之后，再去搞懂"为什么这样是行的"。<strong>这一步决定你能不能用得久、用得稳。</strong></div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>说清<strong>这个顺序的前提</strong>——它不总是对的：</p>
+  <p>「我的习惯是<strong>先跑通再补原理</strong>，但<strong>这个顺序有前提</strong>：只能用在<strong>出错代价低</strong>的地方。如果一开始就要碰资金、权限、数据安全这些，那必须先搞懂再动手。</p>
+  <p>所以我做之前会先判断一件事：<strong>这件事错了会怎样？</strong>错了只是重做，就先跑起来；错了会造成实际损失，就老老实实先查清楚。」</p>
+  <p>最后那句"先判断错了会怎样"是重点——<strong>它说明你不是盲目地"先跑通"，而是知道什么时候不能这么干。</strong></p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「如果这个需求你判断做不完，你会什么时候说？」</summary>
+  <p>这是在<strong>验证你前面说的"风险早说"是不是真的</strong>。答的时候给一个具体的时间点，别说"尽早"：</p>
+  <ul>
+    <li><strong>给时间点</strong>：「我会<strong>在动手前就说</strong>——如果按当前的理解，这个时间不够。这时候说，对方还能调整范围。」</li>
+    <li><strong>说清怎么说</strong>：「我不会只说"做不完"，我会<strong>带上选项</strong>：如果一定要这个时间，可以砍掉哪部分；如果都要，需要多几天。<strong>让对方做选择，而不是把问题丢回去。</strong>」</li>
+    <li><strong>说明中途变化怎么办</strong>：「如果中途发现比预想复杂，我会<strong>当天就说</strong>，而不是等到快到期。因为早两天说，可能还有别的办法。」</li>
+  </ul>
+  <p>最主要的是那半句——<strong>"带上选项，而不是把问题丢回去"</strong>。这是"暴露风险"和"甩锅"的分界。</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「你怎么知道一件事你真的懂了？」</summary>
+  <p>这题在<strong>探你的自我检验方式</strong>，答好了说明你不自欺。给几条可操作的：</p>
+  <ul>
+    <li><strong>能讲给别人听</strong>：「如果我能不用术语、把它讲给一个不熟这块的同事听懂，那大概是懂了。」</li>
+    <li><strong>能预判它什么时候会出问题</strong>：「真懂一个东西，是<strong>知道它在什么情况下不适用</strong>。只知道它好，那叫用过。」</li>
+    <li><strong>能改</strong>：「<strong>能在这个基础上做修改并且说清为什么这么改</strong>——比能复述原理更能说明问题。」</li>
+    <li><strong>踩过坑</strong>：「最实在的检验是<strong>出过问题并且自己定位解决了</strong>。没踩过坑的东西，我一般会说"用过但不熟"。」</li>
+  </ul>
+  <p>最后这条尤其值钱——<strong>它和你前面技术栈分级的说法是一致的</strong>：把"没踩过坑"归到第二档，而不是第一档。</p>
+</details>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「接到需求怎么做 / 怎么推动进度 / 怎么快速上手 / 没经验怎么学」</span>
+  <p><strong>【接需求】</strong>我重点花在<strong>前两步：确认目标和确认边界</strong>。目标上我会问"这个东西最后是给谁用、解决什么问题"，而不是只听"要做什么功能"。<strong>边界上问清做到哪算完、哪些不做、异常怎么处理。</strong></p>
+  <p><strong>【为什么这么在意】</strong>我吃过一次亏：需求是"加一个数据导出"，我按最直接的理解做了把列表导出成表格，两天做完；<strong>结果对方是要给另一个系统导入用的，格式字段都不对，等于白做。</strong>问题不在格式，<strong>是我压根没问他拿去干嘛。</strong>从那之后我养成习惯：<strong>接到需求先问一句"这东西最后给谁用"。</strong></p>
+  <p><strong>【一个具体动作】</strong>我会把目标和边界的结论<strong>写成一页纸发出去请对方确认</strong>。这一页纸能挡掉大部分"我以为你要的是……"，而且是书面的，后面有变化也有据可查。</p>
+  <p><strong>【推动进度】</strong>我的做法是四个动作：<strong>拆小</strong>（拆成两三天能看到结果的小块）、<strong>让进度可见</strong>、<strong>风险早说</strong>、<strong>卡住了就升级</strong>。其中最关键的是<strong>风险早说</strong>——<strong>早说还有调整空间，晚说只能延期。</strong></p>
+  <p><strong>【快速上手】</strong>我的顺序是：<strong>先把系统当用户跑一遍</strong>，然后<strong>找到主链路</strong>（一个请求经过哪些模块），接着<strong>从最小的改动开始走完整流程</strong>（改代码到发布到验证），再集中问人，最后把坑记下来。<strong>把系统跑一遍比读文档快，有了体感再看代码才有落点。</strong></p>
+  <p><strong>【没经验怎么学】</strong>四步：<strong>找参照 → 跑最小版本 → 用真实问题验证 → 回头补原理</strong>。先看别人怎么解决的，不要一上来从零想；先让它动起来，再学原理才有落点。</p>
+  <p><strong>【权衡】</strong>但"先跑通再补原理"<strong>有前提</strong>——只能用在<strong>出错代价低</strong>的地方。如果一开始就要碰资金、权限、数据安全，必须先搞懂再动手。<strong>所以我做之前会先判断一件事：这件事错了会怎样。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>接到需求后，你会问哪几个问题？为什么是这几个？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>最核心的是两个：</p>
+    <ol>
+      <li><strong>"这东西最后是给谁用、解决什么问题？"</strong>——问目标，不是问功能。<strong>同一个功能背后可能是完全不同的目标。</strong></li>
+      <li><strong>"做到哪算完？哪些不做？异常情况怎么办？"</strong>——问边界。<strong>边界不清是工期失控的头号原因。</strong></li>
+    </ol>
+    <p>再加两个可选的：<strong>有没有非功能要求</strong>（性能、权限、兼容）、<strong>什么时候要</strong>（决定能不能砍范围）。</p>
+    <p>然后是把结论<strong>写下来发出去确认</strong>——这一步比问什么更重要，因为它把口头理解变成了可对账的东西。</p>
+    <p>如果想说个例子佐证，用你自己真实返工过的经历——<strong>那段比方法本身更有说服力。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「怎么推动项目进度」——说出四个具体动作，并指出哪个最关键。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>拆小</strong>：拆成两三天能看到结果的小块。<strong>块太大，进度就是黑盒。</strong></li>
+      <li><strong>让进度可见</strong>：有大家都能看到的状态。<strong>不是为了汇报，是为了让问题早暴露。</strong></li>
+      <li><strong>风险早说</strong>：<strong>最关键的一条。</strong>发现可能延期立刻说，不硬扛到 deadline。</li>
+      <li><strong>卡住就升级</strong>：要别人配合、要人拍板的事，卡超过半天就找人，别自己耗。</li>
+    </ol>
+    <p>要避免的答法：<strong>"保持沟通""及时同步"</strong>——这些是态度不是动作，答了等于没答。</p>
+    <p>另外那句最能拉开差距的话：<strong>"推动进度最关键的不是催，是让问题尽早暴露。"</strong>——而且最好说清"早说还有调整空间，晚说只能延期"。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="05-skill-inventory.html">← 上一篇：技术栈自评</a>
+  <a href="07-cross-team-collaboration.html">下一篇：跨角色协作 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

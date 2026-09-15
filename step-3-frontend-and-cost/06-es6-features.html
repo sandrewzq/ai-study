@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · ES6 语言特性 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 6/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item cur" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>06 · ES6 语言特性</h1>
+<p class="lead">
+  这一组是"基础题"，但基础题最容易答得平淡。这一页的做法是：<strong>把"我背过特性表"变成"我知道它解决了什么"</strong>——
+  同样的知识点，后者听起来完全不同。
+</p>
+
+<div class="qbadges"><span class="q">SH-22</span><span class="q">SH-23</span><span class="q">SH-24</span><span class="q">SH-25</span><span class="q">SH-26</span><span class="q">SH-27</span><span class="q">KJ-4</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>需要知道"函数""对象""原型"大概是什么。<strong>如果 <code>class</code>、<code>Promise</code> 这些你只是见过、没自己写过</strong>，这一页正好把它们串一遍。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>看主图——记住"ES6 到底解决了什么问题"。</div>
+  <div><b>第二遍（15 分钟）</b>读第 2、3 节，这两节是真正会被追问的。</div>
+  <div><b>第三遍</b>做页尾回忆卡，然后<strong>把一段 ES5 代码改写成 ES6</strong>，反过来也行。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「ES6 有哪些常用特性？」</strong></p>
+
+<p>很多人立刻开始报菜名：<em>let、const、箭头函数、模板字符串、解构、展开运算符、Promise、class、模块化……</em></p>
+
+<p>报完，对方"嗯"了一声，换下一题。<strong>你没答错，但也没拿到分。</strong></p>
+
+<p>因为这道题的货不在"列出多少个"，而在<strong>你能不能说出这些特性各自解决了什么麻烦</strong>。同样是讲箭头函数：</p>
+
+<table>
+  <thead><tr><th style="width:50%">❌ 背特性</th><th>✅ 讲问题</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>"箭头函数语法更短，而且没有自己的 <code>this</code>。"</td>
+      <td>"以前写回调，里面的 <code>this</code> 指谁完全看谁调用的，得靠 <code>var that = this</code> 这种土办法兜住。箭头函数<strong>直接用外层的 <code>this</code></strong>，这个坑就没了——代价是它<strong>不能用来定义需要自己 <code>this</code> 的方法</strong>。"</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>右边这段话多讲了两句，但<strong>同时暴露了三件事</strong>：你踩过那个坑、你知道新特性的边界、你能讲清取舍。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · ES6 不是在加语法糖，是在补三个老麻烦</p>
+  <h3>变量作用域混乱、异步难写、代码无法拆分</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 330" role="img" aria-label="ES6 主要特性解决的三个老问题">
+    <text x="20" y="26" class="lbl-muted">ES5 时代的三个痛点</text>
+
+    <!-- 痛点 1 -->
+    <rect x="20" y="42" width="240" height="70" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="140" y="64" text-anchor="middle" font-size="13" fill="var(--c-risk)" style="font-weight:600">① 变量作用域乱</text>
+    <text x="140" y="84" text-anchor="middle" font-size="12" class="lbl-muted">只有函数级作用域</text>
+    <text x="140" y="101" text-anchor="middle" font-size="12" class="lbl-muted">循环里放回调，拿到的全是最后一个值</text>
+
+    <!-- 痛点 2 -->
+    <rect x="278" y="42" width="240" height="70" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="398" y="64" text-anchor="middle" font-size="13" fill="var(--c-risk)" style="font-weight:600">② 异步难写</text>
+    <text x="398" y="84" text-anchor="middle" font-size="12" class="lbl-muted">只能靠回调嵌套</text>
+    <text x="398" y="101" text-anchor="middle" font-size="12" class="lbl-muted">多层缩进，错误处理散落各处</text>
+
+    <!-- 痛点 3 -->
+    <rect x="536" y="42" width="244" height="70" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="658" y="64" text-anchor="middle" font-size="13" fill="var(--c-risk)" style="font-weight:600">③ 代码没法拆</text>
+    <text x="658" y="84" text-anchor="middle" font-size="12" class="lbl-muted">没有官方模块机制</text>
+    <text x="658" y="101" text-anchor="middle" font-size="12" class="lbl-muted">只能靠全局变量和立即执行函数凑</text>
+
+    <text x="20" y="146" class="lbl-muted" font-size="13">ES6 给出的答案</text>
+
+    <!-- 解法 1 -->
+    <rect class="box-s" x="20" y="162" width="240" height="84" rx="8"></rect>
+    <text x="140" y="184" text-anchor="middle" font-size="12.5" style="font-weight:600">块级作用域</text>
+    <text x="140" y="204" text-anchor="middle" font-size="12">let / const</text>
+    <text x="140" y="224" text-anchor="middle" font-size="12">箭头函数顺带解决了 this</text>
+    <text x="140" y="240" text-anchor="middle" font-size="11.5" class="lbl-muted">每次循环都有自己的变量</text>
+
+    <!-- 解法 2 -->
+    <rect class="box-s" x="278" y="162" width="240" height="84" rx="8"></rect>
+    <text x="398" y="184" text-anchor="middle" font-size="12.5" style="font-weight:600">Promise</text>
+    <text x="398" y="204" text-anchor="middle" font-size="12">把嵌套改成链式</text>
+    <text x="398" y="224" text-anchor="middle" font-size="12">错误可以统一在一个地方接</text>
+    <text x="398" y="240" text-anchor="middle" font-size="11.5" class="lbl-muted">后来的 async/await 让它更像同步代码</text>
+
+    <!-- 解法 3 -->
+    <rect class="box-s" x="536" y="162" width="244" height="84" rx="8"></rect>
+    <text x="658" y="184" text-anchor="middle" font-size="12.5" style="font-weight:600">模块</text>
+    <text x="658" y="204" text-anchor="middle" font-size="12">明确谁导出、谁引入</text>
+    <text x="658" y="224" text-anchor="middle" font-size="12">依赖关系变成静态的</text>
+    <text x="658" y="240" text-anchor="middle" font-size="11.5" class="lbl-muted">打包工具才有得分析</text>
+
+    <rect class="box-m" x="20" y="266" width="760" height="48" rx="8"></rect>
+    <text x="400" y="286" text-anchor="middle" font-size="12.5" style="font-weight:600">另外一批是"写起来更省事"的：模板字符串、解构、展开运算符、class、默认参数、Map / Set</text>
+    <text x="400" y="305" text-anchor="middle" font-size="12" class="lbl-muted">它们不解决新问题，只是把以前啰嗦的写法变短 —— 答的时候放后面说</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：ES6 的特性可以分成两批——<strong>一批是真正解决老麻烦的</strong>（作用域、异步、模块），<strong>一批是让写法更短的</strong>（模板字符串、解构、展开）。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">答"有哪些常用特性"时，<strong>先说第一批并讲清解决了什么，第二批一句带过</strong>。这个组织方式本身就说明你不是在背清单。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-risk)"></i>ES5 的老问题</span>
+  <span><i style="background:var(--c-store)"></i>ES6 的解法</span>
+  <span><i style="background:var(--c-model)"></i>语法便利类</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. ES5 和 ES6 的构造函数（<code>SH-24</code>、<code>SH-25</code>）</h2>
+
+<p>这两题问的是同一个东西的两种写法。<strong>关键在于答出"新写法是语法糖，但有几处不一样"</strong>——只说"一个是 function 一个是 class"会被认为理解很浅。</p>
+
+<table>
+  <thead><tr><th style="width:16%"></th><th style="width:42%">ES5 的写法</th><th>ES6 的写法</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>怎么定义</strong></td>
+      <td>定义一个普通函数，用的时候前面加 <code>new</code>。约定俗成首字母大写，但那<strong>只是约定</strong>——不加 <code>new</code> 直接调也不会报错，只会出莫名其妙的问题。</td>
+      <td>用 <code>class</code> 定义，里面写构造函数和各个方法。<strong>不加 <code>new</code> 直接调会直接报错</strong>——这是它比 ES5 严谨的地方。</td>
+    </tr>
+    <tr>
+      <td><strong>方法放哪</strong></td>
+      <td>挂在原型上，写法是把构造函数的名字再写一遍。</td>
+      <td>直接写在 class 里面，看起来像对象字面量，<strong>但实际仍然是挂在原型上</strong>。</td>
+    </tr>
+    <tr>
+      <td><strong>怎么继承</strong></td>
+      <td>要手动把子类的原型指向父类的实例（或用一个中间对象过渡），再补回构造函数指向。<strong>步骤多、容易漏。</strong></td>
+      <td><code>extends</code> 一行搞定，<code>super</code> 调用父类构造函数。<strong>原型链的接线工作框架替你做了。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>本质</strong></td>
+      <td colspan="2" style="background:var(--code-bg)"><strong>两者最终都落到原型上，运行时的对象结构是一样的。</strong><code>class</code> 是语法糖——它没有引入新的对象模型，只是把原型操作包装得更安全、更易读。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>答出"语法糖"之后，<strong>再补三处"糖之外"的真实差异</strong>，就完整了：</p>
+  <ul>
+    <li><strong>必须加 <code>new</code></strong>：class 当普通函数调用会直接报错，避免了 ES5 里"忘了 new 导致变量挂到全局"的坑。</li>
+    <li><strong>不会提升</strong>：函数声明会提升，但 class 必须<strong>先定义后使用</strong>。</li>
+    <li><strong>方法不可枚举</strong>：挂在原型上的方法默认不出现在遍历里，这和 ES5 手动挂的行为不一样。</li>
+  </ul>
+  <p>最后收一句："所以可以理解成——<strong>同样的原型模型，换了一套更不容易写错的语法</strong>。"</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你平时写代码会区分 ES5 和 ES6 吗？」（<code>SH-26</code>）</summary>
+  <p>这题看起来随口一问，其实在看你<strong>知不知道"写的代码"和"跑的代码"是两回事</strong>。</p>
+  <p>答法：<strong>写的时候不区分，但要清楚它们编译后是什么。</strong></p>
+  <ul>
+    <li>现在项目里都直接写新语法，<strong>由打包工具统一转成浏览器能跑的旧语法</strong>，所以写的时候不用忌讳。</li>
+    <li>但<strong>必须知道转译是有边界的</strong>：语法可以转（箭头函数转成普通函数），<strong>而一些内置的新对象和方法是转不出来的</strong>——那些只能靠额外的兼容库去补，或者干脆不用。这一条和<a href="07-browser-compat.html">下一份（浏览器兼容）</a>直接相关。</li>
+    <li>看老项目代码时当然要认得 ES5 那套写法，尤其是继承那几行。</li>
+  </ul>
+</details>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 什么是柯里化（<code>SH-23</code>）</h2>
+
+<p>这题<strong>很多人只会背定义</strong>："把接收多个参数的函数变成一系列接收单个参数的函数。"背完就没了。</p>
+
+<p>其实柯里化<strong>不是语言特性，是一种常用手法</strong>，它的价值在于<strong>参数复用</strong>和<strong>延迟执行</strong>。讲清这两点，这题就答透了。</p>
+
+<table>
+  <thead><tr><th style="width:26%">它带来什么</th><th style="width:34%">什么意思</th><th>什么时候真的用得上</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>参数复用</strong></td>
+      <td>固定住前面的参数，拿到一个"预设好的"新函数，后面反复用。</td>
+      <td>比如写日志：先固定好模块名，之后调用只需要传内容。或者接口请求：先固定好基础地址。</td>
+    </tr>
+    <tr>
+      <td><strong>延迟执行</strong></td>
+      <td>参数给不齐就先不执行，返回一个等着接收剩余参数的函数。</td>
+      <td>需要先把函数攒起来、等条件满足再触发的时候。</td>
+    </tr>
+    <tr>
+      <td><strong>方便组合</strong></td>
+      <td>都变成单参数之后，更容易把小函数串成管道。</td>
+      <td>数据处理流程：一串小函数依次加工同一个值。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">被追问「你实际用过吗」怎么办</span>
+  <p>诚实一点最安全。可以说：<strong>"我没有专门写过通用的柯里化工具函数，但日常代码里这种思路一直在用"</strong>——然后举一个<strong>你真写过的例子</strong>：</p>
+  <ul>
+    <li>事件处理里先固定住某个参数（比如行的 id），返回一个只等事件的函数。</li>
+    <li>用 <code>bind</code> 固定参数——<strong><code>bind</code> 本身就是柯里化的一种形式</strong>，这句话说出来很加分。</li>
+  </ul>
+  <p><strong>不要硬编一个"我在项目里实现了柯里化工具"</strong>，被追问实现细节会很尴尬。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. Promise / 展开运算符 / 箭头函数 / 模板字符串（<code>SH-27</code>）</h2>
+
+<p>这题列了四样东西让你确认——<strong>语气上是在核对基础，但答的时候可以借它展示深度</strong>。每样用一句"它是什么 + 解决什么 + 一个注意点"的结构说。</p>
+
+<table>
+  <thead><tr><th style="width:18%">特性</th><th style="width:34%">解决什么</th><th>一个能显出你踩过坑的注意点</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Promise</strong></td>
+      <td>把层层嵌套的回调改成链式调用，错误可以统一在一处捕获。</td>
+      <td>它<strong>一旦确定就不会再变</strong>（成功或失败只认第一次）。另外并发请求要用"全部完成"或"任意一个完成"这类组合方法，<strong>别在循环里一个个等</strong>——那样会串行，白白变慢。</td>
+    </tr>
+    <tr>
+      <td><strong>箭头函数</strong></td>
+      <td>写法更短，且<strong>没有自己的 <code>this</code></strong>，直接用外层的。</td>
+      <td>正因为它没有自己的 <code>this</code>，<strong>不能用来定义对象方法或需要动态 this 的场景</strong>；也不能当构造函数用。</td>
+    </tr>
+    <tr>
+      <td><strong>模板字符串</strong></td>
+      <td>拼字符串不用再加号，可以直接嵌变量，还能写多行。</td>
+      <td>拼接用户输入时<strong>要注意转义</strong>——直接插进 HTML 会有安全风险，得先处理。</td>
+    </tr>
+    <tr>
+      <td><strong>展开运算符</strong></td>
+      <td>把数组或对象"摊平"，常用于复制、合并、传参。</td>
+      <td><strong>它只做浅拷贝</strong>——嵌套的对象仍然共享引用。改副本里的深层字段，原对象也会变。<strong>这是最常见的误解</strong>，很多人以为展开就是深拷贝。</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. WebAssembly 了解过吗（<code>KJ-4</code>）</h2>
+
+<p>这题<strong>大概率是"顺口一问"</strong>，答不上来不致命，但答得清楚会让对方记住你。</p>
+
+<p>核心一句话：<strong>它让用 C++、Rust 这类语言写的代码，能在浏览器里以接近原生的速度跑。</strong></p>
+
+<table>
+  <thead><tr><th style="width:22%">维度</th><th>怎么理解</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>它是什么</strong></td>
+      <td>一种<strong>浏览器能直接执行的二进制格式</strong>。它不是给人写的语言，而是<strong>其他语言的编译目标</strong>——你用别的语言写，编译成它，浏览器负责跑。</td>
+    </tr>
+    <tr>
+      <td><strong>为什么要它</strong></td>
+      <td>JS 是解释执行的，做<strong>密集计算</strong>（视频编解码、图像处理、物理仿真、压缩解压）时会力不从心。这类活儿搬到这种格式里跑，速度快得多。</td>
+    </tr>
+    <tr>
+      <td><strong>和 JS 什么关系</strong></td>
+      <td><strong>互补，不是替代。</strong>它不擅长操作页面（碰 DOM 反而慢），所以典型做法是：<strong>重的计算交给它，页面的渲染和交互仍然用 JS</strong>，两边来回传数据。</td>
+    </tr>
+    <tr>
+      <td><strong>什么时候用</strong></td>
+      <td>只有当你的页面里<strong>真的有一块算得很慢</strong>、而且这块逻辑能用别的语言现成实现时（比如已经有成熟的 C 库），才值得引入。<strong>为了用而用是负收益</strong>——它体积不小，还得处理两边数据传递。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>最后补一句<strong>判断标准</strong>，就从"我听说过"变成了"我知道什么时候该用"：</p>
+  <p>「我会先问<strong>瓶颈是不是真的在计算上</strong>。如果是网络、渲染、或者频繁的数据传递，换成它没有意义。确实是计算密集、而且已经有现成的库，才值得引入——<strong>否则体积和维护成本都不划算</strong>。」</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「ES6 有哪些常用特性 / ES5 和 ES6 的区别」</span>
+  <p><strong>【结论】</strong>我习惯把它们分两批看：<strong>一批是解决老问题的</strong>——块级作用域解决变量提升和循环闭包，Promise 解决回调嵌套，模块机制解决代码拆分；<strong>另一批是让写法更短的</strong>——模板字符串、解构、展开运算符、class、默认参数。</p>
+  <p><strong>【重点展开】</strong>箭头函数值得单独说：它<strong>没有自己的 <code>this</code></strong>，用的是外层的，所以解决了回调里 <code>this</code> 指向混乱的问题；<strong>代价是不能当对象方法或构造函数用</strong>。</p>
+  <p><strong>【构造函数】</strong>ES5 用普通函数加 <code>new</code>，方法挂原型，继承要手动接原型链；ES6 用 <code>class</code> 加 <code>extends</code> 和 <code>super</code>。<strong>但本质是语法糖，运行时还是原型那套</strong>——差别在 class 必须用 <code>new</code> 调、不会提升、方法不可枚举。</p>
+  <p><strong>【实际用法】</strong>写代码时不区分版本，打包工具会统一转译。但要知道<strong>转译有边界</strong>：语法能转，一些内置的新对象和方法转不出来，得靠兼容方案补。</p>
+  <p><strong>【数字/经验】</strong>展开运算符我用得最多，但踩过一次坑：<strong>它是浅拷贝</strong>，我用它复制了一份配置对象，改副本里的嵌套字段，结果原对象也跟着变了，排查了半天。</p>
+  <p><strong>【权衡】</strong>新语法能提效率，但也别滥用。比如箭头函数虽然短，但在需要动态 <code>this</code> 的地方用它会出问题——<strong>知道它什么时候不该用，比知道它怎么写更重要。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>用 ES5 和 ES6 各写一遍"一个用户类，继承自一个人"，并说出一处非语法层面的差异。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>ES5</strong>：先定义 <code>function Person(name){...}</code>，把方法挂到 <code>Person.prototype</code> 上；子类里先调用父类构造函数拿到属性，再<strong>把子类原型指向一个以父类原型为原型的对象</strong>，最后别忘了<strong>把原型的构造函数指回子类自己</strong>（这一步最容易漏）。</p>
+    <p><strong>ES6</strong>：<code>class Person {...}</code>，子类写 <code>class User extends Person</code>，构造函数里用 <code>super(name)</code> 调父类。原型链的接线由语法自动完成。</p>
+    <p><strong>非语法层面的差异</strong>（挑一个说就行）：</p>
+    <ul>
+      <li><strong>必须用 <code>new</code></strong>：ES5 忘了加会静默出错（属性挂到全局），ES6 直接抛错。</li>
+      <li><strong>提升行为不同</strong>：ES5 的函数声明会提升，ES6 的 class 不会。</li>
+      <li><strong>方法可枚举性不同</strong>：ES5 手动挂的方法默认可枚举，class 里的方法不可枚举。</li>
+    </ul>
+    <p>收一句：<strong>"两者最终都落到原型上，class 是更安全易读的写法。"</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>用展开运算符复制一个对象，改副本的嵌套字段，原对象会变吗？为什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>会变。</strong>展开运算符只做<strong>浅拷贝</strong>：它把第一层的字段复制到新对象里，但如果某个字段的值本身是个对象或数组，复制过去的是<strong>同一个引用</strong>，不是一份新数据。</p>
+    <p>所以：改<strong>第一层</strong>的字段，互不影响；改<strong>嵌套进去的</strong>字段，两边一起变。</p>
+    <p>要真正独立，得<strong>逐层复制</strong>，或者用一个能处理嵌套的深拷贝方式。但要注意：<strong>深拷贝不是无脑用就好</strong>——它在处理循环引用、特殊对象（日期、正则）时会出问题，而且数据大时开销明显。<strong>很多时候"避免改原对象"比"复制一份"更简单。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="05-canvas-and-effects.html">← 上一篇：Canvas 与动效实战</a>
+  <a href="07-browser-compat.html">下一篇：浏览器兼容 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

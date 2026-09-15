@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · 落地推动与棘手难题 — 步骤 4 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 4 · 第 7/7 份 ｜ G 域 · 项目叙事与方案设计</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 4 · 讲故事</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-project-overview.html"><span class="n">01</span><span>项目整体怎么讲</span></a></li>
+    <li><a class="item" href="02-project-facts.html"><span class="n">02</span><span>用户、功能与工期</span></a></li>
+    <li><a class="item" href="03-architecture-layers.html"><span class="n">03</span><span>架构分层与技术选型</span></a></li>
+    <li><a class="item" href="04-from-zero.html"><span class="n">04</span><span>从 0 到 1 与搭框架</span></a></li>
+    <li><a class="item" href="05-design-cases.html"><span class="n">05</span><span>方案设计题</span></a></li>
+    <li><a class="item" href="06-wecom-ecosystem.html"><span class="n">06</span><span>企微生态专题</span></a></li>
+    <li><a class="item cur" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>07 · 落地推动与棘手难题</h1>
+<p class="lead">
+  这是 G 域的最后一页，也是<strong>唯一一页讲"人"的题</strong>。
+  AI 项目做不出来的很少，<strong>推不动、没人用的很多</strong>——这三道题考的就是你知不知道这件事。
+</p>
+
+<div class="qbadges"><span class="q">PY-1</span><span class="q">PY-4</span><span class="q">YU-4</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页接着<a href="05-design-cases.html">方案设计题</a>——那道题的"风险"部分讲的就是这里的内容。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，理解"技术做完只是开始"。</div>
+  <div><b>第二遍（12 分钟）</b>读第 1、3 节，然后<strong>挑一个你自己项目里的难题写成故事</strong>。</div>
+  <div><b>第三遍</b>做页尾回忆卡，把"棘手难题"那道题完整讲一遍。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>系统做完了，效果也还不错。你把它推给团队，满怀期待地等反馈。</p>
+
+<p>一周过去，<strong>后台数据显示：日活三个人</strong>，其中两个还是你自己。</p>
+
+<p>你跑去问同事为什么不用，得到三种回答：</p>
+
+<div class="analogy">
+  <span class="tag">三种典型的"不用"</span>
+  <ul>
+    <li><em>「我习惯直接问旁边的人了，比打字快。」</em>——<strong>嫌麻烦</strong></li>
+    <li><em>「上次问了个问题它答错了，我就不太敢信了。」</em>——<strong>不信任</strong></li>
+    <li><em>「这个挺好，但我怕用了之后领导觉得我啥都不会。」</em>——<strong>有顾虑</strong></li>
+  </ul>
+</div>
+
+<p>注意：<strong>这三条没有一条是技术问题。</strong>而它们才是决定系统死活的。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 落地不是"做完上线"，是"让人真的用起来"</p>
+  <h3>技术交付只是第一段</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 340" role="img" aria-label="AI 系统落地的三个阶段与阻力">
+    <!-- 三阶段 -->
+    <rect class="box-m" x="20" y="42" width="240" height="96" rx="9"></rect>
+    <text x="140" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">① 做出来</text>
+    <text x="140" y="86" text-anchor="middle" font-size="11.5" class="lbl-muted">系统能跑、效果达标</text>
+    <text x="140" y="106" text-anchor="middle" font-size="11.5" class="lbl-muted">这一步你能控制</text>
+    <text x="140" y="126" text-anchor="middle" font-size="11" class="lbl-muted">大部分人的准备只到这里</text>
+
+    <rect class="box-m" x="280" y="42" width="240" height="96" rx="9"></rect>
+    <text x="400" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">② 有人用</text>
+    <text x="400" y="86" text-anchor="middle" font-size="11.5" class="lbl-muted">找到第一批真实用户</text>
+    <text x="400" y="106" text-anchor="middle" font-size="11.5" class="lbl-muted">他们愿意用、愿意提意见</text>
+    <text x="400" y="126" text-anchor="middle" font-size="11" class="lbl-muted">这一步最容易被跳过</text>
+
+    <rect class="box-s" x="540" y="42" width="240" height="96" rx="9"></rect>
+    <text x="660" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 用得住</text>
+    <text x="660" y="86" text-anchor="middle" font-size="11.5" class="lbl-muted">变成日常习惯</text>
+    <text x="660" y="106" text-anchor="middle" font-size="11.5" class="lbl-muted">内容有人维护、效果持续</text>
+    <text x="660" y="126" text-anchor="middle" font-size="11" class="lbl-muted">这才算真的落地</text>
+
+    <!-- 阻力 -->
+    <text x="20" y="172" class="lbl-muted" font-size="13">推不动的原因，几乎都在"人"这一侧</text>
+
+    <rect x="20" y="188" width="186" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="113" y="210" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">嫌麻烦</text>
+    <text x="113" y="232" text-anchor="middle" font-size="11" class="lbl-muted">"问人比打字快"</text>
+    <text x="113" y="250" text-anchor="middle" font-size="11" class="lbl-muted">→ 要降低使用成本</text>
+
+    <rect x="216" y="188" width="186" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="309" y="210" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">不信任</text>
+    <text x="309" y="232" text-anchor="middle" font-size="11" class="lbl-muted">"答错过一次就不敢用"</text>
+    <text x="309" y="250" text-anchor="middle" font-size="11" class="lbl-muted">→ 要给出来源和把握度</text>
+
+    <rect x="412" y="188" width="186" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="505" y="210" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">有顾虑</text>
+    <text x="505" y="232" text-anchor="middle" font-size="11" class="lbl-muted">"怕显得自己不会"</text>
+    <text x="505" y="250" text-anchor="middle" font-size="11" class="lbl-muted">→ 定位成辅助而非替代</text>
+
+    <rect x="608" y="188" width="172" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="694" y="210" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">流程变了</text>
+    <text x="694" y="232" text-anchor="middle" font-size="11" class="lbl-muted">"多了一步很烦"</text>
+    <text x="694" y="250" text-anchor="middle" font-size="11" class="lbl-muted">→ 别增加额外负担</text>
+
+    <!-- 做法 -->
+    <text x="20" y="290" class="lbl-muted" font-size="13">对应的做法</text>
+
+    <rect class="box-t" x="20" y="304" width="760" height="30" rx="7"></rect>
+    <text x="400" y="324" text-anchor="middle" font-size="12" style="font-weight:600">找痛点最深的人先试 → 让他们参与设计 → 用他们自己的数据证明有效 → 再往外推</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：落地分三段，<strong>「做出来」只是第一段</strong>。真正难的是第二段（有人用）和第三段（用得住），而这两段的阻力<strong>全都来自人</strong>——嫌麻烦、不信任、有顾虑、流程变了。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">所以"怎么推动落地"这道题，<strong>答技术手段是答偏了</strong>。要答的是：你怎么找到第一批用户、怎么让他们愿意用、怎么把效果变成他们能感知到的东西。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>落地阶段</span>
+  <span><i style="background:var(--c-store)"></i>真正的目标</span>
+  <span><i style="background:var(--c-risk)"></i>来自人的阻力</span>
+  <span><i style="background:var(--c-tool)"></i>做法</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 怎么推动落地（<code>PY-1</code>）</h2>
+
+<p>这题有个很容易踩的坑：<strong>答成"我用了什么技术让它更好用"</strong>。技术当然要讲，但那是第二位——<strong>第一位是"你怎么让这件事在组织里发生"</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:20%">顺序</th><th style="width:34%">做什么</th><th>为什么有效</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 找种子用户</strong></td>
+      <td>挑<strong>痛点最深、又愿意尝新</strong>的那几个人，而不是全员推。新人、刚接手陌生业务的同事，通常是最合适的。</td>
+      <td>全员推的结局通常是没人用；<strong>小范围试点的反馈质量高得多</strong>，而且改起来快。</td>
+    </tr>
+    <tr>
+      <td><strong>② 让他们参与</strong></td>
+      <td>把第一批用户拉进来提意见，甚至让他们决定先做什么。</td>
+      <td><strong>参与过设计的用户，天然会变成推广者。</strong>反过来，做完才通知他们，"这是给你的工具"注定推不动。</td>
+    </tr>
+    <tr>
+      <td><strong>③ 用他们的数据证明</strong></td>
+      <td>拿他们自己的场景做对比：以前查这份资料要多久，现在多久。</td>
+      <td>抽象的"命中率八成"没有说服力，<strong>"你上次问的那个问题，现在三秒就有答案"才有。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>④ 降低使用门槛</strong></td>
+      <td>入口放在他们本来就在的地方，不要让他们多开一个系统、多记一个网址。</td>
+      <td>"嫌麻烦"是最大的阻力。<strong>多一步操作，使用率就掉一截。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>⑤ 定位成辅助</strong></td>
+      <td>明确说这是帮你查资料的，不是替代你判断的。</td>
+      <td>化解"怕显得自己不会"的顾虑——<strong>这个顾虑不说出来，但真实存在。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>能说出<strong>"我一开始推的方式是错的"</strong>，比只讲正确做法可信得多：</p>
+  <p>「我一开始是做完之后在群里发了个通知，附上链接，说"欢迎大家使用"。<strong>结果一周只有三个人用过。</strong></p>
+  <p>后来我换了个方式：<strong>先找了两个刚入职、天天要翻资料的同事</strong>，把他们的高频问题整理进去，然后坐他们旁边看他们用。<strong>当天就收集到一堆问题</strong>——有的是检索不准，有的是他们根本不知道怎么问。</p>
+  <p>改完之后，<strong>这两三个人就成了主要用户，而且开始在群里主动推荐</strong>。这之后我才往外推。<strong>所以我的结论是：先做深，再做广。</strong>」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 未登录用户怎么处理（<code>PY-4</code>）</h2>
+
+<p>这题问的是一个很具体的场景：<strong>如果你拿不到用户身份，怎么办？</strong></p>
+
+<p>拿不到身份的常见原因有三种：<strong>用户在非本平台环境里打开了链接</strong>（比如从微信转发出来）、<strong>授权失败了</strong>、或者<strong>用户拒绝了授权</strong>。</p>
+
+<div class="tree">
+  <p class="q">① 第一原则：不能白屏</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">最糟的处理</span>拿不到身份就直接报错或者一直转圈。<strong>用户不知道发生了什么，只会认为你的系统坏了。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">正确做法</span>降级成<strong>匿名会话</strong>——发一个临时的匿名标识，让页面能正常显示、能试着用一下。</div>
+  </div>
+
+  <p class="q">② 匿名能用多少？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">可以开放</span>公开资料的检索问答、产品介绍这类<strong>不涉及权限的内容</strong>——顺便还是一次体验机会。</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">必须挡住</span>涉及<strong>内部资料、个人信息、写操作</strong>的，必须登录才能用，而且要明确提示"登录后可用"。</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">匿名要有上限</span>限制提问次数或者时长，<strong>避免被当成免费接口刷</strong>（这也是控制成本的一部分，见<a href="../step-3-frontend-and-cost/10-usage-and-cost.html">步骤 3 的用量口径</a>）。</div>
+  </div>
+
+  <p class="q">③ 匿名用户产生的数据怎么处理？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">就地存在匿名标识下</span>会话记录挂在匿名标识上，功能上是完整的。</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">登录后做合并</span>用户后来登录了，把匿名期间的记录<strong>迁移到他的正式身份下</strong>——这样他之前的对话不会丢，体验是连续的。</div>
+    <div class="a"><span class="yn" style="color:var(--c-data)">要能对上</span>前提是你在匿名时就存好了标识，并且登录时能拿到它。<strong>这一步经常被漏掉，导致登录后历史全没了。</strong></div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>把"降级"和"引导"两件事分开说，条理更清楚：</p>
+  <p>「我的做法是<strong>先降级保证可用，再引导登录</strong>。匿名用户能看到公开内容、能试问几个问题；问到他没权限的内容时，<strong>不是冷冰冰地报错，而是告诉他"这部分需要登录"并给一个登录入口</strong>。</p>
+  <p>另外我们会<strong>把匿名期间的对话保留下来，登录后并过去</strong>——不然用户试了两句、登录之后发现全没了，会觉得这产品很粗糙。」</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「棘手难题」怎么讲（<code>YU-4</code>）</h2>
+
+<p>这题<strong>必须讲一个具体的故事</strong>，没法用通用答案糊过去。选材和结构都很关键。</p>
+
+<div class="tree">
+  <p class="q">选哪个难题？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">别选"技术最难的"</span>技术难度高但你没参与决策的，讲起来没内容</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">别选"加班最久的"</span>辛苦不等于有价值，对方想听的是你怎么解决问题</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">要选"你以为 A，结果发现是 B"的</span>这类难题有<strong>认知转折</strong>，讲出来最有说服力，也最不容易和别人撞</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">最好横跨技术和人</span>纯技术的难题显得单薄；<strong>既有技术定位、又涉及推动别人配合的，层次更丰富</strong></div>
+  </div>
+
+  <p class="q">按什么结构讲？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">① 现象</span>什么表现、影响了谁。<strong>具体到能让人想象出画面</strong>，不要说"系统出了问题"</div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">② 最初以为</span>你一开始的判断是什么、试了什么、为什么没用。<strong>这一段最真实</strong>——真正解决过问题的人都有走弯路的过程</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">③ 转折</span>什么让你发现真正的原因。<strong>通常是某次把中间数据打出来看，或者某个人提了一句</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">④ 怎么解决</span>做了什么、效果如何。<strong>带数字。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-data)">⑤ 认知改变</span>这件事改变了你之后的什么做法。<strong>这一步是从"解决过一个问题"到"有方法论"的分界。</strong></div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">一个可以照着改的示例（把内容换成你自己的）</span>
+  <p><strong>【现象】</strong>「上线一个月后，<strong>有些同事开始不用了</strong>。后台看数据，<strong>提问量在第二周就掉了三成</strong>，但系统本身没报过错。」</p>
+  <p><strong>【最初以为】</strong>「我第一反应是<strong>效果不行</strong>，就去优化检索——加精排、调权重、补资料。<strong>命中率从六成提到了八成，但提问量没回来。</strong>」</p>
+  <p><strong>【转折】</strong>「后来我找了两个不用的同事聊，才发现问题不在准确率上。<strong>他们说"我搜不到的时候不知道该换个说法"</strong>——问了一次没结果，就默认这东西不行，直接回去翻文件了。<strong>我的命中率统计只统计了"问了之后的结果"，没统计"问了一次就放弃的人"。</strong>」</p>
+  <p><strong>【怎么解决】</strong>「改了两处：一是<strong>检索不到时不再返回空</strong>，而是给出"你可能想问的是这几个"；二是把<strong>未命中问题记下来</strong>，定期补资料和加同义词。改完之后提问量<strong>两周内回到了原来的水平，后面还稳步涨上去</strong>。」</p>
+  <p><strong>【认知改变】</strong>「这件事之后我改了做法：<strong>看效果数据时，一定会看"没走到最后一步的人"</strong>。只看成功案例的指标会骗人——<strong>真正的问题往往在那些默默走掉的人身上。</strong>」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「这个难题后来彻底解决了吗？」</summary>
+  <p>这题在<strong>看你会不会过度包装</strong>。别答"完全解决了"，那不可信。诚实说清<strong>解决到什么程度、还剩什么问题</strong>：</p>
+  <ul>
+    <li><strong>解决了什么</strong>：核心现象没了——提问量回来了，用户知道搜不到可以换个说法。</li>
+    <li><strong>还剩什么</strong>：<strong>长尾问题仍然不准</strong>，尤其是口语化、跨部门的问法。这部分我们靠持续补充资料在慢慢改善，但没有根治。</li>
+    <li><strong>为什么没根治</strong>：<strong>语料本身的覆盖就有限</strong>，有些问题公司根本没写过文档——这不是检索能解决的，得先有人去写。</li>
+  </ul>
+  <p>收尾：「所以我的判断是，<strong>这类系统没有"做完"的时候，它是一个持续维护的东西</strong>。我们现在的做法是定期看未命中列表，一茬一茬补。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「如果团队不愿意配合，你怎么办？」</summary>
+  <p>这题<strong>很实际</strong>，而且没有标准答案。给几条能落地的：</p>
+  <ul>
+    <li><strong>先找愿意的那个</strong>：团队里总有对现状最不满的人。<strong>从他开始，比说服所有人容易得多。</strong></li>
+    <li><strong>别要求改变习惯</strong>：把入口放进他们已经在用的工具里（群、现有系统），<strong>而不是让他们多开一个东西</strong>。</li>
+    <li><strong>用他们的问题做示范</strong>：拿他们自己的高频问题跑一遍，<strong>当场对比耗时</strong>。抽象的好处没人信，自己的例子才有说服力。</li>
+    <li><strong>降低承诺</strong>：别说"这会改变你们的工作方式"，说"<strong>下次遇到 XX 的时候可以试试这个，不行就还按老办法</strong>"。<strong>门槛低，才有人迈第一步。</strong></li>
+    <li><strong>如果实在推不动</strong>：如实说出来，并说清你的判断——是时机不到、还是需求不真实。<strong>承认"推不动"不丢分，硬编成功案例才丢分。</strong></li>
+  </ul>
+</details>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「怎么推动 AI 系统落地 / 遇到过什么棘手难题」</span>
+  <p><strong>【结论】</strong>我的体会是<strong>落地难的不是技术，是让人真的用起来</strong>。系统做完只是第一段，后面还有"有人用"和"用得住"。</p>
+  <p><strong>【我踩过的坑】</strong>我一开始是做完之后在群里发通知，说"欢迎大家使用"，<strong>结果一周只有三个人用过</strong>。</p>
+  <p><strong>【换的做法】</strong>后来我先找了<strong>两个刚入职、天天要翻资料的同事</strong>，把他们的高频问题整理进去，然后坐他们旁边看他们用——<strong>当天就收集到一堆问题</strong>，有的是检索不准，有的是他们不知道怎么问。改完之后这两三个人成了主要用户，还开始主动在群里推荐。<strong>这之后我才往外推。</strong></p>
+  <p><strong>【最难的一关】</strong>真正棘手的是一次<strong>提问量掉了三成</strong>。我一开始以为是效果不行，优化检索把命中率从六成提到八成，<strong>但提问量没回来</strong>。后来找了不用的同事聊才发现，问题是<strong>"搜不到的时候不知道怎么换个说法"</strong>——问一次没结果就默认这东西不行，直接回去翻文件了。<strong>我的统计只看"问了之后的结果"，漏掉了那些问一次就放弃的人。</strong></p>
+  <p><strong>【怎么解决的】</strong>改了两处：检索不到时不再返回空，<strong>给出"你可能想问的是这几个"</strong>；同时把未命中问题记下来，定期补资料加同义词。<strong>提问量两周内回到了原来的水平，后面还稳步涨上去了。</strong></p>
+  <p><strong>【认知改变】</strong>这件事之后我改了看数据的习惯：<strong>一定会看"没走到最后一步的人"</strong>。只看成功案例的指标会骗人——<strong>真正的问题往往在那些默默走掉的人身上。</strong></p>
+  <p><strong>【权衡】</strong>另外一点：<strong>这个问题到现在也没根治</strong>。长尾问题、跨部门的问法仍然不准，因为有些问题公司根本没写过文档——<strong>那不是检索能解决的，得先有人去写</strong>。所以我的判断是这类系统没有"做完"的时候，它是个持续维护的东西。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>系统做完推给团队，为什么常常没人用？列出至少三种原因和对应的做法。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>四种最常见的阻力，全都在"人"这一侧：</strong></p>
+    <ol>
+      <li><strong>嫌麻烦</strong>——"问旁边的人比打字快"。<strong>做法：把入口放进他们已经在用的工具里，不要让他们多开一个系统；把常见问题做成一键可达。</strong></li>
+      <li><strong>不信任</strong>——"答错过一次就不敢用"。<strong>做法：给出来源引用和把握程度，让答案可核对；答不准时明确说"没找到相关依据"，而不是硬编。</strong></li>
+      <li><strong>有顾虑</strong>——"怕用了显得自己不会"。<strong>做法：明确把它定位成辅助工具，而不是替代人的判断；先在愿意用的人那里做起来。</strong></li>
+      <li><strong>流程变了</strong>——"多了一步很烦"。<strong>做法：设计时不要增加额外动作，能自动获取的就别让人填。</strong></li>
+    </ol>
+    <p>最关键的一句：<strong>这些问题都不是技术问题，所以"我把效果做得更好"解决不了它们。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「未登录用户来提问」——说出你的处理原则和具体做法。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>第一原则：不能白屏。</strong>拿不到身份就报错或者一直转圈，用户只会认为系统坏了。</p>
+    <p>具体分三块：</p>
+    <ol>
+      <li><strong>降级成匿名会话</strong>：发一个临时标识，让页面正常显示、能试问几次。</li>
+      <li><strong>划清权限边界</strong>：公开内容可以看，内部资料和个人信息必须登录——<strong>但提示要友好</strong>，说清"登录后可用"并给入口，而不是冷冰冰报错。</li>
+      <li><strong>登录后合并记录</strong>：把匿名期间的对话迁到正式身份下，<strong>体验才是连续的</strong>。前提是匿名时就存好了标识，这一步经常被漏掉。</li>
+    </ol>
+    <p>另外别忘了<strong>给匿名用量设上限</strong>——既是防刷，也是成本控制。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="06-wecom-ecosystem.html">← 上一篇：企微生态专题</a>
+  <a href="index.html">回到材料目录 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

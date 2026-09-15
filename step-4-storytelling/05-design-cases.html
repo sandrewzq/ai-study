@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · 方案设计题 — 步骤 4 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 4 · 第 5/7 份 ｜ G 域 · 项目叙事与方案设计</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 4 · 讲故事</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-project-overview.html"><span class="n">01</span><span>项目整体怎么讲</span></a></li>
+    <li><a class="item" href="02-project-facts.html"><span class="n">02</span><span>用户、功能与工期</span></a></li>
+    <li><a class="item" href="03-architecture-layers.html"><span class="n">03</span><span>架构分层与技术选型</span></a></li>
+    <li><a class="item" href="04-from-zero.html"><span class="n">04</span><span>从 0 到 1 与搭框架</span></a></li>
+    <li><a class="item cur" href="05-design-cases.html"><span class="n">05</span><span>方案设计题</span></a></li>
+    <li><a class="item" href="06-wecom-ecosystem.html"><span class="n">06</span><span>企微生态专题</span></a></li>
+    <li><a class="item" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>05 · 方案设计题</h1>
+<p class="lead">
+  「假设让你做一个 XX 系统」——这类题<strong>不考你的方案好不好，考你怎么想问题</strong>。
+  记住一句话就够：<strong>先问约束的人，永远比直接给方案的人得分高。</strong>
+</p>
+
+<div class="qbadges"><span class="q">YC-4</span><span class="q">HJ-14</span><span class="q">HJ-15</span><span class="q">YF-23</span><span class="q">KJ-2</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页要用到<a href="03-architecture-layers.html">架构分层</a>和<a href="04-from-zero.html">从 0 到 1 的顺序</a>。<strong>那两页没读的话，这页只能背套路。</strong>术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，记住"先问、再给、后说风险"这个顺序。</div>
+  <div><b>第二遍（15 分钟）</b>读第 1 节——把必问的那几个问题记下来，它会反复用到。</div>
+  <div><b>第三遍</b>挑第 4 节里的一道题，<strong>自己先讲一遍再对照</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方忽然换了个语气：<strong>「假设现在让你做一个连锁门店的 AI 数字化系统，你会怎么设计？」</strong></p>
+
+<p>很多人会立刻开始：<em>「前台用小程序，后端用微服务，我们可以在门店数据上加一个 AI 分析层，用大模型做智能推荐，还可以做……」</em></p>
+
+<p>讲了五分钟，对方只回了一句：<strong>「你说的这些，是基于什么样的业务现状？」</strong></p>
+
+<p>——这一问就把刚才那五分钟全否了。</p>
+
+<div class="analogy">
+  <span class="tag">这类题的真正考点</span>
+  <p>对方<strong>不指望你在五分钟里设计出一套能用的系统</strong>——那不现实。他想看的是：</p>
+  <ul>
+    <li>你会不会<strong>先搞清楚约束再动手</strong>，还是上来就给方案。</li>
+    <li>你的方案是<strong>从需求推出来的</strong>，还是从技术出发堆出来的。</li>
+    <li>你知不知道这个领域<strong>哪里最容易出问题</strong>。</li>
+  </ul>
+  <p><strong>所以"先问问题"不是拖延，它就是答案的一部分。</strong></p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 三步法，顺序不能乱</p>
+  <h3>先问约束 → 再给方案 → 最后说风险</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 356" role="img" aria-label="方案设计题的三步答法">
+    <!-- 第一步 -->
+    <rect class="box-m" x="20" y="42" width="240" height="150" rx="9"></rect>
+    <text x="140" y="64" text-anchor="middle" font-size="13" style="font-weight:600">① 先问约束（最重要）</text>
+    <text x="36" y="88" font-size="11.5">业务现状是什么</text>
+    <text x="36" y="108" font-size="11.5">现在最痛的环节在哪</text>
+    <text x="36" y="128" font-size="11.5">规模和预算量级</text>
+    <text x="36" y="148" font-size="11.5">有没有合规 / 数据限制</text>
+    <text x="36" y="168" font-size="11.5">什么时候要上线</text>
+    <text x="140" y="186" text-anchor="middle" font-size="11" class="lbl-muted">问三到五个就够，不要问成访谈</text>
+
+    <!-- 第二步 -->
+    <rect class="box-s" x="280" y="42" width="240" height="150" rx="9"></rect>
+    <text x="400" y="64" text-anchor="middle" font-size="13" style="font-weight:600">② 再给方案</text>
+    <text x="296" y="88" font-size="11.5">按"用户要做什么"分功能块</text>
+    <text x="296" y="108" font-size="11.5">按"职责"分层（接入 / 应用 /</text>
+    <text x="296" y="126" font-size="11.5">AI 能力 / 数据 / 支撑）</text>
+    <text x="296" y="146" font-size="11.5">说清数据从哪来、往哪去</text>
+    <text x="296" y="166" font-size="11.5">指出关键选型和不选的理由</text>
+    <text x="400" y="186" text-anchor="middle" font-size="11" class="lbl-muted">复用你项目里的分层，不要现编</text>
+
+    <!-- 第三步 -->
+    <rect class="box-d" x="540" y="42" width="240" height="150" rx="9"></rect>
+    <text x="660" y="64" text-anchor="middle" font-size="13" style="font-weight:600">③ 主动说风险</text>
+    <text x="556" y="88" font-size="11.5">这个领域最容易出问题的点</text>
+    <text x="556" y="108" font-size="11.5">效果上的不确定性</text>
+    <text x="556" y="128" font-size="11.5">成本可能失控的地方</text>
+    <text x="556" y="148" font-size="11.5">如果效果不达标怎么退</text>
+    <text x="556" y="168" font-size="11.5">分几期做、先做哪块</text>
+    <text x="660" y="186" text-anchor="middle" font-size="11" class="lbl-muted">这一段是拉开差距的地方</text>
+
+    <!-- 常见答法 -->
+    <text x="20" y="222" class="lbl-muted" font-size="13">对比一下三种答法的差别</text>
+
+    <rect x="20" y="238" width="240" height="100" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="140" y="260" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">直接给方案</text>
+    <text x="140" y="282" text-anchor="middle" font-size="11.5" class="lbl-muted">"前台小程序 + 微服务 +</text>
+    <text x="140" y="300" text-anchor="middle" font-size="11.5" class="lbl-muted">大模型推荐…"</text>
+    <text x="140" y="322" text-anchor="middle" font-size="11" fill="var(--c-risk)">不知道基于什么现状</text>
+
+    <rect x="280" y="238" width="240" height="100" rx="8" fill="none" stroke="var(--c-data)" stroke-dasharray="5 4"></rect>
+    <text x="400" y="260" text-anchor="middle" font-size="12.5" fill="var(--c-data)" style="font-weight:600">只问不答</text>
+    <text x="400" y="282" text-anchor="middle" font-size="11.5" class="lbl-muted">"那要看你们门店多大、</text>
+    <text x="400" y="300" text-anchor="middle" font-size="11.5" class="lbl-muted">现在用什么系统…"</text>
+    <text x="400" y="322" text-anchor="middle" font-size="11" fill="var(--c-data)">问完就停，没给东西</text>
+
+    <rect class="box-t" x="540" y="238" width="240" height="100" rx="8"></rect>
+    <text x="660" y="260" text-anchor="middle" font-size="12.5" style="font-weight:600">问 + 假设 + 方案 + 风险</text>
+    <text x="660" y="282" text-anchor="middle" font-size="11.5">"我先确认两件事…</text>
+    <text x="660" y="300" text-anchor="middle" font-size="11.5">假设是这样，我会这么分…</text>
+    <text x="660" y="320" text-anchor="middle" font-size="11.5">最大的风险在…"</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：这类题的正确结构是<strong>先问、再给、后说风险</strong>。注意中间那一步——<strong>问完不能就停住</strong>，要主动给一个假设（"我先按 X 来假设"），然后基于这个假设给出方案。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">只问不答也不行，那显得你在回避。正确做法是<strong>边问边给</strong>：<em>"如果你们的门店是几十家、现在主要靠人工报表，我会这么做……"</em></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>必做的第一步</span>
+  <span><i style="background:var(--c-store)"></i>复用已有结构</span>
+  <span><i style="background:var(--c-data)"></i>加分段</span>
+  <span><i style="background:var(--c-risk)"></i>扣分段</span>
+  <span><i style="background:var(--c-tool)"></i>正确答法</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 第一步：先问哪几个问题</h2>
+
+<p>不用问太多，<strong>三到五个就够</strong>——问多了像在拖延。下面这五个覆盖了大部分场景，可以按题目挑着问。</p>
+
+<table>
+  <thead><tr><th style="width:26%">问什么</th><th style="width:30%">为什么必须问</th><th>答案会改变什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>现在最痛的环节是什么</strong></td>
+      <td>决定<strong>先做哪一块</strong>。不问的话，你会做一个"什么都有一点"的系统。</td>
+      <td>如果最痛的是"找资料慢"，那重点就是检索；如果是"报表出得慢"，重点可能在数据聚合。</td>
+    </tr>
+    <tr>
+      <td><strong>规模和量级</strong></td>
+      <td>决定<strong>要不要上重架构</strong>。</td>
+      <td>几十家门店和几千家门店，方案完全不同；前者一个单体就够，后者才需要考虑拆分。</td>
+    </tr>
+    <tr>
+      <td><strong>数据在哪、能不能用</strong></td>
+      <td>AI 项目<strong>七八成的工作量在数据上</strong>，数据不可用整个方案就不成立。</td>
+      <td>如果数据不能出内网，模型就只能私有化部署，选型空间立刻收窄。</td>
+    </tr>
+    <tr>
+      <td><strong>业务方最在意什么指标</strong></td>
+      <td>决定<strong>怎么算成功</strong>。是省钱、提效，还是提升满意度。</td>
+      <td>决定了你后面拿什么指标去验证，也决定了上线后怎么证明有效。</td>
+    </tr>
+    <tr>
+      <td><strong>时间和预算的量级</strong></td>
+      <td>决定<strong>做几期、先做哪期</strong>。</td>
+      <td>一个月交付和半年交付，能做的范围差好几倍。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">开场怎么问才不别扭</span>
+  <p>不要连珠炮式地问，那不自然。用<strong>"我先确认几个前提"</strong>开头，然后挑最重要的两三个：</p>
+  <p>「好，我先确认两件事再给方案。<strong>一是这个系统主要解决哪一类人的什么问题</strong>——是门店店长看报表，还是总部做分析？<strong>二是数据现在在哪</strong>——是散在各个系统里，还是已经有统一的数据源？<strong>这两点不同，方案差别挺大的。</strong>」</p>
+  <p>这样问的好处：<strong>既表现了"我不乱拍方案"，又给出了"为什么这两点重要"</strong>——对方会顺着你的思路往下接。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 第二步：方案怎么给</h2>
+
+<p>方案不用现编——<strong>把你项目里的分层平移过去就行</strong>（见<a href="03-architecture-layers.html">架构分层那份</a>）。关键是<strong>说法要跟着领域换词</strong>。</p>
+
+<div class="pipeline">
+  <details class="node m"><summary>① 先分功能块</summary><div class="body">按"用户要完成的任务"分，不按技术分。比如门店系统可能是：<strong>门店日常操作 / 总部看数据 / 资料与培训</strong>。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>② 再讲分层</summary><div class="body">接入 / 应用 / AI 能力 / 数据 / 支撑。<strong>AI 能力层要说清它在哪些环节发挥作用</strong>，不要笼统说"用大模型做智能分析"。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>③ 说数据怎么流</summary><div class="body">数据从哪来 → 怎么处理 → 存在哪 → 怎么用。<strong>这一段最能体现你是否真做过项目。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>④ 点出关键选型</summary><div class="body">挑一两个关键的，<strong>说清选它的理由和不选的替代方案</strong>。别把技术栈全列一遍。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>⑤ 给分期计划</summary><div class="body">先做什么、后做什么、第一期多久能出效果。<strong>有分期就显得务实。</strong></div></details>
+</div>
+
+<div class="analogy">
+  <span class="tag">别再笼统地说「用大模型做智能分析」</span>
+  <p>这是这类题最常见的空话。正确的做法是<strong>把 AI 落到具体环节上</strong>：</p>
+  <ul>
+    <li>❌ 「用大模型做智能分析，给出经营建议。」</li>
+    <li>✅ 「AI 主要用在三个环节：<strong>一是把非结构化的东西结构化</strong>——比如把店长手写的交接记录、拍的照片整理成标准格式；<strong>二是自然语言查数据</strong>——让店长直接问"上周哪几款卖得最好"，不用学报表怎么点；<strong>三是异常提醒的生成</strong>——发现数据异常时，自动生成一段话说明可能的原因，而不是只弹个红点。」</li>
+  </ul>
+  <p><strong>把"智能"拆成具体动作，是这道题最重要的得分点。</strong></p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 第三步：主动说什么风险</h2>
+
+<p>这一段最容易被整个跳过，但它恰恰是<strong>从"能设计方案"到"能负责落地"的分界线</strong>。挑两三个说就够。</p>
+
+<table>
+  <thead><tr><th style="width:24%">风险类型</th><th>怎么表述</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>数据风险</strong></td>
+      <td>"这类项目<strong>最大的不确定性在数据上</strong>——数据散在多个系统、口径可能不一致。所以我第一期会先花时间把数据摸清楚，<strong>而不是先搭系统</strong>。"</td>
+    </tr>
+    <tr>
+      <td><strong>效果风险</strong></td>
+      <td>"AI 部分的效果<strong>要提前定验收标准</strong>，比如准确率到多少算可用。而且我会<strong>先做一个小范围试点</strong>，达标了再铺开——避免做完了发现效果不行。"</td>
+    </tr>
+    <tr>
+      <td><strong>成本风险</strong></td>
+      <td>"如果调用量上去，模型费用可能失控。<strong>所以我会一开始就加用量统计和上限</strong>，并且把缓存和模型分级作为预留项。"</td>
+    </tr>
+    <tr>
+      <td><strong>落地风险</strong></td>
+      <td>"<strong>最大的风险其实是没人用</strong>。所以前期就要让一线参与进来，而不是做完再推。"（详见<a href="07-landing-and-blockers.html">落地推动那份</a>）</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 五道题分别从哪切入</h2>
+
+<p>方法是一样的，<strong>区别只在"先问什么"和"风险在哪"</strong>。下面给出每道题的切入口。</p>
+
+<table>
+  <thead><tr><th style="width:22%">题目</th><th style="width:32%">先问什么</th><th>主要风险 / 切入重点</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>门店 AI 数字化（<code>YC-4</code>）</strong></td>
+      <td>门店数量和分布？现在用什么系统？最痛的是门店端还是总部端？</td>
+      <td><strong>数据分散在不同系统里</strong>，口径对不上是头号问题。别一上来做"智能推荐"，先解决数据打通。</td>
+    </tr>
+    <tr>
+      <td><strong>政府定制项目（<code>HJ-14</code>）</strong></td>
+      <td>需求文档确定了多少？验收标准谁来定？能不能分期验收？</td>
+      <td><strong>一个月交付的核心不是开发速度，是范围控制。</strong>要先锁死范围、把需求确认往前压，同时并行开发。<strong>验收标准不提前谈好，交付当天就是灾难。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>资产管理系统（<code>HJ-15</code>）</strong></td>
+      <td>资产数据在哪、规范不规范？现在盘点靠什么？</td>
+      <td>AI 的最佳落点是<strong>把不规范的数据整理成规范的</strong>（识别发票、台账照片），以及<strong>自然语言查询</strong>。别去碰核心的账实核对逻辑——那部分要的是准确，不是智能。</td>
+    </tr>
+    <tr>
+      <td><strong>智能客服（<code>YF-23</code>）</strong></td>
+      <td>服务什么业务？知识来源在哪？允不允许答错？要不要转人工？</td>
+      <td>模型已经定了，所以重点在<strong>检索和兜底</strong>：答不出来要能识别、要能顺畅转人工。<strong>客服场景最怕的不是答不上，是自信地答错。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>PS 网页版（<code>KJ-2</code>）</strong></td>
+      <td>要支持到什么程度？多人协作要不要？文件格式要不要兼容？</td>
+      <td><strong>这不是 AI 题，是渲染和性能题。</strong>核心难点：图层模型怎么设计、大画布怎么只渲染可见部分（见<a href="../step-3-frontend-and-cost/05-canvas-and-effects.html">Canvas 那份</a>）、以及基础操作要放到原生性能层去做。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">「一个月交付」那题值得单独记（<code>HJ-14</code>）</span>
+  <p>这道题的特殊之处是<strong>它其实是道项目管理题</strong>，不是技术题。答的时候，技术只占一小部分：</p>
+  <ol>
+    <li><strong>先锁范围</strong>：一个月做不完"客户端 + APP + 小程序"三端全套。<strong>先和对方确认哪些是验收必需的，哪些可以二期</strong>——这一步不做，做多少都是白做。</li>
+    <li><strong>需求确认往前压</strong>：售前调研的结论要<strong>转成书面确认</strong>，避免开发到一半需求变。</li>
+    <li><strong>三端共用一套后端</strong>：把接口和数据结构先定下来，三端可以并行开发。</li>
+    <li><strong>优先做能演示的</strong>：先保证主流程能跑通、能演示，锦上添花的功能往后排。</li>
+    <li><strong>提前约定验收方式</strong>：分阶段验收，每个阶段都有可看的东西。<strong>不要等最后一天一次性验收。</strong></li>
+  </ol>
+  <p>收一句：「<strong>这种项目失败的原因几乎都不是技术不过关，是范围没锁住。</strong>」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「如果需求方自己都说不清要什么，怎么办？」</summary>
+  <p>这题<strong>很真实</strong>，答好了说明你做过交付类项目。核心思路是<strong>不要等需求清晰，而是帮他变清晰</strong>：</p>
+  <ul>
+    <li><strong>先做原型而不是文档</strong>：让业务方对着一个能点的东西提意见，比对着需求文档想象高效得多。<strong>哪怕是很粗糙的原型。</strong></li>
+    <li><strong>用他们的语言问</strong>：别问"你要什么功能"，问"你现在这件事是怎么做的、哪一步最烦"。</li>
+    <li><strong>给出选项而不是开放题</strong>：把"你想要什么"变成"这两种做法你更倾向哪种"。<strong>选择比创造容易得多。</strong></li>
+    <li><strong>定一个最小的共识</strong>：先确认"第一期必须先有什么"，其他的先放一边。</li>
+  </ul>
+  <p>收尾：「<strong>需求不清的时候，最大的风险不是做错，是什么都不做。</strong>我的做法是先做一个可讨论的版本，用它去逼出真实需求。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「你怎么判断一个场景值不值得上 AI？」</summary>
+  <p>这是个<strong>很好的反问</strong>，说明对方在试你的判断力。给几条可操作的：</p>
+  <ul>
+    <li><strong>输入是不是非结构化的</strong>：文本、图片、语音这类——这类是 AI 的强项；如果是规整的表格数据，传统方式往往更快更准。</li>
+    <li><strong>容不容许出错</strong>：容错高的场景（辅助建议、初稿生成）适合；<strong>要绝对准确的（账务、对账）不适合让 AI 直接做决定</strong>。</li>
+    <li><strong>有没有足够的样本</strong>：没有历史数据，效果没法调也没法验证。</li>
+    <li><strong>人工做要多久</strong>：人工只要几秒钟的事，上 AI 省不下什么；<strong>人工要几分钟到几小时的，才值得</strong>。</li>
+  </ul>
+  <p>收尾一句能显出分寸：「<strong>我一般会先问"如果不用 AI，用规则能不能解决"</strong>——能的话就别上 AI，规则更快也更可控。」</p>
+</details>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「假设让你设计一个 XX 系统，你会怎么做」</span>
+  <p><strong>【先问】</strong>我会先确认几件事再给方案：<strong>这个系统主要解决哪一类人的什么问题、现在的痛点在哪、数据在哪、规模量级多大、时间和预算是什么约束。</strong>——这几个答案不同，方案差别很大。</p>
+  <p><strong>【给假设】</strong>我先按一个常见的场景往下说：假设是<strong>几十家门店、数据散在现有系统里、最痛的是店长看数据要等报表</strong>。</p>
+  <p><strong>【功能分块】</strong>按用户要完成的任务分三块：<strong>门店日常操作、总部看数据、资料与培训</strong>。</p>
+  <p><strong>【分层】</strong>接入、应用、AI 能力、数据、基础支撑。<strong>和普通系统比，多出来的是 AI 能力层。</strong></p>
+  <p><strong>【AI 用在哪】</strong>我会落到三个具体环节：<strong>把非结构化的记录整理成标准格式</strong>、<strong>自然语言查数据</strong>（店长直接问"上周哪几款卖得好"）、<strong>异常提醒的文案生成</strong>。<strong>而不是笼统地说"用大模型做智能分析"。</strong></p>
+  <p><strong>【数据怎么流】</strong>各系统数据先汇总到统一的库 → 清洗统一口径 → 一部分走关系库支撑报表，一部分进检索库支撑问答 → 用量和效果数据回流做分析。</p>
+  <p><strong>【分期】</strong>一期先解决<strong>数据打通 + 自然语言查数</strong>，这是最痛也最容易见效的；培训资料问答放二期；智能推荐这类效果不确定的放最后。</p>
+  <p><strong>【风险】</strong>最大的风险<strong>不在技术上，在数据和落地</strong>：各系统口径不一致会让报表对不上；一线如果觉得麻烦就不会用。<strong>所以我会在前期就拉一线参与，并且把口径确认当成一个明确的任务来做。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>对方说「让你做一个医院的 AI 导诊系统」，你的第一句话是什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>第一句不是方案，是确认前提。</strong>比如：</p>
+    <p>「我先确认两个前提：<strong>一是这个系统面向的是来医院的患者，还是分诊台的护士</strong>——这两类人需要的东西完全不一样；<strong>二是它对准确率的要求到什么程度</strong>，因为导诊涉及医疗建议，答错的代价很高。」</p>
+    <p>为什么这两点最关键：</p>
+    <ul>
+      <li><strong>面向谁</strong>决定了整个交互形态——面向患者是自助问答，面向护士是辅助工具，后者可以做得更保守。</li>
+      <li><strong>准确率要求</strong>决定了技术路线——医疗场景通常不能用"大概对"的方案，必须有明确的兜底和转人工机制。</li>
+    </ul>
+    <p>注意：<strong>问完之后一定要给假设并往下讲</strong>，不要停在问题上。比如"如果主要是面向患者的自助导诊，同时要求不确定时一律转人工，我会这么设计……"</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么「先问约束」比「直接给方案」得分高？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>三个原因：</p>
+    <ul>
+      <li><strong>直接给方案说明你默认了需求</strong>——而真实项目里，需求从来不是默认的。对方会怀疑：你是不是在硬套以前的方案？</li>
+      <li><strong>约束决定方案空间</strong>：数据不能出内网、一个月要交付、只有两个人维护……<strong>每一条约束都能砍掉一大批方案。</strong>不问就给的方案，大概率不适用。</li>
+      <li><strong>问问题本身就是能力</strong>：能问出关键问题，说明你<strong>知道这类项目里什么最容易出问题</strong>——这比会画架构图值钱。</li>
+    </ul>
+    <p>但要注意分寸：<strong>只问不答同样不行</strong>。正确姿势是"问两三个关键问题 + 主动给一个假设 + 基于假设给方案 + 说风险"。</p>
+    <p><strong>问是为了让方案更准，不是为了显得谨慎。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="04-from-zero.html">← 上一篇：从 0 到 1 与搭框架</a>
+  <a href="06-wecom-ecosystem.html">下一篇：企微生态专题 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

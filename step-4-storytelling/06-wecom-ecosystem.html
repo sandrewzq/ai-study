@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · 企微生态专题 — 步骤 4 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 4 · 第 6/7 份 ｜ G 域 · 项目叙事与方案设计</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 4 · 讲故事</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-project-overview.html"><span class="n">01</span><span>项目整体怎么讲</span></a></li>
+    <li><a class="item" href="02-project-facts.html"><span class="n">02</span><span>用户、功能与工期</span></a></li>
+    <li><a class="item" href="03-architecture-layers.html"><span class="n">03</span><span>架构分层与技术选型</span></a></li>
+    <li><a class="item" href="04-from-zero.html"><span class="n">04</span><span>从 0 到 1 与搭框架</span></a></li>
+    <li><a class="item" href="05-design-cases.html"><span class="n">05</span><span>方案设计题</span></a></li>
+    <li><a class="item cur" href="06-wecom-ecosystem.html"><span class="n">06</span><span>企微生态专题</span></a></li>
+    <li><a class="item" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>06 · 企微生态专题</h1>
+<p class="lead">
+  这一组题很"专"——<strong>没做过这个生态的人几乎答不上来，做过的人能讲一堆坑</strong>。
+  所以它反而是<strong>证明你真做过项目</strong>的好机会。这一页把六道题串成一条线：<strong>身份从哪来、怎么同步、怎么用</strong>。
+</p>
+
+<div class="qbadges"><span class="q">TK-1</span><span class="q">TK-2</span><span class="q">TK-4</span><span class="q">TK-5</span><span class="q">TK-6</span><span class="q">TK-7</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>需要知道"网页授权""回调"这类词的大概意思。<strong>没做过企微也没关系</strong>，这一页会把流程讲清；但<strong>如果你做过，一定要把当年的坑翻出来</strong>——那才是这组题的分数所在。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，记住那条"身份流转"的主线。</div>
+  <div><b>第二遍（15 分钟）</b>读第 1、2 节，把流程和身份标识分清楚。</div>
+  <div><b>第三遍</b>做页尾回忆卡，重点看那道"域名限制"的题——它最能拉开差距。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「你们那个 H5 页面，用户是怎么登录的？」</strong></p>
+
+<p>如果你没做过，很容易答成：<em>「就是用户点了之后跳转授权，然后拿到用户信息。」</em></p>
+
+<p>做过的人会这么答：</p>
+
+<div class="skeleton">
+  <span class="tag">做过的人的回答</span>
+  <p>「用户在企微里打开页面时，我们<strong>先静默授权</strong>——这种模式用户无感，但只能拿到身份标识、拿不到详细信息。<strong>如果业务需要头像昵称，就得再走一次手动授权</strong>，那一次会弹确认框，所以我们会<strong>尽量把需要用到的信息一次性授权完</strong>，避免反复打断。</p>
+  <p>拿到授权码之后，服务端去换用户身份，<strong>然后建立我们自己的会话</strong>——后面的业务都用自己的会话，不再每次都去换，不然每次请求都要多一个来回。</p>
+  <p>这里有个坑：<strong>授权是绑定在可信域名上的</strong>，我们的页面域名必须在配置里，否则直接报错。而且<strong>那个配置项数量有限</strong>，多个业务域名就很麻烦。」</p>
+</div>
+
+<p>差别在哪？<strong>不在知识量，在细节和坑。</strong>这一页就是把这些细节补上。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这六道题其实是一条线</p>
+  <h3>身份从哪来 → 怎么对上 → 怎么用</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 366" role="img" aria-label="企微 H5 的身份流转主线">
+    <text x="20" y="26" class="lbl-muted">第一段：用户进来时，怎么知道他是谁</text>
+
+    <rect class="box-m" x="20" y="42" width="176" height="60" rx="8"></rect>
+    <text x="108" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">① 静默授权</text>
+    <text x="108" y="82" text-anchor="middle" font-size="11" class="lbl-muted">用户无感</text>
+    <text x="108" y="97" text-anchor="middle" font-size="11" class="lbl-muted">只拿到身份标识</text>
+
+    <text x="204" y="76" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-m" x="228" y="42" width="176" height="60" rx="8"></rect>
+    <text x="316" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">② 换取身份</text>
+    <text x="316" y="82" text-anchor="middle" font-size="11" class="lbl-muted">服务端拿码去换</text>
+    <text x="316" y="97" text-anchor="middle" font-size="11" class="lbl-muted">得到平台用户标识</text>
+
+    <text x="412" y="76" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-s" x="436" y="42" width="176" height="60" rx="8"></rect>
+    <text x="524" y="64" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 建自己的会话</text>
+    <text x="524" y="82" text-anchor="middle" font-size="11" class="lbl-muted">后续请求都用它</text>
+    <text x="524" y="97" text-anchor="middle" font-size="11" class="lbl-muted">不用每次再换</text>
+
+    <rect class="box-d" x="624" y="42" width="156" height="60" rx="8"></rect>
+    <text x="702" y="64" text-anchor="middle" font-size="12" style="font-weight:600">④ 需要更多信息</text>
+    <text x="702" y="82" text-anchor="middle" font-size="11" class="lbl-muted">就得手动授权</text>
+    <text x="702" y="97" text-anchor="middle" font-size="11" class="lbl-muted">会打断用户</text>
+
+    <text x="20" y="136" class="lbl-muted">第二段：身份怎么和你的业务数据对上</text>
+
+    <rect class="box-s" x="20" y="152" width="240" height="66" rx="8"></rect>
+    <text x="140" y="174" text-anchor="middle" font-size="12.5" style="font-weight:600">⑤ 用平台标识做业务主键</text>
+    <text x="140" y="194" text-anchor="middle" font-size="11" class="lbl-muted">别用另一个体系里的标识当主键</text>
+    <text x="140" y="210" text-anchor="middle" font-size="11" class="lbl-muted">它在不同应用下不是同一个值</text>
+
+    <text x="268" y="190" class="lbl-muted" font-size="14">+</text>
+
+    <rect class="box-s" x="292" y="152" width="240" height="66" rx="8"></rect>
+    <text x="412" y="174" text-anchor="middle" font-size="12.5" style="font-weight:600">⑥ 回调同步变更</text>
+    <text x="412" y="194" text-anchor="middle" font-size="11" class="lbl-muted">人员入职离职、部门变动</text>
+    <text x="412" y="210" text-anchor="middle" font-size="11" class="lbl-muted">靠回调推给你，不是你去拉</text>
+
+    <text x="540" y="190" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-m" x="564" y="152" width="216" height="66" rx="8"></rect>
+    <text x="672" y="174" text-anchor="middle" font-size="12.5" style="font-weight:600">⑦ 标签与埋点</text>
+    <text x="672" y="194" text-anchor="middle" font-size="11" class="lbl-muted">本地维护一份用户画像</text>
+    <text x="672" y="210" text-anchor="middle" font-size="11" class="lbl-muted">用行为数据反哺分群</text>
+
+    <text x="20" y="246" class="lbl-muted">这条线上最容易被卡住的两个地方</text>
+
+    <rect x="20" y="262" width="370" height="60" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="205" y="284" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">可信域名数量有限</text>
+    <text x="205" y="304" text-anchor="middle" font-size="11.5" class="lbl-muted">多个业务域名会撞上限，得想办法绕</text>
+
+    <rect x="410" y="262" width="370" height="60" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="595" y="284" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">身份标识用错体系</text>
+    <text x="595" y="304" text-anchor="middle" font-size="11.5" class="lbl-muted">用错会导致同一个人的数据对不上</text>
+
+    <rect class="box-t" x="20" y="332" width="760" height="30" rx="7"></rect>
+    <text x="400" y="352" text-anchor="middle" font-size="12" style="font-weight:600">讲这一组题时，把"你踩过哪个坑"放在最前面 —— 这是最好的可信度证明</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：这六道题串起来是<strong>一条完整的身份主线</strong>——用户进来时怎么认出来、身份怎么和你的业务数据对上、对上之后怎么用来做分群和统计。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">最容易卡住的两个地方我都标出来了：<strong>域名数量限制</strong>和<strong>身份标识用错体系</strong>。这两个都是"没做过就想不到、做过就很难忘"的坑。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>认证与数据</span>
+  <span><i style="background:var(--c-store)"></i>你自己要维护的</span>
+  <span><i style="background:var(--c-data)"></i>需要额外条件</span>
+  <span><i style="background:var(--c-risk)"></i>最容易踩的坑</span>
+  <span><i style="background:var(--c-tool)"></i>答题建议</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 登录流程与三个身份标识（<code>TK-1</code>、<code>TK-5</code>）</h2>
+
+<p>先讲登录，再讲身份——因为这两个问题其实是连着的。</p>
+
+<table>
+  <thead><tr><th style="width:20%">环节</th><th style="width:36%">做什么</th><th>要注意什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>静默授权</strong></td>
+      <td>用户打开页面时自动跳一次授权，<strong>用户没有感知</strong>，但只能拿到身份标识，拿不到头像昵称这类信息。</td>
+      <td>适合"只判断你是谁"的场景。<strong>它不会打断用户，所以能用就用它。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>手动授权</strong></td>
+      <td>会弹出确认页面，用户点了同意才能拿到更完整的信息。</td>
+      <td><strong>会打断用户，所以要合并需求</strong>——把需要的信息一次性授权完，别来回弹好几次。</td>
+    </tr>
+    <tr>
+      <td><strong>换取身份</strong></td>
+      <td>授权后拿到一个临时的码，<strong>由服务端拿去换用户身份</strong>。这个码只能用一次，而且有效期很短。</td>
+      <td><strong>必须服务端换</strong>，因为这需要密钥。<strong>把密钥放在前端是最典型的安全事故。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>建自己的会话</strong></td>
+      <td>换到身份之后，签发你自己的登录凭证，后续请求都用它。</td>
+      <td><strong>这一步很关键</strong>：不做的话每次请求都要重新走一遍授权流程，多一个来回还容易超时。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">三个"唯一 ID"不是一回事 —— 这题最容易答错（<code>TK-5</code>）</span>
+  <p>这个生态里有好几个"标识"，<strong>最要命的是它们在什么范围内唯一</strong>：</p>
+  <ul>
+    <li><strong>平台内的用户标识</strong>：在<strong>这个企业范围内</strong>唯一。<strong>这是你业务主键唯一应该用的东西。</strong></li>
+    <li><strong>平台内的外部联系人标识</strong>：指企业外部的人（客户），和上面的不是一套，<strong>不能混用</strong>。</li>
+    <li><strong>微信侧的标识</strong>：<strong>同一个用户在不同应用下拿到的值不一样</strong>——换一个应用，同一个人就变成另一个值了。</li>
+  </ul>
+  <p><strong>所以最典型的坑是：拿微信侧的标识当业务主键。</strong>后果是——同一个用户从不同入口进来，在你的库里成了两个人；或者你换了应用配置，所有人的绑定关系全部失效。</p>
+  <p>正确做法：<strong>用企业范围内的用户标识做业务主键</strong>，微信侧的标识只作为辅助字段存着。如果确实需要跨体系对应，那就老老实实做一张映射表。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 域名数量限制怎么绕（<code>TK-2</code>）</h2>
+
+<p>这是这一组里<strong>最能拉开差距</strong>的一题——它是个纯工程问题，没做过的人根本想不到会有这个限制。</p>
+
+<p><strong>问题是什么</strong>：平台对"可信域名"的配置项<strong>数量有限制</strong>（历史上是 2 个），但业务上可能有十几个不同的页面域名。<strong>域名不在列表里，授权直接报错。</strong></p>
+
+<div class="tree">
+  <p class="q">四种绕法，按推荐程度排</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">① 统一到一个域名，用路径区分</span><strong>最干净的做法</strong>。所有业务挂在同一个主域名下，用子路径区分不同系统。这样只需要占一个配置项。<strong>代价是要统一部署和路由，历史项目改造量大。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">② 主域名做授权中转</span>把授权域名配成<strong>一个固定的中转页</strong>：用户在这里完成授权，服务端换到身份、建好会话，再<strong>跳转回真正的业务域名</strong>。业务域名不需要在配置里，因为它不参与授权。<strong>这是历史项目最常用的办法。</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-data)">③ 网关统一入口</span>所有域名都通过一个网关转发，对外看起来只有一个域名。<strong>本质是方案①的加强版</strong>，适合有一定基础设施的团队。</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">④ 申请更多配置项</span>可以走官方渠道申请，但<strong>不一定批、周期也不可控</strong>。<strong>不能把项目计划押在这上面</strong>，只能作为备选。</div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>说清"中转方案"里一个<strong>容易被忽略的细节</strong>，可信度立刻不一样：</p>
+  <p>「中转方案要注意：<strong>授权完成之后的跳转，不能把会话凭证直接放在地址栏里</strong>——那样会被日志、浏览器历史、Referer 带出去。我们的做法是<strong>中转页先种好会话，再跳到业务域名，凭证走 Cookie 而不是明文参数</strong>。如果确实要传一次性的码，也要保证用完立即失效、且只能换一次。」</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. ID 同步与标签（<code>TK-6</code>、<code>TK-4</code>）</h2>
+
+<table>
+  <thead><tr><th style="width:22%">问题</th><th>怎么答</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>ID 同步怎么做（<code>TK-6</code>）</strong></td>
+      <td><strong>靠回调，不是靠轮询。</strong>人员入职离职、部门调整这些变更，平台会<strong>主动推一个事件通知</strong>给你，你收到之后更新本地的用户表。<br><strong>三个必须处理的点</strong>：① <strong>回调是加密的</strong>，要按官方方式验签解密，不能裸收；② <strong>回调会重复推送</strong>，处理逻辑必须幂等（同一事件处理两次结果一样）；③ <strong>可能丢</strong>，所以要有一个<strong>定期全量对账</strong>的补偿机制——只靠回调迟早会对不上。</td>
+    </tr>
+    <tr>
+      <td><strong>用户打标签（<code>TK-4</code>）</strong></td>
+      <td>平台的标签体系一般分<strong>企业统一维护的</strong>和<strong>个人自己打的</strong>，两类的可见范围不同，对接时要分清楚。<br><strong>做法</strong>：把标签同步到本地，和你的用户表关联起来——这样就能按标签做分群（比如"只看某个部门的资料""给某类客户推不同的内容"）。<br><strong>注意</strong>：标签是会变的，所以同步也要走回调 + 定期对账，和上面那题是同一套机制。</td>
+    </tr>
+    <tr>
+      <td><strong>埋点怎么做（<code>TK-7</code>）</strong></td>
+      <td><strong>先定要回答什么问题，再定埋什么</strong>——这是最容易被跳过的一步。常见的四类：<strong>曝光</strong>（看了哪些）、<strong>点击</strong>（点了什么）、<strong>停留</strong>（看了多久）、<strong>转化</strong>（走完了哪条路径、在哪一步流失）。<br><strong>实现上的三个要点</strong>：① <strong>批量上报</strong>，别每个事件发一次请求；② <strong>页面关闭时用专门的方式兜底上报</strong>，否则最后一批数据会丢；③ <strong>带上前面的用户标识</strong>，否则埋点和用户对不上，数据没法用。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">埋点这题最容易答空</span>
+  <p>大部分人的答案是"我们接了统计工具，埋了 PV/UV"——<strong>这等于没答</strong>。</p>
+  <p>好的答法要落到<strong>"埋了这些数据之后你做了什么"</strong>：</p>
+  <p>「我们埋的主要是<strong>问答链路的分步数据</strong>：用户问了什么、检索命中了哪些、最后有没有点开引用、有没有反馈"没用"。<strong>这些数据直接进了那个未命中问题列表</strong>，我们每隔一段时间看一次，<strong>发现某类问题反复搜不到，就去补对应的资料</strong>。」</p>
+  <p>最后那句才是重点——<strong>埋点的价值不在数据本身，在你用它改了什么。</strong></p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「回调你们怎么保证不丢、不重复？」</summary>
+  <p>这题在<strong>验证你有没有真正处理过线上问题</strong>。三层都要说到：</p>
+  <ul>
+    <li><strong>防重复</strong>：用事件里的<strong>唯一标识做幂等键</strong>，处理前先查有没有处理过。<strong>重复推送是常态，不是异常。</strong></li>
+    <li><strong>防丢</strong>：回调可能因为网络或者发布而丢失，所以要有<strong>定期全量对账</strong>——按天拉一次完整数据，和本地比一遍，把差异补上。<strong>只靠回调的系统迟早会对不上。</strong></li>
+    <li><strong>处理要快、要能重试</strong>：收到回调先<strong>落库</strong>就立刻返回成功，真正的业务处理<strong>丢到队列里异步做</strong>——否则处理慢了对方会重推，反而制造重复。</li>
+  </ul>
+  <p>收尾：「这三条的顺序也重要：<strong>先落库再返回、异步处理、定期对账</strong>。我一开始是先处理再返回，结果处理稍慢就被重推，日志里全是重复记录。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「你刚才说的这些，是你做的还是别人做的？」</summary>
+  <p>这题<strong>很直接</strong>，而且必须诚实——因为追问下去就会验证。三种答法：</p>
+  <ul>
+    <li><strong>如果是你做的</strong>：说清你负责的边界（比如"授权和 ID 同步是我做的，标签那块是同事负责的对接"）。</li>
+    <li><strong>如果是你参与的</strong>：说清你具体做了哪一部分，别含糊成"我们一起做的"。</li>
+    <li><strong>如果只是了解</strong>：<strong>直接说</strong>——"这块是同事负责的，我了解整体流程和几个主要的坑，但具体实现细节是他做的。"</li>
+  </ul>
+  <p><strong>最后一种答法不丢分。</strong>对方问这个是想确认边界，不是要你全包。<strong>硬撑自己全做了，一追问实现细节就崩，那才是真丢分。</strong></p>
+</details>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「企微 H5 登录 / 唯一 ID / 域名限制 / 回调同步 / 埋点」</span>
+  <p><strong>【登录流程】</strong>用户打开页面<strong>先走静默授权</strong>——用户无感，但只拿得到身份标识。<strong>需要头像昵称这类信息时才走手动授权</strong>，那次会弹确认框，所以我们会把要用的信息一次性授权完，避免反复打断。服务端拿授权码换取身份之后，<strong>签发我们自己的会话，后续请求不再重复换取</strong>。</p>
+  <p><strong>【唯一 ID】</strong>这里有个容易搞错的点：<strong>平台里的用户标识和微信侧的标识不是一回事</strong>。微信侧的标识<strong>在同一个用户、不同应用下是不同的值</strong>，拿它当业务主键，会导致同一个人数据对不上、或者换配置后绑定全失效。<strong>所以业务主键用企业范围内的用户标识，另一个只作辅助字段。</strong></p>
+  <p><strong>【域名限制】</strong>可信域名的配置项<strong>数量有限</strong>，但业务域名往往很多。<strong>我们的做法是主域名做授权中转</strong>：用户在固定的中转页完成授权，服务端建好会话后跳回业务域名——业务域名不参与授权，就不需要配置。<strong>注意凭证不能明文放地址栏，走 Cookie。</strong></p>
+  <p><strong>【ID 同步】</strong>靠<strong>回调</strong>推给你，不轮询。三个必须处理的点：<strong>回调解密验签、处理逻辑幂等、定期全量对账兜底</strong>。另外<strong>收到回调先落库就返回，真正的处理丢队列异步做</strong>——不然处理慢了会被重推，制造重复。</p>
+  <p><strong>【标签】</strong>平台的标签分企业维护的和个人自建的，可见范围不同。我们把标签同步到本地和用户表关联，用于分群——比如按部门决定能看到哪些资料。<strong>标签会变，所以同步同样走回调加对账。</strong></p>
+  <p><strong>【埋点】</strong>我们埋的是<strong>问答链路的分步数据</strong>：问了什么、命中了哪些、有没有点开引用、有没有反馈没用。<strong>这些数据进了未命中问题列表，我们照着它去补资料。</strong>实现上是批量上报，页面关闭时走专门的兜底上报方式，每条都带上用户标识。</p>
+  <p><strong>【权衡】</strong>这一套里<strong>最麻烦的其实是域名的统一治理</strong>——技术上不难，但要协调多个历史项目改造，商务和沟通成本比写代码高。<strong>所以我的经验是：能在一开始就统一域名，就别拖到后面去绕。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么"拿微信侧的标识当业务主键"是个严重的错误？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>因为<strong>它的唯一性范围不对</strong>。</p>
+    <p>微信侧的标识<strong>是"某个用户 + 某个应用"这个组合下的值</strong>——同一个人，换一个应用就变成另一个值了。而你的业务主键需要的是"这个人在我的系统里是谁"，这个身份<strong>不应该随应用配置而变</strong>。</p>
+    <p>后果具体有两个：</p>
+    <ul>
+      <li><strong>同一个人变成两条记录</strong>：他从不同入口进来，拿到的标识不同，你的系统认不出是同一个人——数据统计、权限、历史记录全乱。</li>
+      <li><strong>换个配置就全断</strong>：应用配置一变，所有标识都变了，之前的绑定关系全部失效。</li>
+    </ul>
+    <p>正确做法：<strong>业务主键用企业范围内的用户标识</strong>（它在你的企业里是稳定的），微信侧的标识只作为辅助字段存着。如果确实需要跨体系对应，就单独做一张映射表，把两套标识关联起来。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「可信域名只能配两个，但你有十几个业务域名」——你的解法是什么？为什么这么选？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>推荐的答法是<strong>主域名做授权中转</strong>：</p>
+    <ol>
+      <li>授权域名配一个<strong>固定的中转页</strong>，它在可信列表里。</li>
+      <li>用户在任何业务页面被引导到这个中转页完成授权。</li>
+      <li>服务端拿到身份、<strong>建好会话并种下凭证</strong>。</li>
+      <li>中转页<strong>跳回真正的业务域名</strong>——业务域名不参与授权，所以不需要配。</li>
+    </ol>
+    <p>为什么选它：<strong>它对现有项目的改造最小</strong>，业务代码基本不用动，只加一个中转页。</p>
+    <p>更彻底的方案是<strong>把所有业务统一到一个域名下、用路径区分</strong>——技术上更干净，但要改造所有历史项目，沟通和迁移成本高。</p>
+    <p>加分细节：<strong>跳转时凭证走 Cookie，不要明文放地址栏</strong>——地址栏会被日志、浏览器历史、Referer 带出去。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="05-design-cases.html">← 上一篇：方案设计题</a>
+  <a href="07-landing-and-blockers.html">下一篇：落地推动与棘手难题 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

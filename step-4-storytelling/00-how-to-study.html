@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · 这一步骤怎么学 — 步骤 4 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 4 · 导读</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 4 · 讲故事</div>
+  <ul>
+    <li><a class="item cur" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-project-overview.html"><span class="n">01</span><span>项目整体怎么讲</span></a></li>
+    <li><a class="item" href="02-project-facts.html"><span class="n">02</span><span>用户、功能与工期</span></a></li>
+    <li><a class="item" href="03-architecture-layers.html"><span class="n">03</span><span>架构分层与技术选型</span></a></li>
+    <li><a class="item" href="04-from-zero.html"><span class="n">04</span><span>从 0 到 1 与搭框架</span></a></li>
+    <li><a class="item" href="05-design-cases.html"><span class="n">05</span><span>方案设计题</span></a></li>
+    <li><a class="item" href="06-wecom-ecosystem.html"><span class="n">06</span><span>企微生态专题</span></a></li>
+    <li><a class="item" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>00 · 这一步骤怎么学</h1>
+<p class="lead">
+  前三步是"把东西学会、做出来、说利索"。这一步做的是最后一件事：<strong>把做过的项目拆成几个能反复讲的故事</strong>——
+  因为对方要的不是知识点，是<strong>你这个人到底干过什么</strong>。
+</p>
+
+<div class="qbadges"><span class="q">G 域 27 题</span><span class="q">步骤 4 · 讲故事</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一步骤默认你已经完成<a href="../step-2-systems/index.html">步骤 2</a>（项目真的跑起来了）和<a href="../step-3-frontend-and-cost/index.html">步骤 3</a>（数字都测出来了）。<strong>没有项目和数字，"讲故事"就是空转</strong>——这也是整个计划把这一步排在最后的原因。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍</b>先看主图，理解"一个故事能覆盖多少道题"。</div>
+  <div><b>第二遍</b>读第 2、3 节，把三档标准对齐到你自己的项目上。</div>
+  <div><b>第三遍</b>按页尾的步骤，<strong>动手写出你自己的 3~5 个故事</strong>——这一步骤不动笔等于没学。</div>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 别一题一题准备，要按"故事"准备</p>
+  <h3>3~5 个故事，覆盖 27 道题</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 350" role="img" aria-label="故事与题目的覆盖关系">
+    <text x="20" y="26" class="lbl-muted">左边是你手上的素材，右边是会被问到的东西</text>
+
+    <!-- 素材 -->
+    <rect class="box-s" x="20" y="44" width="250" height="44" rx="8"></rect>
+    <text x="145" y="62" text-anchor="middle" font-size="12.5" style="font-weight:600">① 这个系统是干什么的</text>
+    <text x="145" y="79" text-anchor="middle" font-size="11.5" class="lbl-muted">一句话 + 解决谁的什么问题</text>
+
+    <rect class="box-s" x="20" y="96" width="250" height="44" rx="8"></rect>
+    <text x="145" y="114" text-anchor="middle" font-size="12.5" style="font-weight:600">② 架构是怎么设计的</text>
+    <text x="145" y="131" text-anchor="middle" font-size="11.5" class="lbl-muted">分层、拆模块、选型理由</text>
+
+    <rect class="box-s" x="20" y="148" width="250" height="44" rx="8"></rect>
+    <text x="145" y="166" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 一次真实的线上问题</text>
+    <text x="145" y="183" text-anchor="middle" font-size="11.5" class="lbl-muted">现象 → 定位 → 解决 → 复盘</text>
+
+    <rect class="box-s" x="20" y="200" width="250" height="44" rx="8"></rect>
+    <text x="145" y="218" text-anchor="middle" font-size="12.5" style="font-weight:600">④ 一次效果或成本优化</text>
+    <text x="145" y="235" text-anchor="middle" font-size="11.5" class="lbl-muted">改了什么 → 数字变化 → 代价</text>
+
+    <rect class="box-s" x="20" y="252" width="250" height="44" rx="8"></rect>
+    <text x="145" y="270" text-anchor="middle" font-size="12.5" style="font-weight:600">⑤ 一次推动落地的经历</text>
+    <text x="145" y="287" text-anchor="middle" font-size="11.5" class="lbl-muted">阻力在哪 → 怎么推的 → 结果</text>
+
+    <!-- 箭头 -->
+    <text x="284" y="150" class="lbl-muted" font-size="20">→</text>
+    <text x="284" y="172" class="lbl-muted" font-size="11.5">同一批</text>
+    <text x="284" y="188" class="lbl-muted" font-size="11.5">素材</text>
+
+    <!-- 题目侧 -->
+    <rect class="box-m" x="320" y="44" width="460" height="118" rx="9"></rect>
+    <text x="550" y="66" text-anchor="middle" font-size="12.5" style="font-weight:600">被问到时，同一批素材换个切法</text>
+
+    <text x="340" y="90" font-size="12">"介绍一下你的项目" → 用 ①，30 秒版本</text>
+    <text x="340" y="112" font-size="12">"架构分几层" → 用 ②，展开分层</text>
+    <text x="340" y="134" font-size="12">"遇到最棘手的问题" → 用 ③，讲全流程</text>
+    <text x="340" y="156" font-size="12">"怎么降本的" → 用 ④，数字 + 权衡</text>
+
+    <rect class="box-m" x="320" y="174" width="460" height="122" rx="9"></rect>
+    <text x="550" y="196" text-anchor="middle" font-size="12.5" style="font-weight:600">"从零设计一个 XX 系统" 也是同一套</text>
+    <text x="340" y="220" font-size="12">先讲清"我会先问什么"（约束条件）</text>
+    <text x="340" y="242" font-size="12">再把 ② 的架构思路平移过去</text>
+    <text x="340" y="264" font-size="12">用 ③④ 里的坑说明"我知道哪里会出问题"</text>
+    <text x="340" y="286" font-size="12" class="lbl-muted">设计题考的不是方案本身，是你有没有踩过坑</text>
+
+    <!-- 底部 -->
+    <rect class="box-d" x="20" y="308" width="760" height="34" rx="7"></rect>
+    <text x="400" y="330" text-anchor="middle" font-size="12.5" style="font-weight:600">所以准备工作不是"背 27 道题的答案"，而是"打磨 5 个能反复用的故事"</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：G 域这 27 道题听起来五花八门，但它们问的其实是<strong>同一批素材的不同切面</strong>。你把项目打磨成 3~5 个故事，大部分题目都能现成地套上去。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">反过来，如果按题号一题一题准备，你会得到 27 段互不相干的答案——<strong>而且一被追问"能具体说说吗"就散架</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>你手上的故事素材</span>
+  <span><i style="background:var(--c-model)"></i>同一素材的不同用法</span>
+  <span><i style="background:var(--c-data)"></i>结论</span>
+</div>
+
+<!-- ============ 和前三步的区别 ============ -->
+<h2 id="diff">和前三步有什么不一样</h2>
+
+<table>
+  <thead><tr><th style="width:18%"></th><th style="width:27%">步骤 1~3</th><th>步骤 4</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>在做什么</strong></td>
+      <td>学知识、做系统、测数字</td>
+      <td><strong>把已经有的东西组织成可复述的故事</strong></td>
+    </tr>
+    <tr>
+      <td><strong>产出物</strong></td>
+      <td>材料读完了、项目跑起来了、数字有了</td>
+      <td><strong>3~5 张答题卡</strong>（每张 200 字以内）</td>
+    </tr>
+    <tr>
+      <td><strong>怎么算过关</strong></td>
+      <td>能答上来、能跑通、数字自洽</td>
+      <td><strong>能连续讲 40 分钟，不重复、不卡壳</strong></td>
+    </tr>
+    <tr>
+      <td><strong>典型的错</strong></td>
+      <td>跳过前置、只读不做</td>
+      <td><strong>只准备"我做了什么"，没准备"为什么这么做"和"代价是什么"</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 五段式 ============ -->
+<h2 id="template">唯一的工具：五段式</h2>
+
+<p>这一步骤不需要新知识，只需要一个固定结构。计划里给的模板是：</p>
+
+<div class="skeleton">
+  <span class="tag">口述统一用这个结构</span>
+  <p><strong>结论 → 我项目里怎么做的 → 数字 → 踩过的坑 → 权衡与边界</strong></p>
+</div>
+
+<p>为什么这五段有效？因为<strong>它把"背答案"和"真做过"区分开了</strong>。前两段谁都能说，<strong>后三段编不出来</strong>：</p>
+
+<div class="tree">
+  <p class="q">① 结论</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">一句话给判断</span>不要铺垫，直接说你的做法和理由。<strong>对方听这一句就能判断你有没有真想过。</strong></div>
+  </div>
+
+  <p class="q">② 我项目里怎么做的</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">具体到你的场景</span>说清你的约束是什么、为什么这么选。<strong>这一步是把通用答案变成"你的"答案。</strong></div>
+  </div>
+
+  <p class="q">③ 数字</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">至少报一个</span>规模、耗时、提升幅度、成本变化。<strong>数字是"真做过"最硬的证据</strong>，见<a href="../step-3-frontend-and-cost/10-usage-and-cost.html">步骤 3 的用量与成本口径</a>。</div>
+  </div>
+
+  <p class="q">④ 踩过的坑</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">说出一个具体的</span>什么现象、怎么定位、怎么解决。<strong>这一段最值钱</strong>——没做过的人编不出细节，一追问就露。</div>
+  </div>
+
+  <p class="q">⑤ 权衡与边界</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">主动说这个方案的代价</span>它的局限在哪、什么情况下不适用。<strong>主动讲代价 = 展示判断力</strong>，这是从 80 分到 100 分的那一步。</div>
+  </div>
+</div>
+
+<div class="analogy">
+  <span class="tag">三档标准（来自计划的第 6 节）</span>
+  <p>同一个问题，对方一个追问就能分辨你在哪一档：</p>
+  <ul>
+    <li><strong>60 分</strong>：说得出定义和结论——"因为要分工，每个 Agent 负责一个职能。"</li>
+    <li><strong>80 分</strong>：绑定自己项目 + 数字 + 坑——"我们拆了检索、代码、评审三个 Agent，拆之前单 Agent 上下文里混着调研笔记和历史失败方案，越到后面 idea 越飘……"</li>
+    <li><strong>100 分</strong>：讲清代价与边界——"但拆不是免费的：多 Agent 有通信成本和状态一致性成本。我的判断标准是<strong>只有当子任务需要不同上下文或可以并行时才拆</strong>。"</li>
+  </ul>
+  <p><strong>差别不在知识量，在后两段的"代价"和"判断标准"。</strong></p>
+</div>
+
+<!-- ============ 怎么做 ============ -->
+<h2 id="how">具体怎么做</h2>
+
+<div class="pipeline">
+  <details class="node m"><summary>① 先把素材列出来</summary><div class="body">别急着写答案。先在上面的五个故事类型里，各挑一个你项目里真实发生过的事。<strong>挑不出来说明项目做得还不够</strong>，回去继续做。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>② 每个故事写一张卡</summary><div class="body">按五段式写在卡片上，<strong>200 字以内</strong>。写不下就说明你还没想清楚重点在哪。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>③ 录音讲一遍</summary><div class="body">对着镜子或录音，<strong>每个故事讲 2~3 分钟</strong>。听回放的时候你会发现自己说了很多"然后""那个"——那些就是没想清楚的地方。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>④ 串起来练</summary><div class="body">把五个故事连续讲一遍，<strong>目标是 40 分钟不重复、不卡壳</strong>。这一步会暴露"两个故事讲的是同一件事"这类问题。</div></details>
+</div>
+
+<!-- ============ 材料清单 ============ -->
+<h2 id="list">这一步骤的材料</h2>
+
+<p>共 7 份。<strong>它们不是让你读的，是给你当模板对照的</strong>——每份都在示范"同一类问题该怎么组织答案"。</p>
+
+<table>
+  <thead><tr><th style="width:36%">材料</th><th style="width:16%">题数</th><th>什么时候看</th></tr></thead>
+  <tbody>
+    <tr><td><a href="01-project-overview.html"><code>01-项目整体怎么讲</code></a></td><td>4 题</td><td><strong>最该先看这份</strong>——它是所有追问的起点</td></tr>
+    <tr><td><a href="02-project-facts.html"><code>02-用户、功能与工期</code></a></td><td>3 题</td><td>被问"给谁用""做了多久"时</td></tr>
+    <tr><td><a href="03-architecture-layers.html"><code>03-架构分层与技术选型</code></a></td><td>4 题</td><td>被问架构时</td></tr>
+    <tr><td><a href="04-from-zero.html"><code>04-从 0 到 1 与搭框架</code></a></td><td>2 题</td><td>被问"新项目你怎么起手"时</td></tr>
+    <tr><td><a href="05-design-cases.html"><code>05-方案设计题</code></a></td><td>5 题</td><td>被现场出题"让你设计一个 XX"时</td></tr>
+    <tr><td><a href="06-wecom-ecosystem.html"><code>06-企微生态专题</code></a></td><td>6 题</td><td>被问到企微、H5 登录、埋点时</td></tr>
+    <tr><td><a href="07-landing-and-blockers.html"><code>07-落地推动与棘手难题</code></a></td><td>3 题</td><td>被问"怎么推的""遇到什么难题"时</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 完成标志 ============ -->
+<div class="analogy">
+  <span class="tag">步骤 4 的完成标志</span>
+  <ul class="checklist">
+    <li>每道高频题都有一张答题卡：<strong>答案骨架 / 我的数字 / 追问树</strong>，200 字以内</li>
+    <li>能<strong>连续讲 40 分钟不重复、不卡壳</strong></li>
+    <li>每个故事都能说出<strong>一个具体的坑</strong>（现象 + 定位 + 解决）</li>
+    <li>每个故事都能主动说出<strong>代价或边界</strong></li>
+  </ul>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 · 开始之前先回答自己</span>
+  <p>为什么这一步不按题号准备，而要按"故事"准备？</p>
+  <details>
+    <summary>想完了，展开看看</summary>
+    <p>三个原因：</p>
+    <ul>
+      <li><strong>题目之间高度重叠</strong>：27 道题问的其实是同一批素材。按故事准备，一份素材能应付好几道题；按题准备，你会写出 27 段互相矛盾的话。</li>
+      <li><strong>追问是随机的</strong>：你没法预测对方从哪个角度切进来。<strong>只有一个完整的故事能扛住任意角度的追问</strong>，孤立的答案扛不住。</li>
+      <li><strong>"真做过"是靠细节体现的</strong>：坑的细节、数字的来源、当时的取舍——这些只在完整的故事里才存在。</li>
+    </ul>
+    <p>一句话：<strong>题目是切面，故事是实体。</strong>把实体打磨好，切面自然都有。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="../step-3-frontend-and-cost/index.html">← 回步骤 3</a>
+  <a href="01-project-overview.html">开始：项目整体怎么讲 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

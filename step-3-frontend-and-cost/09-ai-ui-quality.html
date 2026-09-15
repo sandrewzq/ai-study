@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · AI 生成界面的质量 — 步骤 3 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 3 · 第 9/11 份 ｜ E 域 · 前端与浏览器</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 3 · 保分与填数字</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-framework-comparison.html"><span class="n">01</span><span>框架选型：Vue 与 React</span></a></li>
+    <li><a class="item" href="02-vue-reactivity.html"><span class="n">02</span><span>Vue 响应式原理</span></a></li>
+    <li><a class="item" href="03-reactivity-pitfalls.html"><span class="n">03</span><span>响应式失效与排查</span></a></li>
+    <li><a class="item" href="04-css3-and-animation.html"><span class="n">04</span><span>CSS3 与动画</span></a></li>
+    <li><a class="item" href="05-canvas-and-effects.html"><span class="n">05</span><span>Canvas 与动效实战</span></a></li>
+    <li><a class="item" href="06-es6-features.html"><span class="n">06</span><span>ES6 语言特性</span></a></li>
+    <li><a class="item" href="07-browser-compat.html"><span class="n">07</span><span>浏览器兼容</span></a></li>
+    <li><a class="item" href="08-loading-and-rendering.html"><span class="n">08</span><span>加载与渲染性能</span></a></li>
+    <li><a class="item cur" href="09-ai-ui-quality.html"><span class="n">09</span><span>AI 生成界面的质量</span></a></li>
+    <li><a class="item" href="10-usage-and-cost.html"><span class="n">10</span><span>用量与成本口径</span></a></li>
+    <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>09 · AI 生成界面的质量</h1>
+<p class="lead">
+  这两题问的是同一件事：<strong>你能不能看出 AI 写的界面哪里不对，并且说清怎么改。</strong>
+  它考的不是设计功底，是<strong>专业判断力</strong>。
+</p>
+
+<div class="qbadges"><span class="q">YU-15</span><span class="q">YU-23</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>不需要设计背景。但需要你<strong>看过 AI 生成的页面</strong>——如果你自己用 AI 做过界面，这页会很有共鸣；没用过的话，随便让 AI 生成一个页面看看，再回来读。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图——记住"缺的不是美，是约束"。</div>
+  <div><b>第二遍（10 分钟）</b>读第 1 节的问题清单，对照你见过的 AI 页面。</div>
+  <div><b>第三遍</b>做页尾回忆卡，它会让你现场审一个界面。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你让 AI 生成了一个「订单列表页」。跑起来一看，<strong>能用，但说不上来哪里怪</strong>。</p>
+
+<p>于是你找设计同事看了一眼。对方扫了两秒，指出一堆问题：</p>
+
+<div class="analogy">
+  <span class="tag">设计同事的两秒钟</span>
+  <ul>
+    <li>三个卡片的间距分别是 12、16、24 像素，<strong>没有任何规律</strong>。</li>
+    <li>页面里出现了 <strong>六种几乎一样的蓝色</strong>，肉眼几乎分不出，但就是不一样。</li>
+    <li>标题和正文的对比<strong>不够</strong>，一眼看过去找不到重点。</li>
+    <li>列表只有在<strong>有数据</strong>时的样子——<strong>加载中、没有数据、请求失败，三种情况全是空白</strong>。</li>
+    <li>鼠标移上去<strong>没有任何反馈</strong>，用户不知道哪里可以点。</li>
+  </ul>
+</div>
+
+<p>这些都是"专业眼光"能看到的东西。而这道题（<code>YU-15</code>）问的，就是<strong>你能不能自己看出来</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · AI 生成界面的问题，本质是三件事</p>
+  <h3>没有约束、没有状态、没有体系</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 330" role="img" aria-label="AI 生成界面的三类问题与对策">
+    <text x="20" y="26" class="lbl-muted">表面症状</text>
+
+    <rect x="20" y="42" width="240" height="88" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="140" y="64" text-anchor="middle" font-size="13" fill="var(--c-risk)" style="font-weight:600">看起来"差点意思"</text>
+    <text x="140" y="84" text-anchor="middle" font-size="11.5" class="lbl-muted">间距没有规律</text>
+    <text x="140" y="102" text-anchor="middle" font-size="11.5" class="lbl-muted">颜色有六个相近的蓝</text>
+    <text x="140" y="120" text-anchor="middle" font-size="11.5" class="lbl-muted">字号层级混乱</text>
+
+    <rect x="278" y="42" width="240" height="88" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="398" y="64" text-anchor="middle" font-size="13" fill="var(--c-risk)" style="font-weight:600">"用起来不对劲"</text>
+    <text x="398" y="84" text-anchor="middle" font-size="11.5" class="lbl-muted">没有悬停 / 按下反馈</text>
+    <text x="398" y="102" text-anchor="middle" font-size="11.5" class="lbl-muted">只有正常态</text>
+    <text x="398" y="120" text-anchor="middle" font-size="11.5" class="lbl-muted">出错时用户不知道该干嘛</text>
+
+    <rect x="536" y="42" width="244" height="88" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="658" y="64" text-anchor="middle" font-size="13" fill="var(--c-risk)" style="font-weight:600">"改一处崩一片"</text>
+    <text x="658" y="84" text-anchor="middle" font-size="11.5" class="lbl-muted">每个页面各写一套按钮</text>
+    <text x="658" y="102" text-anchor="middle" font-size="11.5" class="lbl-muted">改配色要翻遍所有文件</text>
+    <text x="658" y="120" text-anchor="middle" font-size="11.5" class="lbl-muted">同类组件长得不一样</text>
+
+    <text x="20" y="162" class="lbl-muted" font-size="13">根因</text>
+
+    <rect class="box-d" x="20" y="176" width="240" height="40" rx="7"></rect>
+    <text x="140" y="194" text-anchor="middle" font-size="12.5" style="font-weight:600">没有约束</text>
+    <text x="140" y="210" text-anchor="middle" font-size="11.5" class="lbl-muted">每一步都自由发挥</text>
+
+    <rect class="box-d" x="278" y="176" width="240" height="40" rx="7"></rect>
+    <text x="398" y="194" text-anchor="middle" font-size="12.5" style="font-weight:600">没有状态清单</text>
+    <text x="398" y="210" text-anchor="middle" font-size="11.5" class="lbl-muted">只想着"正常显示"</text>
+
+    <rect class="box-d" x="536" y="176" width="244" height="40" rx="7"></rect>
+    <text x="658" y="194" text-anchor="middle" font-size="12.5" style="font-weight:600">没有体系</text>
+    <text x="658" y="210" text-anchor="middle" font-size="11.5" class="lbl-muted">每次从零生成</text>
+
+    <text x="20" y="252" class="lbl-muted" font-size="13">对策（按性价比排序）</text>
+
+    <rect class="box-s" x="20" y="266" width="240" height="52" rx="7"></rect>
+    <text x="140" y="286" text-anchor="middle" font-size="12.5" style="font-weight:600">① 先定有限集合</text>
+    <text x="140" y="304" text-anchor="middle" font-size="11.5" class="lbl-muted">间距、字号、颜色各只留几档</text>
+
+    <rect class="box-s" x="278" y="266" width="240" height="52" rx="7"></rect>
+    <text x="398" y="286" text-anchor="middle" font-size="12.5" style="font-weight:600">② 每个数据区都要三态</text>
+    <text x="398" y="304" text-anchor="middle" font-size="11.5" class="lbl-muted">加载中 / 没有数据 / 出错</text>
+
+    <rect class="box-s" x="536" y="266" width="244" height="52" rx="7"></rect>
+    <text x="658" y="286" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 抽成组件再组装</text>
+    <text x="658" y="304" text-anchor="middle" font-size="11.5" class="lbl-muted">页面不许自己写按钮</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：AI 生成的界面，问题<strong>不是"不好看"，而是"没有约束"</strong>。它每次生成都是一个独立决策——这次用 12 像素间距，下次用 16，因为没人告诉它"只能从这几档里选"。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">所以对策也不是"让 AI 审美变好"，而是<strong>先把可选范围收窄</strong>：给它一套有限的间距、字号、颜色，它就不会乱来了。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-risk)"></i>表面症状</span>
+  <span><i style="background:var(--c-data)"></i>根因</span>
+  <span><i style="background:var(--c-store)"></i>对策</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 从专业角度看，AI 生成的界面有哪些问题（<code>YU-15</code>）</h2>
+
+<p>答这题的关键是<strong>分层说，不要混在一起</strong>。按"一眼能看到的 → 用起来才发现的 → 维护时才疼的"这个顺序，条理会非常清楚。</p>
+
+<table>
+  <thead><tr><th style="width:20%">层次</th><th style="width:40%">具体问题</th><th>为什么会出现</th></tr></thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><strong>视觉层</strong><br><span class="lbl-muted">一眼能看到</span></td>
+      <td><strong>间距没有规律</strong>：一会儿 12、一会儿 16、一会儿 24</td>
+      <td>每次生成都是独立决策。人做设计会选一套"间距阶梯"（4 的倍数之类）然后一直用，AI 没有这个约束。</td>
+    </tr>
+    <tr>
+      <td><strong>颜色不成体系</strong>：出现好几个几乎一样的蓝</td>
+      <td>没有"只能用这几个颜色"的约束。相近的颜色肉眼难辨，但会让页面显得脏。</td>
+    </tr>
+    <tr>
+      <td><strong>视觉层级不清</strong>：所有信息一样重</td>
+      <td>没有区分主次——标题、次要信息、辅助说明应该用不同的字重和颜色，而不是全靠字号硬撑。</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><strong>交互层</strong><br><span class="lbl-muted">用起来才发现</span></td>
+      <td><strong>只有"正常态"</strong>：没有加载中、没有数据为空、没有请求失败</td>
+      <td><strong>这是最实际、也最常被忽略的一类</strong>。AI 默认按"数据已经拿到了"来画，但真实项目里这三种态才是常态。</td>
+    </tr>
+    <tr>
+      <td><strong>缺少反馈</strong>：可点的东西没有悬停、按下、禁用状态</td>
+      <td>用户不知道哪里能点、点了有没有生效。<strong>这是"能用"和"好用"的分界线。</strong></td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>工程层</strong><br><span class="lbl-muted">维护时才疼</span></td>
+      <td><strong>没有组件复用</strong>：每个页面各写一套按钮、卡片</td>
+      <td>改动要翻遍所有文件，而且同类组件会长得不一样。</td>
+    </tr>
+    <tr>
+      <td><strong>响应式缺失或生硬</strong>：小屏直接挤在一起</td>
+      <td>没有考虑断点，或者只是简单地把布局竖过来。</td>
+    </tr>
+    <tr>
+      <td><strong>无障碍缺失</strong>：对比度不足、语义标签缺失、键盘不可达</td>
+      <td>这一层<strong>能提出来就是加分项</strong>——大多数人根本不会想到。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">怎么优化 —— 按投入产出排序</span>
+  <ol>
+    <li><strong>先立约束</strong>：定一套<strong>有限的</strong>间距阶梯、字号阶梯、颜色集合，写进变量里。这一步做完，后面所有生成都有边界，<strong>性价比最高</strong>。</li>
+    <li><strong>抽基础组件</strong>：按钮、输入框、卡片、弹窗各做一个版本，<strong>页面只允许用组件，不允许自己写样式</strong>。这是防止"改一处崩一片"的根本办法。</li>
+    <li><strong>给每个数据区定状态清单</strong>：加载中 / 空 / 出错，三个都要有设计和实现。<strong>可以做成一个固定的检查项，每做一个列表就过一遍。</strong></li>
+    <li><strong>把 AI 用在正确的位置</strong>：让它<strong>出初稿</strong>，然后人工把它收敛到你的约束体系里。<strong>不要让 AI 直接产出终稿</strong>——它缺的正是"全局一致性"这个能力。</li>
+  </ol>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 你在 UI/UX 方面的经验（<code>YU-23</code>）</h2>
+
+<p>这题<strong>最容易答砸的方式是"吹"</strong>——说自己设计能力很强，对方一追问具体方法就露。</p>
+
+<p>更好的定位是：<strong>我不是设计师，但我有判断力，能把设计落地，并且知道什么时候该找专业的人。</strong></p>
+
+<table>
+  <thead><tr><th style="width:26%">能做什么</th><th>怎么说</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>把设计稿还原到位</strong></td>
+      <td>这本身就是一种能力：间距、层级、响应式都还原准确，而不是"差不多就行"。<strong>这是最实、最不虚的一条。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>发现交互问题</strong></td>
+      <td>比如"这个操作没有二次确认""这个错误提示没说清怎么解决""这个列表没考虑空状态"。<strong>不需要设计背景，需要的是站在用户角度想一遍。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>维护一致性</strong></td>
+      <td>用一套约束和组件，让不同页面的同类元素长得一样。<strong>这是工程能力，不是审美能力</strong>——正好是前端该负责的部分。</td>
+    </tr>
+    <tr>
+      <td><strong>知道边界</strong></td>
+      <td>该说："复杂的视觉设计我会拉设计一起定，我做的是把它落地成一致的实现。"<strong>主动划边界比硬撑专业更可信。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">「结合 AI 落地」怎么答</span>
+  <p>这是这题真正的考点——<strong>看你能不能把 AI 放在正确的位置上</strong>：</p>
+  <p>「我的用法是<strong>分工</strong>：<strong>AI 负责出初稿和试错</strong>——比如快速生成三版布局，或者把一段交互快速做出来看效果，这比以前快得多。</p>
+  <p>但<strong>收敛的阶段必须人工来</strong>：把生成结果对齐到我们的间距、颜色、组件规范，补齐加载和错误状态，检查响应式和可读性。<strong>AI 不知道我们项目已经有什么，它每次都是从零开始。</strong></p>
+  <p>所以我把它当成<strong>提效工具，而不是决策者</strong>——它省掉的是"从零画一版"的时间，省不掉的是<strong>判断这版该不该上</strong>。」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你觉得 AI 能替代设计吗？」</summary>
+  <p>别给极端的答案，<strong>说清"能替代哪部分、替代不了哪部分"</strong>才有说服力：</p>
+  <ul>
+    <li><strong>能替代的</strong>：出初稿、试多种方案、把常见布局快速搭出来、写基础样式。<strong>这些确实是重复劳动</strong>，效率提升很明显。</li>
+    <li><strong>替代不了的</strong>：<strong>判断哪个方案对业务更好</strong>（这需要理解用户和业务目标）、<strong>全局一致性</strong>（它每次生成都是独立的）、<strong>无障碍和边界情况</strong>（它默认画最理想的情况）。</li>
+  </ul>
+  <p>收尾："所以我的看法是——<strong>它把'画出来'这件事变便宜了，但'决定画什么'反而更值钱了。</strong>"</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「如果没有设计师，让你自己做一个后台，你怎么保证不乱？」</summary>
+  <p>这题在<strong>看你的实际做法</strong>。给一套可执行的流程，比讲理念强：</p>
+  <ol>
+    <li><strong>先找基线</strong>：直接用一套成熟的设计体系（很多组件库自带），<strong>不要从白纸开始</strong>。这一步能解决 80% 的一致性问题。</li>
+    <li><strong>定有限的变量</strong>：间距、字号、圆角、阴影各定几档，写进变量里，之后只从这几档取值。</li>
+    <li><strong>先做一屏样板</strong>：把最典型的一个页面做完整（含各种状态），后面所有页面<strong>照着它抄</strong>，而不是重新发挥。</li>
+    <li><strong>列一张状态清单</strong>：每做一个数据区域，强制过一遍加载中 / 空 / 出错。</li>
+  </ol>
+  <p>收尾："核心思路是<strong>用约束换一致性</strong>——没有设计师的时候，规矩比审美更重要。"</p>
+</details>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「AI 生成的页面有什么问题 / 你的 UI 经验」</span>
+  <p><strong>【结论】</strong>AI 生成的界面，核心问题<strong>不是好不好看，而是没有约束和体系</strong>——它每次生成都是一次独立决策，所以间距、颜色、字号全都对不齐。</p>
+  <p><strong>【具体问题】</strong>我一般分三层看：<strong>视觉层</strong>是间距无阶梯、颜色不成套、层级不清；<strong>交互层</strong>是只有正常态、没有加载/空/错误，也没有悬停和禁用反馈；<strong>工程层</strong>是没有组件复用、响应式生硬、无障碍缺失。</p>
+  <p><strong>【最实际的一条】</strong>我觉得最要命的是<strong>状态缺失</strong>——它默认按"数据已经拿到了"来画，但真实项目里加载中、没有数据、请求失败才是常态。<strong>这个不补，上线就出事。</strong></p>
+  <p><strong>【怎么优化】</strong>四步，按性价比排：<strong>先立约束</strong>（间距字号颜色各只留几档，写进变量）；<strong>抽基础组件</strong>（页面只许用组件，不许自己写样式）；<strong>给每个数据区定三态清单</strong>；<strong>把 AI 用在对的位置</strong>——它出初稿，人工收敛到规范里。</p>
+  <p><strong>【经验】</strong>我的定位是<strong>不是设计师，但有判断力和落地能力</strong>：能把设计稿准确还原、能发现交互和状态问题、能用约束和组件保证一致性。复杂的视觉设计我会拉设计一起定，我做的是把它落地成一致的实现。</p>
+  <p><strong>【AI 的用法】</strong>我把它当<strong>提效工具而不是决策者</strong>。它负责快速出初稿、试多种方案；<strong>收敛必须人工</strong>，因为它不知道项目里已经有什么。它省掉的是"从零画一版"的时间，省不掉的是"判断这版该不该上"。</p>
+  <p><strong>【权衡】</strong>所以我不觉得 AI 会替代设计判断——它让"画出来"变便宜了，但"决定画什么"反而更值钱。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>同事给你看一个 AI 生成的页面，让你点评。你说出你的检查顺序。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>按<strong>三层</strong>走，每层挑一两个最明显的说：</p>
+    <ol>
+      <li><strong>视觉层</strong>：<strong>先看间距</strong>——量一下几个卡片的边距，如果数值没有规律（12、16、24 混着来），基本就能确定没有约束体系。<strong>再看颜色</strong>——如果出现多个相近的色值，说明没有统一色板。</li>
+      <li><strong>交互层</strong>：<strong>先看有没有"状态"</strong>——加载中、没有数据、请求失败三种情况，页面分别长什么样。这是最容易被忽略也最影响体验的一条。<strong>再看反馈</strong>——可点的元素悬停时有没有变化。</li>
+      <li><strong>工程层</strong>：看<strong>有没有组件复用</strong>——同一个按钮在不同页面是不是各写了一遍；再看<strong>小屏下会不会挤</strong>。</li>
+    </ol>
+    <p>点评时的加分句：「这些问题的根因都是<strong>没有约束</strong>。所以改法不是让它更好看，而是<strong>先定一套有限的取值，再让它在这个范围里生成</strong>。」</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「AI 让前端更快了，那还需要审设计稿吗？」——你怎么答？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>更需要了，但审的东西变了。</strong></p>
+    <ul>
+      <li><strong>以前审的是"还原度"</strong>：间距对不对、颜色准不准。这部分确实被 AI 和工具大幅简化了。</li>
+      <li><strong>现在审的是"一致性和边界"</strong>：<strong>这一版和项目里其他页面是不是一套东西</strong>、状态齐不齐、小屏下会不会崩、无障碍能不能过。这些<strong>恰恰是 AI 做不好的部分</strong>——它每次生成都是独立的，看不到全局。</li>
+    </ul>
+    <p>所以结论是：「AI 把<strong>产出</strong>的成本降下来了，但把<strong>把关</strong>的重要性抬上去了。省下的是画的时间，没省下的是判断的时间。」</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="08-loading-and-rendering.html">← 上一篇：加载与渲染性能</a>
+  <a href="10-usage-and-cost.html">下一篇：用量与成本口径 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>
