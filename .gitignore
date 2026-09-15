@@ -8,6 +8,9 @@ _dev/
 notes/
 assets/RAG全链路图.png
 
+# 学习计划与写法规范——项目内部文档，不上公开站点
+plan/
+
 # 一次性迁移脚本的备份
 .backup/
 
