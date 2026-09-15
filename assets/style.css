@@ -481,6 +481,10 @@ blockquote {
   margin: 2px 0 6px; color: var(--fg); font-weight: 600; letter-spacing: 0;
   font-size: 13px;
 }
+/* 材料页上这个标题本身就是「回材料目录」的入口（目录页上它是本页，所以是 <div>）。
+   给它和 .up / .item 一样的悬停反馈，让人看得出能点 */
+.sidenav a.grp.sub { display: block; text-decoration: none; padding: 3px 10px; border-radius: 7px; }
+.sidenav a.grp.sub:hover { background: var(--accent-soft); color: var(--accent); }
 .sidenav ul { list-style: none; margin: 0; padding: 0; }
 .sidenav li { margin: 1px 0; }
 .sidenav a.item {

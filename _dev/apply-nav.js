@@ -75,27 +75,28 @@ for (const rel of PAGES) {
 
   if (ups.length) {
     const upTop  = ups.find(u => u[2] === '../index.html');
-    const upDir  = ups.find(u => u[3].trim() === '材料目录');
     const upPlan = ups.find(u => u[2].endsWith('#plan'));
     if (!upTop || !upPlan) { problems.push(rel + '：侧栏 .up 链接不符合预期（' + ups.map(u => u[2]).join(',') + '）'); continue; }
 
-    // 「← 材料目录」有没有，由页型决定，不去解析现有链接的文案
-    // （文案里带「←」，靠文字匹配很容易漏——这里踩过一次）
     const isDirPage = path.basename(rel) === 'index.html';
-    const wantDir = !isDirPage;
 
-    const grpM = inner.match(/<div class="grp sub">([\s\S]*?)<\/div>/);
+    // 步骤名在材料页上是「回材料目录」的链接，在目录页上就是本页、只能是纯文本
+    const grpM = inner.match(/<(?:div|a) class="grp sub"[^>]*>([\s\S]*?)<\/(?:div|a)>/);
     if (!grpM) { problems.push(rel + '：侧栏没有步骤分组标题（.grp.sub）'); continue; }
     const ulM = inner.match(/<ul>[\s\S]*?<\/ul>/);
     if (!ulM) { problems.push(rel + '：侧栏没有 <ul>'); continue; }
 
-    // zone  = 只有一个「份量轻」的分区标题，窄屏时跟它的链接同排
-    // mid   = 「这一层」，窄屏时隐藏（紧跟着的 .grp.sub 就是它的标题）
+    // 分区标题的类名：
+    //   zone   份量轻，窄屏时跟它的链接排在同一行
+    //   mid    「这一层」，窄屏时隐藏（紧跟着的步骤名就是它的标题）
+    const stepTitle = isDirPage
+      ? '  <div class="grp sub">' + grpM[1] + '</div>\n'          // 本页，不做成链接（不出现指向自己的链接）
+      : '  <a class="grp sub" href="index.html">' + grpM[1] + '</a>\n';   // 材料页：标题本身就是回目录的入口
+
     let out = '\n  <div class="grp zone">往上</div>\n';
     out += '  <a class="up" href="../index.html">← 总目录</a>\n';
-    if (wantDir) out += '  <a class="up" href="index.html">← 材料目录</a>\n';
     out += '  <div class="grp zone mid">这一层</div>\n';
-    out += '  <div class="grp sub">' + grpM[1] + '</div>\n';
+    out += stepTitle;
     out += '  ' + ulM[0] + '\n';              // 原样搬，补回 <ul> 前那 2 个空格缩进
     out += '  <div class="grp zone">参考</div>\n';
     out += '  <a class="up" href="../index.html#plan">学习计划全文</a>\n';

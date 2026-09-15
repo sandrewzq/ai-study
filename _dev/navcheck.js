@@ -5,8 +5,8 @@
 //  R2  侧栏不许出现指向当前页的链接（目录页上那条 href="index.html" 的自链接）
 //  R3  非入口页侧栏必须有且只有「往上 / 这一层 / 参考」三个分区标题
 //  R4  材料页侧栏必须有且只有一条 .item.cur
-//  R5  材料页侧栏「往上」必须同时有 ← 总目录 和 ← 材料目录
-//  R6  目录页侧栏「往上」只能有 ← 总目录
+//  R5  侧栏「往上」段只有一条 ← 总目录
+//  R6  步骤名在材料页上是指向 index.html 的链接，在目录页上是纯文本（不许自链接）
 //  R7  全站每个页面（含入口页）都能从侧栏走到入口页
 const fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..');
@@ -62,17 +62,26 @@ for (const rel of PAGES) {
   const cur = (navHtml.match(/class="item cur"/g) || []).length;
   if (kind === '材料' && cur !== 1) bad(rel, 'R4', `当前页标记 .item.cur 应为 1 条，实际 ${cur} 条`);
 
-  // R5 / R6：数「往上」段里到底有几条 .up
+  // R5 / R6：往上段只有「← 总目录」；步骤名在材料页上是链接、在目录页上是纯文本
   if (!isEntry) {
     const zoneUp = navHtml.slice(navHtml.indexOf('>往上</div>'), navHtml.indexOf('>这一层</div>'));
     const ups = [...zoneUp.matchAll(/<a class="up" href="([^"]*)"/g)].map(m => m[1]);
+    if (ups.join(',') !== '../index.html')
+      bad(rel, 'R5', `「往上」应只有 ← 总目录，实际：${ups.join(', ') || '（空）'}`);
+
+    const subA = navHtml.match(/<a class="grp sub" href="([^"]*)">/);
+    const subD = /<div class="grp sub">/.test(navHtml);
     if (kind === '材料') {
-      if (!ups.includes('../index.html')) bad(rel, 'R5', '「往上」缺 ← 总目录');
-      if (!ups.includes('index.html')) bad(rel, 'R5', '「往上」缺 ← 材料目录');
-      if (ups.length !== 2) bad(rel, 'R5', `「往上」应恰好 2 条，实际 ${ups.length} 条：${ups.join(', ')}`);
+      // 材料页：步骤名本身就是回材料目录的入口，取代了原来那条「← 材料目录」
+      if (!subA) bad(rel, 'R6', '材料页的步骤名应该是指向 index.html 的链接（<a class="grp sub">）');
+      else if (subA[1] !== 'index.html') bad(rel, 'R6', `步骤名链接应指向 index.html，实际 ${subA[1]}`);
+      if (subD) bad(rel, 'R6', '材料页的步骤名不该同时是纯文本');
     } else {
-      if (ups.join(',') !== '../index.html') bad(rel, 'R6', `目录页「往上」应只有 ← 总目录，实际：${ups.join(', ')}`);
+      // 目录页：那一步就是本页，不做成链接（不许出现指向自己的链接）
+      if (!subD) bad(rel, 'R6', '目录页的步骤名应该是纯文本（<div class="grp sub">）');
+      if (subA) bad(rel, 'R6', '目录页的步骤名不该是链接——那是指向本页的自链接');
     }
+
     // 参考段
     if (!/>参考<\/div>\s*<a class="up" href="\.\.\/index\.html#plan">/.test(navHtml))
       bad(rel, 'R3', '「参考」段缺 学习计划全文');
