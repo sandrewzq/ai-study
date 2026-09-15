@@ -72,9 +72,7 @@ body {
   border-bottom: 1px solid var(--line);
   font-size: 14px;
 }
-.topbar a { color: var(--accent); text-decoration: none; }
-.topbar a:hover { text-decoration: underline; }
-.topbar .crumb { color: var(--muted); margin-left: auto; }
+.topbar .crumb { color: var(--muted); }
 
 /* 标题 */
 h1 { font-size: 30px; line-height: 1.35; margin: 32px 0 8px; letter-spacing: -.01em; }
@@ -440,12 +438,15 @@ blockquote {
 
 /* ============================================================
    全站导航外壳：左侧常驻目录
-   设计原则（对齐 game-ui-ux）：
-   1) 容器布局，不用绝对定位 —— grid 分栏，内容区自适应
-   2) 持久导航外壳 —— 目录始终可见，不用滚回去找
-   3) 每屏都有明确的上层出口（总目录 / 学习计划）
-   4) 键盘可达 —— 链接默认可 tab，加可见的焦点样式
-   5) 窄屏降级 —— 侧栏变成可换行的 chip 列表，不遮挡内容
+   设计原则：
+   1) 一个导航面 —— topbar 只报「我在哪」，所有链接只出现在侧栏
+      （以前同一组链接在 topbar 和侧栏各写一遍，交互分散）
+   2) 容器布局，不用绝对定位 —— grid 分栏，内容区自适应
+   3) 持久导航外壳 —— 目录始终可见，不用滚回去找
+   4) 侧栏固定三段：往上（回上层） / 这一层（同级） / 参考（跨页参考）
+   5) 当前页永远有标记（.item.cur），且不出现指向自己的链接
+   6) 键盘可达 —— 链接默认可 tab，加可见的焦点样式
+   7) 窄屏降级 —— 侧栏变成可换行的 chip 列表，不遮挡内容
    ============================================================ */
 .layout {
   display: grid;
@@ -471,11 +472,14 @@ blockquote {
   color: var(--fg); padding: 5px 10px; border-radius: 7px; margin-bottom: 2px;
 }
 .sidenav .up:hover { background: var(--accent-soft); color: var(--accent); }
-/* 当前页就是这一条时（比如在步骤目录页上，「材料目录」就是本页） */
-.sidenav .up.cur { background: var(--accent-soft); color: var(--accent); }
 .sidenav .grp {
   font-size: 12.5px; color: var(--muted); letter-spacing: .06em;
   margin: 18px 0 6px; padding-left: 10px;
+}
+/* 分区里的子标题（如「这一层」下面的「步骤 2 · 做系统」），紧贴分区标题 */
+.sidenav .grp.sub {
+  margin: 2px 0 6px; color: var(--fg); font-weight: 600; letter-spacing: 0;
+  font-size: 13px;
 }
 .sidenav ul { list-style: none; margin: 0; padding: 0; }
 .sidenav li { margin: 1px 0; }
