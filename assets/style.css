@@ -471,6 +471,8 @@ blockquote {
   color: var(--fg); padding: 5px 10px; border-radius: 7px; margin-bottom: 2px;
 }
 .sidenav .up:hover { background: var(--accent-soft); color: var(--accent); }
+/* 当前页就是这一条时（比如在步骤目录页上，「材料目录」就是本页） */
+.sidenav .up.cur { background: var(--accent-soft); color: var(--accent); }
 .sidenav .grp {
   font-size: 12.5px; color: var(--muted); letter-spacing: .06em;
   margin: 18px 0 6px; padding-left: 10px;
