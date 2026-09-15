@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · 上下文治理 — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 1/12 份 ｜ C 域 · 上下文治理与流式通信</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item cur" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>01 · 上下文治理</h1>
+<p class="lead">
+  Agent 跑到十几轮之后开始犯糊涂，你以为是模型不行——<strong>其实是上下文脏了</strong>。
+  这一页讲怎么管住它。这是 C 域最重要的一份，也是<strong>做项目时必须动手实现的第一块</strong>。
+</p>
+
+<div class="qbadges"><span class="q">JR-11</span><span class="q">JR-12</span><span class="q">JR-14</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页要用「上下文」「上下文窗口」「token」这些概念。看着眼生的话，先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a> 的第一组。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句。</div>
+  <div><b>第二遍（15 分钟）</b>读五种手段，对照自己的项目想"我该上哪几种"。</div>
+  <div><b>第三遍</b>做末尾的动手清单。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你的 Agent 跑了 15 轮，开始犯一些很蠢的错误：反复改一个已经改对的地方、把早就否掉的方案又提出来、明明文件里写着答案却说"找不到"。</p>
+
+<p>你换了个更强的模型——<strong>没用，还是这样。</strong></p>
+
+<p>真实原因：<strong>上下文里已经堆满了它自己的历史。</strong>前 14 轮的工具返回、失败的尝试、被推翻的结论，全都在。它每轮都要读一遍这些，然后被自己带偏。</p>
+
+<div class="skeleton">
+  <span class="tag">这一页的论点（也是讲解的落点）</span>
+  <p><strong>"AI 一直修不好一个 bug，不一定是它没有这个能力，而是它的上下文已经被彻底带偏了。"</strong></p>
+  <p>最直接的验证方法：开一个<strong>新对话</strong>，把关键信息重新说一遍，它两分钟就解决了。</p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 上下文是怎么被撑爆的</p>
+  <h3>轮次越多，"当前任务"占比越小</h3>
+
+  <p>蓝色部分是"这一轮真正需要看的信息"：</p>
+
+  <div class="dilute">
+    <div class="row">
+      <p class="cap">第 1 轮 —— 上下文很干净</p>
+      <div class="bar"><span class="seg" style="width:36%"></span></div>
+      <p class="memo">当前任务占 <b>36%</b>，模型看得见重点。</p>
+    </div>
+    <div class="row">
+      <p class="cap">第 8 轮 —— 前面几轮的工具返回开始堆积</p>
+      <div class="bar"><span class="seg" style="width:12%"></span></div>
+      <p class="memo">被稀释到 <b>12%</b>，开始被无关内容干扰。</p>
+    </div>
+    <div class="row">
+      <p class="cap">第 20 轮 —— 当前任务几乎被淹没</p>
+      <div class="bar"><span class="seg warn" style="width:4%"></span></div>
+      <p class="memo">只剩 <b class="warn">4%</b>。失败的尝试、已经作废的结论全都还在，模型被自己的历史绑架。</p>
+    </div>
+  </div>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：上下文不是"越多越好"。<strong>每多塞一段无关内容，真正有用的信息就被稀释一分。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>当前任务 / 模型</span>
+  <span><i style="background:var(--c-data)"></i>历史堆积</span>
+  <span><i style="background:var(--c-risk)"></i>危险区</span>
+</div>
+
+<!-- ============ 手段 ============ -->
+<h2 id="s1">1. 五种治理手段，按优先级排</h2>
+
+<p><strong>核心原则：最好的压缩是不需要压缩。</strong>一开始就别让脏东西进主上下文，比事后补救有效得多。</p>
+
+<table>
+  <thead><tr><th style="width:14%">优先级</th><th style="width:16%">手段</th><th style="width:36%">怎么做</th><th>适合什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 最优先</strong></td>
+      <td><strong>隔离</strong></td>
+      <td>脏活（装环境、下载数据、跑测试、批量搜索）交给子 Agent，<strong>只把结论回传主线程</strong></td>
+      <td>凡是过程又长又乱、结论很短的任务</td>
+    </tr>
+    <tr>
+      <td><strong>②</strong></td>
+      <td><strong>外部化</strong></td>
+      <td>大结果写到文件或数据库，上下文里<strong>只留路径和摘要</strong>，需要时按需读取</td>
+      <td>工具返回大 JSON、长文档、日志</td>
+    </tr>
+    <tr>
+      <td><strong>③</strong></td>
+      <td><strong>摘要</strong></td>
+      <td>把早期对话滚动总结成一段话（"之前确认了 X，尝试过 Y 失败，原因是 Z"）</td>
+      <td>长对话。注意<strong>关键约束不能只靠摘要</strong></td>
+    </tr>
+    <tr>
+      <td><strong>④</strong></td>
+      <td><strong>裁剪</strong></td>
+      <td>工具结果只保留需要的字段/行区间；读文件只读相关部分</td>
+      <td>所有工具调用，应该做成默认行为</td>
+    </tr>
+    <tr>
+      <td><strong>⑤ 最后手段</strong></td>
+      <td><strong>截断</strong></td>
+      <td>只保留最近 N 轮</td>
+      <td>快速止血。容易把早期的关键约束一起扔掉</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">讲的时候按这个顺序讲</span>
+  <p>"优先级是<strong>隔离 &gt; 外部化 &gt; 摘要 &gt; 截断</strong>。理由很简单：<strong>最好的压缩是不需要压缩</strong>——一开始就别让脏东西进主上下文。等到塞满了再摘要，信息已经损失过一轮；而截断最粗暴，容易把关键前提一起扔掉。"</p>
+</div>
+
+<!-- ============ 追问 ============ -->
+<h2 id="s2">2. 追问：压缩质量不行怎么办</h2>
+
+<p>这是个很尖锐的追问（<code>JR-12</code>），因为它直指一个事实：<strong>摘要质量本身就受模型能力限制</strong>——用小模型做摘要，关键信息会丢。</p>
+
+<div class="skeleton">
+  <span class="tag">专业且诚实的答法</span>
+  <p>"压缩质量确实受模型能力限制，所以我们的做法是<strong>不把压缩当成唯一依赖</strong>：</p>
+  <ul>
+    <li><strong>关键信息结构化保存</strong>——约束条件、已达成的结论、失败的教训，这些放在独立的<strong>结构化字段</strong>里（不靠模型摘要），每轮都随上下文带上。</li>
+    <li><strong>原始内容落盘</strong>——被压缩掉的内容不销毁，需要时可以回溯查证。</li>
+    <li><strong>压缩用更强的模型</strong>，并且压缩结果做一次校验（比如让它回答几个关键问题，看信息有没有丢）。</li>
+    <li>但最根本的还是前面那条：<strong>与其压缩，不如一开始就别让脏东西进主上下文</strong>。"</li>
+  </ul>
+</div>
+
+<div class="warn">
+  <span class="tag">这里的"结构化保存"很容易被追问</span>
+  <p>对方可能接着问："具体存什么？" 准备好一个具体答案，比如：</p>
+  <p>维护一个固定结构的<strong>任务状态对象</strong>：<code>目标</code>、<code>已确认的事实</code>、<code>已排除的方案及原因</code>、<code>待解决问题</code>。<strong>每轮都把这个对象重新拼进上下文</strong>，而不是指望模型从漫长的历史里自己想起来。</p>
+</div>
+
+<!-- ============ claude code ============ -->
+<h2 id="s3">3. claude code 是怎么做的</h2>
+
+<div class="warn">
+  <span class="tag">先明确对方想听什么</span>
+  <p>问这个（<code>JR-14</code>）不是让你背源码。答"我逐行读过源码"却讲不出设计取舍，反而扣分。他要听的是：<strong>你理解它为什么这么设计</strong>。</p>
+</div>
+
+<p>它围绕上下文做的<strong>四条设计取舍</strong>——这些原则不依赖具体实现，自己写一个 agent loop 也能验证：</p>
+
+<table>
+  <thead><tr><th style="width:24%">原则</th><th style="width:34%">做法</th><th>为什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>检索优于全量</strong></td>
+      <td>不把整个代码库塞进上下文，先搜索<strong>定位</strong>，只带相关片段</td>
+      <td>装不下整个仓库；全塞进去噪声大、还贵</td>
+    </tr>
+    <tr>
+      <td><strong>工具结果要裁剪</strong></td>
+      <td>读文件只读需要的行区间，命令输出做截断</td>
+      <td>避免"读了一个 5000 行文件"直接占满上下文</td>
+    </tr>
+    <tr>
+      <td><strong>子任务隔离</strong></td>
+      <td>搜索、探索类工作交给子 Agent，<strong>只回传结论</strong></td>
+      <td>探索过程又长又乱，不该污染主线</td>
+    </tr>
+    <tr>
+      <td><strong>提示词可缓存</strong></td>
+      <td>稳定的系统提示和工具定义放最前面并缓存</td>
+      <td>降本提速，也减少上下文抖动</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的落点</span>
+  <p>"它的所有设计最终都指向同一件事——<strong>管住每一个 session 的上下文</strong>。因为决定 Agent 表现的往往不是模型上限，而是上下文质量。所以它宁可多调几次工具去精确定位，也不愿意把大块内容直接塞进上下文。"</p>
+</div>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「你们上下文压缩的策略是什么」（含追问）</span>
+  <p><strong>【结论】</strong>我们的核心原则是<strong>"最好的压缩是不需要压缩"</strong>——优先从源头上不让脏东西进上下文。</p>
+  <p><strong>【做法】</strong>四层：① <strong>隔离</strong>：装环境、下数据、跑测试这些脏活交给子 Agent，主线只拿结论；② <strong>外部化</strong>：工具返回的大结果落盘，上下文里只留路径和摘要；③ <strong>摘要</strong>：长对话滚动总结，但关键约束（目标、已确认的结论、失败的教训）用<strong>结构化对象保存</strong>，不依赖模型摘要；④ <strong>截断</strong>：作为最后手段，只保留最近 N 轮。</p>
+  <p><strong>【数字】</strong>改造之后单次任务的 token 消耗下降约 X%，任务成功率提升 X%。</p>
+  <p><strong>【追问应对】</strong>压缩质量确实受模型能力限制。所以关键信息不靠摘要、原始内容可回溯、压缩用更强的模型并做校验。但根本解法还是前面那条——把需要压缩的量降下来。</p>
+</div>
+
+<details class="ask">
+  <summary>怎么知道上下文"脏了"？有没有可观测的信号？</summary>
+  <p>几个可以监控的信号：</p>
+  <ul>
+    <li><strong>上下文长度曲线</strong>：随着轮次增长而任务没有收敛，就是危险信号。</li>
+    <li><strong>重复行为</strong>：连续几轮调用同样的工具、同样的参数。</li>
+    <li><strong>结论反复</strong>：把之前已经否掉的方案又提出来。</li>
+    <li><strong>"找不到"变多</strong>：明明信息在上下文里，它却说不存在。</li>
+  </ul>
+  <p>实践中最有效的一招是<strong>把每一轮的完整上下文存下来</strong>，出问题时离线重放——你能直接看到它当时"眼里"是什么。</p>
+</details>
+
+<details class="ask">
+  <summary>多轮对话场景，上下文怎么组织？</summary>
+  <p>常见的结构（从稳定到易变）：</p>
+  <ol>
+    <li><strong>系统提示 + 工具定义</strong>（最稳定，放最前面，方便命中提示词缓存）</li>
+    <li><strong>结构化任务状态</strong>（目标、已确认事实、已排除方案、待解决问题）</li>
+    <li><strong>历史对话摘要</strong>（滚动更新）</li>
+    <li><strong>最近几轮原文</strong>（保留细节）</li>
+    <li><strong>本轮检索到的资料 + 用户当前问题</strong>（放最后，注意力最集中）</li>
+  </ol>
+  <p>关键点：<strong>顺序就是优先级</strong>。稳定的放前面（省缓存），最相关的放最后（注意力高），历史摘要在中间。</p>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <p>这一块是步骤 2 的核心，<strong>光看不算完成</strong>。给自己排一个下午，把下面几件事做出来：</p>
+  <ol>
+    <li><strong>加一个"任务状态对象"</strong>：定义固定结构（目标 / 已确认事实 / 已排除方案 / 待解决问题），每轮重新拼进上下文。这是投入产出比最高的一件事。</li>
+    <li><strong>给工具返回值加裁剪</strong>：挑一个返回内容最多的工具，改成"只返回需要的字段 + 摘要"。对比改造前后同一任务的 token 消耗。</li>
+    <li><strong>做一次隔离实验</strong>：把某个又长又乱的子任务（比如批量检索）拆成子 Agent，只回传结论。看主线程的上下文长度变化。</li>
+    <li><strong>把每轮的完整上下文存下来</strong>：出问题时能离线重放。这是调试 Agent 最快的手段。</li>
+    <li><strong>录一段口述</strong>：用五段式讲一遍"我怎么管上下文的"，必须带上第 2 步测出来的 token 变化数字。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 · 合上材料，用自己的话讲一遍</span>
+  <p>五种上下文治理手段分别是什么？为什么"隔离"排第一、"截断"排最后？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>五种</strong>：隔离（脏活丢子 Agent，只回传结论）→ 外部化（大结果落盘，只留路径和摘要）→ 摘要（滚动压缩）→ 裁剪（工具结果只留需要的部分）→ 截断（只保留最近 N 轮）。</p>
+    <p><strong>顺序的理由</strong>：<strong>最好的压缩是不需要压缩</strong>。隔离和外部化是在源头控制，让脏东西压根不进来；摘要是事后补救，信息已经损失过一轮；截断最粗暴，容易把早期的关键约束一起扔掉。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="00-how-to-study.html">← 导读：这一步骤怎么学</a>
+  <a href="02-sse-and-websocket.html">下一篇：SSE 与 WebSocket →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

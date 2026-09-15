@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Agent 基础与工具协议 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 6/9 份 ｜ B 域 · Agent、多智能体与工具协议</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item cur" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>06 · Agent 基础与工具协议</h1>
+<p class="lead">
+  这一页讲一件事：<strong>怎么让一个只会聊天的模型，变成一个能自己干活的助手。</strong>
+  所有内容都是围绕这个问题的。第一次读，先只看图和加粗句。
+</p>
+
+<div class="qbadges"><span class="q">ML-2</span><span class="q">ML-3</span><span class="q">ML-4</span><span class="q">JR-4</span><span class="q">JR-15</span><span class="q">KJ-1</span><span class="q">YF-11</span><span class="q">XZ-2</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页会出现「上下文」「工具调用」「token」这些词。如果看着眼生，先花 5 分钟看 <a href="00-key-terms.html">00 · 先认识这几个词</a>，回来会顺很多。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看第 0 节的例子和主图，跳过表格。</div>
+  <div><b>第二遍（20 分钟）</b>读正文和反例。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡，把主循环讲一遍。</div>
+</div>
+
+<!-- ============ 场景引入 ============ -->
+<h2 id="s0">0. 先看一个例子</h2>
+
+<p>你对 AI 说：<strong>「帮我调研一下 X 产品的竞品，写份报告。」</strong></p>
+
+<p>这件事大模型自己干不了——<strong>它没搜过，也不知道现在的市场是什么样，硬答就是在编。</strong></p>
+
+<p>加上 Agent 之后，它开始这么转：</p>
+
+<table>
+  <thead><tr><th style="width:14%">轮次</th><th style="width:33%">它判断……</th><th>然后做了什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>第 1 轮</strong></td>
+      <td>「我什么都不知道，得先搜资料」</td>
+      <td>调用<strong>网页搜索</strong>工具（这个工具是程序员提前写好、交给它的）→ 拿回 10 条结果</td>
+    </tr>
+    <tr>
+      <td><strong>第 2 轮</strong></td>
+      <td>「这 10 条全是官方宣传稿，没有真实评测」</td>
+      <td>换一组关键词<strong>再搜一次</strong> → 这次拿到了评测文章</td>
+    </tr>
+    <tr>
+      <td><strong>第 3 轮</strong></td>
+      <td>「够了，可以动笔了」</td>
+      <td>直接输出报告（并说明依据来自哪几篇）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这个例子里最关键的一点</span>
+  <p><strong>这三轮里"下一步做什么"，没有一步是程序员提前写死的</strong>——全是模型看着当前情况自己判断的。</p>
+  <p>这就是 Agent 和普通程序最本质的区别。普通程序你写死"第一步搜、第二步写"，它就只会这么干；哪怕第一轮搜出来的东西全是垃圾，它也会接着写。而 Agent 会停下来判断："这批结果不行，我换个词再搜。"</p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 把刚才那个过程画出来</p>
+  <h3>主循环：想 → 做 → 看 → 再想</h3>
+
+  <svg class="svgfig" viewBox="0 0 860 330" role="img" aria-label="Agent 主循环示意图">
+    <defs>
+      <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-m" x="320" y="20" width="204" height="58" rx="10"></rect>
+    <text x="422" y="44" text-anchor="middle" style="font-weight:600">模型决策</text>
+    <text x="422" y="63" text-anchor="middle" class="lbl-muted">直接答？还是调工具？</text>
+
+    <rect class="box-s" x="648" y="20" width="184" height="58" rx="10"></rect>
+    <text x="740" y="44" text-anchor="middle" style="font-weight:600">输出答案</text>
+    <text x="740" y="63" text-anchor="middle" class="lbl-muted">带引用</text>
+
+    <rect class="box-t" x="608" y="238" width="204" height="58" rx="10"></rect>
+    <text x="710" y="262" text-anchor="middle" style="font-weight:600">工具执行</text>
+    <text x="710" y="281" text-anchor="middle" class="lbl-muted">搜网页 / 跑代码 / 查库</text>
+
+    <rect class="box-d" x="48" y="238" width="204" height="58" rx="10"></rect>
+    <text x="150" y="262" text-anchor="middle" style="font-weight:600">结果回灌</text>
+    <text x="150" y="281" text-anchor="middle" class="lbl-muted">追加进上下文</text>
+
+    <rect x="322" y="142" width="220" height="56" rx="10" fill="var(--c-risk-bg)" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="432" y="166" text-anchor="middle" fill="var(--c-risk)" style="font-weight:600">刹车机制</text>
+    <text x="432" y="185" text-anchor="middle" class="lbl-muted">轮次 · token 预算 · 时间上限</text>
+
+    <path class="ar" d="M 524 49 C 620 49 660 130 700 234" marker-end="url(#arw)"></path>
+    <path class="ar" d="M 604 267 L 258 267" marker-end="url(#arw)"></path>
+    <path class="ar" d="M 150 234 C 158 140 236 88 316 62" marker-end="url(#arw)"></path>
+    <path class="ar" d="M 528 49 L 644 49" marker-end="url(#arw)"></path>
+
+    <text x="606" y="150" class="lbl-muted">调工具</text>
+    <text x="404" y="258" class="lbl-muted">拿到结果</text>
+    <text x="40" y="150" class="lbl-muted">还不够，再来一轮</text>
+    <text x="540" y="42" class="lbl-muted">够了</text>
+  </svg>
+
+  <p class="hero-cap" style="margin-top:6px">图里的每个名字对应什么：</p>
+  <table>
+    <thead><tr><th style="width:22%">图上的名字</th><th style="width:46%">实际指的是</th><th>常听到的叫法</th></tr></thead>
+    <tbody>
+      <tr><td><strong>模型决策</strong></td><td>大模型看着当前情况，判断下一步做什么</td><td>Reasoning（推理）</td></tr>
+      <tr><td><strong>工具执行</strong></td><td><strong>程序</strong>替它真的去搜、去算、去读文件</td><td>Function Call / Tool Use</td></tr>
+      <tr><td><strong>结果回灌</strong></td><td>把工具返回的内容塞回上下文，供它下一轮参考</td><td>观察结果 / Observation</td></tr>
+      <tr><td><strong>刹车机制</strong></td><td>防止它转个没完、把钱烧光</td><td>循环控制 / 预算控制</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>讲的时候就说这四句</strong>：模型决定 → 工具执行 → 结果回灌 → 循环，外面必须套一层刹车。</p>
+  <p class="lbl-muted" style="font-size:13.5px">（这个循环在论文里叫 <strong>ReAct</strong>，是 Reasoning + Acting 的缩写。讲的时候说"主循环"完全够用，能讲清"想→做→看→再想"比背这个词有用。）</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 决策</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 执行</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 状态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. Agent 和 Workflow 差在哪</h2>
+
+<p>先看一个更小的需求：<strong>「客户发来一封邮件，把里面的订单信息存进表格。」</strong></p>
+
+<p>这件事有两种做法：</p>
+
+<table>
+  <thead><tr><th style="width:22%">做法</th><th style="width:38%">怎么实现</th><th>出问题时</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A · Workflow</strong><br><span style="color:var(--muted);font-size:13.5px">按固定流程走</span></td>
+      <td>你写死四步：提取正文 → 抽取字段 → 校验格式 → 写入表格。程序照着跑，每次都一样</td>
+      <td>格式变了就报错，得你去改代码</td>
+    </tr>
+    <tr>
+      <td><strong>B · Agent</strong><br><span style="color:var(--muted);font-size:13.5px">让模型自己看着办</span></td>
+      <td>把邮件丢给模型，它自己决定先看哪里、要不要拆附件、字段抽不出来要不要换个思路</td>
+      <td>它自己会调整；但也可能绕远路</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>两种都能用，那怎么选？</strong>就看这三个问题：</p>
+
+<div class="tree">
+  <p class="q">① 步骤能提前枚举完吗？（每次都是那几步）</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">能</span>用 <strong>Workflow</strong> —— 更便宜、更快、出问题好查</div>
+    <div class="a no"><span class="yn">不能</span>继续看 ②</div>
+  </div>
+
+  <p class="q">② 步骤是否依赖"跑起来才知道"的信息？（附件里有没有合同？要不要回邮件问一下？）</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">是</span>用 <strong>Agent</strong> —— 这正是它的价值所在</div>
+    <div class="a no"><span class="yn">否</span>继续看 ③</div>
+  </div>
+
+  <p class="q">③ 有没有承诺的响应时间？（比如接口必须 3 秒内返回）</p>
+  <div class="answers">
+    <div class="a no"><span class="yn">没有</span>可以用 <strong>Agent</strong></div>
+    <div class="a yes"><span class="yn">有</span><strong>慎用 Agent</strong> —— 它要来回转好几轮，耗时不可控</div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">讲解落点：主动说"能不用就别用"</span>
+  <p>Agent 更灵活，但代价是<strong>更不可控、更贵、更难调试</strong>——同一个任务，Workflow 的耗时和成本是可预测的，Agent 不是。</p>
+  <p>所以工程上的正确姿势是：<strong>能 Workflow 解决的就别上 Agent</strong>。真实项目大多是<strong>混合</strong>的——主流程用 Workflow 固定住，只在个别需要判断的节点上放 Agent。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 循环里每一步在做什么</h2>
+<p>回到第 0 节那个例子。<strong>点开任意一步</strong>，看它在实际运行中是干什么的。</p>
+
+<div class="pipeline">
+  <details class="node m"><summary>组装上下文</summary><div class="body">把这几样拼在一起送给模型：系统提示（它的角色和规矩）+ 工具清单（它有哪些工具、各自怎么用）+ 之前的对话 + 当前目标。这一步每轮都要重做一遍。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>模型决策</summary><div class="body">模型看着上面那一大坨，决定"我现在能直接回答了吗？还是要先调个工具？"。整个循环里只有这一步是它在"思考"。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>解析调用</summary><div class="body">模型输出的是一段结构化的文字，比如"调用搜索，关键词=竞品评测"。程序把它解析成真正的函数调用。格式错了就走失败处理，见第 6 节。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>执行工具</summary><div class="body">程序真的去搜网页、跑代码、读文件。注意：<strong>动手的永远是程序，模型只负责说要干什么。</strong>返回值要先裁剪再回灌——一整坨原始 JSON 直接塞进去会撑爆上下文。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>结果回灌</summary><div class="body">把结果作为一条新消息追加进上下文，然后回到第一步。这就是为什么转的轮数越多，上下文越长、越贵。</div></details>
+</div>
+
+<div class="warn">
+  <span class="tag">一个能看出你做过系统的判断</span>
+  <p>Agent 失败的原因，几乎都能归到一件事上：<strong>上下文管理没做好</strong>。所以"结果回灌"这一步的关键不是"塞进去"，而是<strong>"裁干净再塞"</strong>。</p>
+</div>
+
+<h3>为什么必须刹车：看上下文是怎么被撑爆的</h3>
+<p>还拿第 0 节那个调研任务举例。蓝色部分是"当前这一轮最需要看的信息"：</p>
+
+<div class="dilute">
+  <div class="row">
+    <p class="cap">第 1 轮 —— 上下文很干净</p>
+    <div class="bar"><span class="seg" style="width:34%"></span></div>
+    <p class="memo">当前目标占 <b>34%</b>，模型看得见重点，判断力最好。</p>
+  </div>
+  <div class="row">
+    <p class="cap">第 8 轮 —— 前面几轮搜到的原始网页开始堆积</p>
+    <div class="bar"><span class="seg" style="width:12%"></span></div>
+    <p class="memo">当前目标被稀释到 <b>12%</b>，它开始被无关内容干扰，比如反复去搜已经搜过的东西。</p>
+  </div>
+  <div class="row">
+    <p class="cap">第 20 轮 —— 当前目标几乎被淹没</p>
+    <div class="bar"><span class="seg warn" style="width:4%"></span></div>
+    <p class="memo">只剩 <b class="warn">4%</b>。失败的尝试、已经否掉的思路全都还留在上下文里，模型被自己的历史带着走，反复在同一个坑里打转。</p>
+  </div>
+</div>
+<p style="color:var(--muted);font-size:14.5px">这解释了那句很常见的话：<strong>"AI 一直修不好一个 bug，不一定是它没能力，而是它的上下文被带偏了。"</strong></p>
+
+<h3>四道刹车（缺一不可）</h3>
+<table>
+  <thead><tr><th style="width:28%">机制</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>最大轮次</strong></td><td>最多转几圈，到点强制收尾</td></tr>
+    <tr><td><strong>token 预算</strong></td><td>累计消耗超过上限就停。<strong>光限制轮次没用</strong>——一轮塞十万字照样烧钱</td></tr>
+    <tr><td><strong>时间上限</strong></td><td>总耗时超时停止，不让用户干等</td></tr>
+    <tr><td><strong>重复调用检测</strong></td><td>同一个工具、同样的参数连着调 → 判定卡住了，强制换个策略</td></tr>
+  </tbody>
+</table>
+<p><strong>加分回答</strong>：到上限时不要直接报错，而是让它把<strong>已经查到的部分</strong>整理给用户，并说明还差什么——比一句"失败了"体验好得多。</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 工具怎么设计</h2>
+
+<p>工具调用出错，很多时候不是模型笨，是<strong>工具没设计好</strong>。下面三条最常用，先讲透；后面三条列出来，知道有这回事就行。</p>
+
+<h3>最常用的三条</h3>
+
+<table>
+  <thead><tr><th style="width:24%">原则</th><th style="width:38%">什么意思</th><th>反例</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>描述比名字重要</strong></td>
+      <td>模型主要靠<strong>描述</strong>判断什么时候该用这个工具。所以要写清"什么情况该用、什么情况不该用"</td>
+      <td>描述只写"搜索工具"——那它可能拿它去搜数据库里该用 SQL 的东西</td>
+    </tr>
+    <tr>
+      <td><strong>结果要裁剪</strong></td>
+      <td>工具返回的内容要先删减、摘要，只留模型用得上的字段</td>
+      <td>把接口返回的整坨 JSON（带几十个字段）原样塞回去，上下文一下就满了</td>
+    </tr>
+    <tr>
+      <td><strong>错误信息要有用</strong></td>
+      <td>出错时返回<strong>人能看懂、能照着改</strong>的提示</td>
+      <td>返回一个"500 服务器错误"——模型不知道该改什么，只能瞎试</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>另外三条（知道就行）</h3>
+<ul>
+  <li><strong>参数少而清晰</strong>：参数越多、套得越深，模型传错的概率越高；能给默认值就给。</li>
+  <li><strong>工具数量要克制</strong>：几十个工具会让模型挑花眼，相似的工具应该合并或分组加载。</li>
+  <li><strong>幂等性</strong>：写操作类的工具（下单、扣款）要能安全重试，否则模型重试一次就多扣一次钱。</li>
+</ul>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. Function Call / MCP / Skill 的区别</h2>
+
+<p><strong>这是整份清单里最高频的题之一（4 家公司问过）。</strong>先看图，再看下面的口诀。</p>
+
+<svg class="svgfig" viewBox="0 0 860 340" role="img" aria-label="Function Call、MCP、Tools、Skill 的层次关系">
+  <rect class="box-t" x="36" y="18" width="400" height="60" rx="10"></rect>
+  <text x="56" y="44" style="font-weight:600">Skill</text>
+  <text x="56" y="64" class="lbl-muted">做事的流程知识（操作手册）</text>
+  <text x="470" y="42" class="lbl-muted">打包了提示词 + 脚本 + 参考资料</text>
+  <text x="470" y="61" class="lbl-muted">解决「知不知道该怎么做」</text>
+
+  <rect class="box-m" x="36" y="98" width="400" height="60" rx="10"></rect>
+  <text x="56" y="124" style="font-weight:600">Tools</text>
+  <text x="56" y="144" class="lbl-muted">具体能干哪些活</text>
+  <text x="470" y="122" class="lbl-muted">搜网页 / 跑代码 / 读文件 / 查库</text>
+  <text x="470" y="141" class="lbl-muted">解决「能不能做事情」</text>
+
+  <rect class="box-s" x="36" y="178" width="400" height="60" rx="10"></rect>
+  <text x="56" y="204" style="font-weight:600">MCP</text>
+  <text x="56" y="224" class="lbl-muted">工具的接口标准</text>
+  <text x="470" y="202" class="lbl-muted">像 USB-C：让工具能被任何 AI 直接接上</text>
+  <text x="470" y="221" class="lbl-muted">解决「接起来太麻烦」</text>
+
+  <rect class="box-u" x="36" y="258" width="400" height="60" rx="10"></rect>
+  <text x="56" y="284" style="font-weight:600">Function Call</text>
+  <text x="56" y="304" class="lbl-muted">模型自己会的一套"下单方式"</text>
+  <text x="470" y="282" class="lbl-muted">它负责说清"调哪个、参数是什么"</text>
+  <text x="470" y="301" class="lbl-muted">解决「能不能调」</text>
+</svg>
+
+<div class="skeleton">
+  <span class="tag">口诀（必须一次说清）</span>
+  <p><strong>Function Call 是模型的能力，MCP 是工具的接口标准，Skill 是做事的流程知识。</strong></p>
+  <ul>
+    <li>Function Call 解决"<strong>能不能调</strong>"</li>
+    <li>MCP 解决"<strong>接起来太麻烦</strong>"</li>
+    <li>Skill 解决"<strong>知不知道该怎么做</strong>"</li>
+  </ul>
+  <p>再说清它们怎么串起来：<strong>一个 Skill 内部可以调用好几个 Tools，这些 Tools 可能通过 MCP 接进来，而真正发起调用靠的是模型的 Function Call 能力。</strong></p>
+</div>
+
+<details class="ask">
+  <summary>用"新员工入职"打比方怎么讲？</summary>
+  <ul>
+    <li><strong>Tools</strong> = 公司给他配的电脑、电话、门禁卡</li>
+    <li><strong>Function Call</strong> = 他有能力看懂"这个按钮是干嘛的"，并按规范操作</li>
+    <li><strong>MCP</strong> = 公司所有设备都用统一接口，不用为每个员工重新布线</li>
+    <li><strong>Skill</strong> = 老员工留下的《报销怎么做》《客户投诉怎么处理》手册</li>
+  </ul>
+</details>
+
+<h3>渐进式披露：为什么挂几百个 Skill 也不撑爆上下文</h3>
+<p>如果每个 Skill 的内容（几百上千字）都塞进上下文，挂 50 个就是几万字——<strong>还没开始干活，桌面就已经堆满了</strong>。</p>
+
+<div class="pipeline">
+  <details class="node d"><summary>第一层 · 常驻</summary><div class="body">上下文里只放每个 Skill 的<strong>名字 + 一句话描述</strong>。50 个 Skill 也就几百 token。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>模型挑一个</summary><div class="body">它看着这些描述，判断"这个任务要用到 XX Skill"。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>第二层 · 按需加载</summary><div class="body">这时才把这个 Skill 的详细步骤读进上下文。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>第三层 · 再按需</summary><div class="body">执行中需要参考时，才加载它附带的脚本、模板、资料。</div></details>
+</div>
+
+<div class="skeleton">
+  <span class="tag">加分点：把它和 RAG 联系起来</span>
+  <p>"Skill 的渐进式披露<strong>本质上就是对上下文的 RAG</strong>：先给一个索引（名字 + 描述），需要时再取出详细内容。</p>
+  <p>所以它和 RAG 是同一个思想用在两种东西上——<strong>RAG 检索的是"知识"，这里检索的是"做事的方法"</strong>。"</p>
+  <p>这句话能把 RAG 那几页和 Agent 这几页打通，很体现理解深度。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 工具调用失败了怎么办</h2>
+<p>只答"重试"是不够的。<strong>先判断是哪一类失败</strong>，处理方式完全不同：</p>
+
+<div class="tree">
+  <p class="q">① 看报错内容，属于哪一类？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">参数写错了</span>把<strong>报错信息原样告诉模型</strong>，让它自己改——这是最有效的一招。比如告诉它"日期格式应该是 2026-09-14"，它下次就改对了</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">工具自己坏了</span>超时 / 500 / 被限流 → 等一会儿再试（间隔逐次拉长），并且<strong>区分"值得重试"和"重试也没用"</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">工具选错了</span>该用 A 却调了 B → 回去改<strong>工具描述</strong>、减少工具数量、给它几个例子</div>
+    <div class="a"><span class="yn" style="color:var(--c-data)">查到了但是空的</span>让它换个关键词、或者换一个工具再试</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">反复调同一个</span>重复调用检测触发 → 强制换策略，或者直接停</div>
+  </div>
+
+  <p class="q">② 重试了好几次还是不行呢？</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">降级</span>把已经拿到的<strong>部分结果</strong>给用户、转人工、或者老实说做不到。<strong>绝不能让 Agent 一直烧钱空转</strong></div>
+  </div>
+</div>
+
+<p style="color:var(--muted);font-size:14.5px">为什么强调"降级"：用户等 3 分钟拿到一句"抱歉失败了"，比等 10 秒就被告知"这个我做不到，要不要转人工"体验差得多。</p>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6">6. 通用 Agent 一般分几层</h2>
+<p>像 Manus 这类"什么都能干"的通用 Agent，从下往上可以拆成四层：</p>
+
+<svg class="svgfig" viewBox="0 0 860 250" role="img" aria-label="通用 Agent 的四层结构">
+  <rect class="box-u" x="36" y="16" width="330" height="48" rx="9"></rect>
+  <text x="56" y="46" style="font-weight:600">④ 交互层</text>
+  <text x="380" y="46" class="lbl-muted">给你看进度 · 让你能插手 · 展示结果</text>
+
+  <rect class="box-s" x="36" y="76" width="330" height="48" rx="9"></rect>
+  <text x="56" y="106" style="font-weight:600">③ 编排层</text>
+  <text x="380" y="106" class="lbl-muted">把大任务拆开、分给谁做、失败了怎么恢复</text>
+
+  <rect class="box-t" x="36" y="136" width="330" height="48" rx="9"></rect>
+  <text x="56" y="166" style="font-weight:600">② 能力层</text>
+  <text x="380" y="166" class="lbl-muted">工具（浏览器/代码/文件）+ 记忆</text>
+
+  <rect class="box-m" x="36" y="196" width="330" height="48" rx="9"></rect>
+  <text x="56" y="226" style="font-weight:600">① 模型层</text>
+  <text x="380" y="226" class="lbl-muted">思考 + 上下文管理 + 工具调用</text>
+</svg>
+
+<div class="skeleton">
+  <span class="tag">回答时突出"难点在哪"</span>
+  <p>"从架构上分四层。但真正决定这类产品好不好用的<strong>不是模型层，而是编排层和上下文管理</strong>——同样是接一个强模型，任务怎么拆、上下文怎么保持干净、失败了怎么恢复，这些工程细节才拉开差距。</p>
+  <p>这也是为什么"换个更强的模型"往往不解决问题，而"改进外围这套东西"能带来明显提升。"</p>
+</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7">7. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「说说 MCP、Function Call、Skill 三者的区别」（必考）</span>
+  <p><strong>【结论】</strong>三者解决的是不同层次的问题。</p>
+  <p><strong>【Function Call】</strong>是<strong>模型的能力</strong>——你告诉它有哪些函数、参数长什么样，它能输出规范的结构化调用请求，解决"模型能不能调工具"。这是模型自带的。</p>
+  <p><strong>【MCP】</strong>是<strong>工具的接口标准</strong>，可以理解成 USB-C。以前每个工具要对接每个 AI 客户端，M 个模型 × N 个工具就是 M×N 份适配代码；有了统一协议就变成 M+N。它解决"接起来太麻烦"。</p>
+  <p><strong>【Skill】</strong>是<strong>做事的流程知识</strong>，像一份操作手册，打包了提示词、脚本和参考资料。它解决"知不知道这类任务该怎么做"，而不只是"能调什么工具"。</p>
+  <p><strong>【补充】</strong>Skill 通常用<strong>渐进式披露</strong>——上下文里只放名字和一句话描述，模型觉得需要时再加载详情。这样挂几百个 Skill 也不会撑爆上下文，本质上是<strong>对上下文的 RAG</strong>。</p>
+</div>
+
+<details class="ask">
+  <summary>Agent 和 Workflow 怎么选？</summary>
+  <p>判断标准是<strong>路径能不能提前确定</strong>：步骤固定、情况可枚举 → Workflow（更便宜、更快、可预测、好调试）；要看运行时才知道的信息 → Agent。</p>
+  <p>再补一句成本视角会很专业：<strong>"Agent 的成本和耗时是不可预测的，Workflow 是可预测的——在需要承诺响应时间的场景里，这一点往往比灵活性更重要。"</strong></p>
+</details>
+
+<details class="ask">
+  <summary>怎么调试一个表现不好的 Agent？</summary>
+  <ul>
+    <li><strong>把每一轮都记下来</strong>：这轮的输入是什么、模型说了什么、调了哪个工具、参数是什么、返回什么。</li>
+    <li><strong>常见病因</strong>：上下文太脏（历史结果堆太多）→ 裁剪或隔离；工具描述不清 → 改描述；轮次限制太紧 → 放宽；模型能力不够 → 换模型或拆任务。</li>
+    <li><strong>复现手段</strong>：把出问题的那一轮上下文<strong>原样存下来</strong>，离线反复重放，这是最快的定位方式。</li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>什么样的任务不适合用 Agent？</summary>
+  <ul>
+    <li><strong>结果要求 100% 确定的</strong>：转账、改权限必须走确定性代码，Agent 只能做前置的信息收集和建议。</li>
+    <li><strong>延迟要求很严的</strong>：多轮循环天然慢，实时交互撑不住。</li>
+    <li><strong>成本敏感的</strong>：每轮都要带上全部历史，消耗是普通问答的好几倍。</li>
+    <li><strong>流程完全固定的</strong>：用 Workflow 更好，上 Agent 是自找麻烦。</li>
+  </ul>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>讲一遍 Agent 的主循环。为什么"限制轮次"这一道刹车还不够？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>循环是：组装上下文 → 模型决策（直接答还是调工具）→ 解析调用 → 执行工具 → 结果回灌 → 回到决策。四道刹车：最大轮次、token 预算、时间上限、重复调用检测。</p>
+    <p>光限制轮次不够，是因为<strong>它挡不住"一轮塞进去十万字"</strong>——转的圈数少，但每圈都巨大，照样烧钱，所以必须有 token 预算兜底。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>Function Call、MCP、Skill 三者的区别？Skill 的渐进式披露为什么和 RAG 是一回事？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>Function Call 是<strong>模型的能力</strong>（能不能调），MCP 是<strong>工具的接口标准</strong>（接起来省事，M×N 变成 M+N），Skill 是<strong>做事的流程知识</strong>（知不知道怎么做）。</p>
+    <p>渐进式披露：上下文里只放名字 + 一句话描述，模型判断需要时再加载详情——<strong>先给索引、按需取内容</strong>，这正是 RAG 的做法，只不过检索的对象从"知识"换成了"做事的方法"。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="05-generation-and-model-choice.html">← 上一篇：生成侧与模型选型</a>
+  <a href="07-multi-agent.html">下一篇：多智能体 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

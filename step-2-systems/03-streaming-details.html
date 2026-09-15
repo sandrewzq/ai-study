@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · 流式的工程细节 — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 3/12 份 ｜ C 域 · 上下文治理与流式通信</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item cur" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>03 · 流式的工程细节</h1>
+<p class="lead">
+  上一篇把流式"跑通"了，这一页解决"<strong>跑得住</strong>"。断线了怎么办、连不上怎么办、弱网怎么提示——
+  这一块是<strong>最能分辨"做过"和"没做过"</strong>的地方，因为全是细节题。
+</p>
+
+<div class="qbadges"><span class="q">SH-13</span><span class="q">SH-14</span><span class="q">SH-15</span><span class="q">SH-16</span><span class="q">SH-17</span><span class="q">SH-18</span><span class="q">SH-19</span><span class="q">SH-20</span><span class="q">SH-21</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页默认你读过 <a href="02-sse-and-websocket.html">02 · SSE 与 WebSocket</a>，知道两种方案的区别。这一页是它的延伸：<strong>连接建立之后的事</strong>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>看主图，理解"重连间隔为什么要越来越长"。</div>
+  <div><b>第二遍（15 分钟）</b>读三张表（心跳 / 退避 / 兜底）。</div>
+  <div><b>第三遍</b>做末尾的动手清单。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>流式功能上线了，用户反馈三个问题：</p>
+
+<table>
+  <thead><tr><th style="width:44%">用户反馈</th><th>背后的技术问题</th></tr></thead>
+  <tbody>
+    <tr><td>"地铁里用着用着就没反应了，也不知道是断了还是还在加载"</td><td>没有心跳检测，也没有断线提示</td></tr>
+    <tr><td>"断网恢复之后回答就不动了，得刷新页面重来"</td><td>没有自动重连，或者重连了但没续上</td></tr>
+    <tr><td>"公司网络把 WebSocket 封了，整个功能打不开"</td><td>没有降级方案</td></tr>
+  </tbody>
+</table>
+
+<p>这三条对应的就是这一页的三块内容：<strong>心跳保活 → 断线重连 → 兜底降级</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 重连间隔为什么要越来越长</p>
+  <h3>指数退避：1 秒 → 2 秒 → 4 秒 → 8 秒 ……</h3>
+
+  <div class="dilute">
+    <div class="row">
+      <p class="cap">第 1 次重连</p>
+      <div class="bar"><span class="seg" style="width:4%"></span></div>
+      <p class="memo">等 <b>1 秒</b>。网络抖一下就恢复，用户几乎无感。</p>
+    </div>
+    <div class="row">
+      <p class="cap">第 3 次重连</p>
+      <div class="bar"><span class="seg" style="width:14%"></span></div>
+      <p class="memo">等 <b>4 秒</b>。还在快速重试阶段。</p>
+    </div>
+    <div class="row">
+      <p class="cap">第 6 次重连</p>
+      <div class="bar"><span class="seg" style="width:54%"></span></div>
+      <p class="memo">等 <b>32 秒</b>。已经能看出网络是真的有问题了。</p>
+    </div>
+    <div class="row">
+      <p class="cap">到上限之后</p>
+      <div class="bar"><span class="seg warn" style="width:100%"></span></div>
+      <p class="memo">固定在 <b class="warn">30~60 秒</b>重试一次，<strong>不再继续翻倍</strong>——否则间隔会涨到几十分钟，用户回来时还在等。</p>
+    </div>
+  </div>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：重连不能一直用固定间隔。<strong>固定 1 秒重试会让断网的用户疯狂打服务器</strong>（每个人每秒一次）；而无限翻倍又会让恢复太慢。所以是"快速起步 + 设上限"。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">实战细节：<strong>要加随机抖动</strong>（比如 ±20%）。否则所有断线的客户端会在同一时刻一起重连，形成"惊群"，把服务端打垮。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>正常</span>
+  <span><i style="background:var(--c-data)"></i>等待中</span>
+  <span><i style="background:var(--c-risk)"></i>危险 / 上限</span>
+</div>
+
+<!-- ============ 心跳 ============ -->
+<h2 id="s1">1. 心跳保活：怎么知道连接还活着</h2>
+
+<p><strong>问题</strong>：TCP 连接"看起来"还在，但实际早就断了——比如用户进了电梯、或者中间的网络设备静默丢包。<strong>双方都不知道对方已经没了</strong>，前端就一直转圈。</p>
+
+<table>
+  <thead><tr><th style="width:22%">做法</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>定时发心跳</strong></td>
+      <td>客户端每隔 N 秒（常见 30 秒）发一个 <code>ping</code>，服务端回 <code>pong</code></td>
+    </tr>
+    <tr>
+      <td><strong>超时判定</strong></td>
+      <td>连续 2~3 次没收到 <code>pong</code> → 判定连接已死 → 主动断开并触发重连</td>
+    </tr>
+    <tr>
+      <td><strong>服务端也要检测</strong></td>
+      <td>服务端同样要清理"半死"的连接，否则连接池会被慢慢占满</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">SSE 的便利之处</span>
+  <p>用 <code>EventSource</code> 时，<strong>浏览器会自己做重连</strong>，但"检测连接是否还活着"这件事<strong>仍然要做</strong>——服务端可以定期往流里写一行注释（<code>: keep-alive</code>），既有保活作用，也能让中间设备不要因为"长时间没数据"而掐断连接。</p>
+</div>
+
+<!-- ============ 重连 ============ -->
+<h2 id="s2">2. 断线重连：怎么退避</h2>
+
+<table>
+  <thead><tr><th style="width:24%">要点</th><th>做法</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>退避策略</strong></td>
+      <td>间隔按 1、2、4、8、16、32 秒增长，<strong>到上限就固定</strong>（常见 30~60 秒）</td>
+    </tr>
+    <tr>
+      <td><strong>随机抖动</strong></td>
+      <td>在间隔上叠加随机量（±20%），避免所有客户端同时重连造成惊群</td>
+    </tr>
+    <tr>
+      <td><strong>区分错误类型</strong></td>
+      <td><strong>网络错误 → 重连</strong>；<strong>业务错误（401 未授权、403 无权限）→ 不要重连</strong>，重试一万次也没用，应该提示用户重新登录</td>
+    </tr>
+    <tr>
+      <td><strong>页面切回前台时立刻重试</strong></td>
+      <td>用户手机锁屏再打开，等待一个 30 秒的定时器很傻。监听页面可见性，回到前台立即重试一次</td>
+    </tr>
+    <tr>
+      <td><strong>重连成功要有提示</strong></td>
+      <td>让用户知道"已恢复"，否则他会担心刚才的内容丢了</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 兜底 ============ -->
+<h2 id="s3">3. 连接不上时的兜底：降级成轮询</h2>
+
+<p>有些企业网络会封掉 WebSocket（甚至掐断长连接）。这时候要有<strong>降级方案</strong>：</p>
+
+<pre><code>优先 WebSocket / SSE
+   ↓ 连不上或连续失败 N 次
+降级为「轮询」：每隔几秒问一次"有新的吗"
+   ↓ 还是不行
+明确告诉用户：当前网络不支持实时更新，请稍后重试</code></pre>
+
+<h3>轮询频率怎么定（<code>SH-18</code>）</h3>
+
+<p>这是个平衡题，答的时候要说出取舍：</p>
+
+<table>
+  <thead><tr><th style="width:20%">频率</th><th style="width:34%">好处</th><th>代价</th></tr></thead>
+  <tbody>
+    <tr><td><strong>太频繁</strong>（1 秒）</td><td>接近实时</td><td>服务器压力大；大部分请求是空轮询，纯浪费</td></tr>
+    <tr><td><strong>太稀疏</strong>（30 秒）</td><td>压力小</td><td>用户觉得卡；AI 场景下一个回答要等半分钟才更新</td></tr>
+    <tr><td><strong>推荐</strong></td><td colspan="2"><strong>动态频率</strong>：有数据时快（2~3 秒），连续几次没数据就逐步放慢（5 秒 → 10 秒）；页面切到后台时暂停</td></tr>
+  </tbody>
+</table>
+
+<p><strong>加分说法</strong>："轮询只是兜底，不是主方案。它的成本明显更高——同样的数据量，轮询的请求数是长连接的几十倍。所以我们只在长连接彻底不可用时才降级，并且用动态频率把无效请求压下去。"</p>
+
+<!-- ============ 弱网提示 ============ -->
+<h2 id="s4">4. 弱网和数据不准时，怎么提示用户</h2>
+
+<p>这一块很多人会忽略，但对方爱问（<code>SH-20</code> <code>SH-21</code>）——因为它体现<strong>你有没有考虑过用户的感受</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:26%">情况</th><th>该怎么提示</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>正在重连</strong></td>
+      <td>顶部一条不打断操作的横幅："网络不稳定，正在重连…"，<strong>不要弹窗</strong>，也别把已经显示的内容清掉</td>
+    </tr>
+    <tr>
+      <td><strong>重连成功</strong></td>
+      <td>"已恢复连接"的短暂提示，然后自动继续</td>
+    </tr>
+    <tr>
+      <td><strong>长时间连不上</strong></td>
+      <td>给出明确出口："连接失败，<strong>点这里重试</strong>"，而不是无限转圈</td>
+    </tr>
+    <tr>
+      <td><strong>数据可能不准</strong></td>
+      <td>加"数据更新于 X 分钟前"的<strong>时间戳</strong>，让用户自己判断新不新；或者把界面置灰，明确标出"暂停更新"</td>
+    </tr>
+    <tr>
+      <td><strong>正在加载但有延迟</strong></td>
+      <td>用<strong>骨架屏</strong>（灰色的占位块）而不是空白或转圈——用户能预期"内容马上会来"</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一句话原则</span>
+  <p><strong>"让用户知道系统现在处于什么状态，并且永远给他一个出口。"</strong></p>
+  <p>最糟的体验不是"出错了"，而是"界面卡住了，我不知道它是在加载还是挂了，也不知道该不该刷新"。</p>
+</div>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「WebSocket 有没有做心跳 / 断线怎么重连 / 连不上怎么兜底」</span>
+  <p><strong>【心跳】</strong>客户端每 30 秒发 <code>ping</code>，服务端回 <code>pong</code>；连续 2~3 次没收到就判定连接已死，主动断开触发重连。服务端同样要清理半死连接，否则连接池会被占满。</p>
+  <p><strong>【重连】</strong>用指数退避：1、2、4、8、16、32 秒，到上限（30~60 秒）就固定，并且<strong>叠加 ±20% 的随机抖动</strong>——否则所有断线客户端会在同一刻一起重连，把服务端打垮。另外要<strong>区分错误类型</strong>：网络错误才重连，401/403 这种业务错误重连一万次也没用。</p>
+  <p><strong>【兜底】</strong>连续失败 N 次之后降级成轮询（动态频率：有数据 2~3 秒，没数据逐步放慢到 10 秒，页面切后台暂停）；还是不行就明确提示用户，给一个"重试"按钮。</p>
+  <p><strong>【体验】</strong>重连中顶部显示不打断操作的横幅，不要弹窗；恢复后提示"已恢复"；数据可能过期时加时间戳或置灰。</p>
+  <p><strong>【坑】</strong>我们最早只做了重连没做抖动，结果一次线上网络抖动导致所有客户端同时重连，服务端瞬间被打满。加上随机抖动之后才稳住。</p>
+</div>
+
+<details class="ask">
+  <summary>怎么判断是"网络断了"还是"服务端挂了"？</summary>
+  <p>前端能区分的信息有限，但可以这样判断：</p>
+  <ul>
+    <li><strong>心跳超时 + 其他请求也失败</strong> → 大概率是本地网络问题，提示用户检查网络。</li>
+    <li><strong>心跳超时 + 其他普通接口正常</strong> → 大概率是长连接这条链路的问题（网关掐断、服务端重启），可以尝试重连或降级。</li>
+    <li><strong>浏览器事件</strong>：监听 <code>online</code> / <code>offline</code> 事件，能直接知道网络状态变化，恢复时立即重连。</li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>服务端怎么清理"半死"的连接？</summary>
+  <p>不能只等客户端断开——客户端可能已经拔网线了。服务端要自己做检测：</p>
+  <ul>
+    <li><strong>记录每个连接的最后活跃时间</strong>，定时扫描，超过阈值没活动的主动关闭。</li>
+    <li><strong>主动探测</strong>：定期往连接里写心跳，写失败就说明连接已经不可用。</li>
+    <li><strong>设置上限</strong>：单个 IP / 用户的连接数做限制，防止异常客户端把连接池占满。</li>
+  </ul>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <ol>
+    <li><strong>实现心跳</strong>：客户端定时发 <code>ping</code>，服务端回 <code>pong</code>；连续 3 次没回应就断开重连。在界面上显示"连接状态"的小圆点。</li>
+    <li><strong>实现指数退避重连</strong>：带上 ±20% 随机抖动，设上限。用 <code>console.log</code> 打印每次重连的间隔，肉眼确认它在按 1/2/4/8 增长。</li>
+    <li><strong>故意断开测试</strong>：拔网线或用 DevTools 的 Offline 模式，观察界面表现——<strong>有没有提示？会不会一直转圈？恢复后能不能自动继续？</strong>把观察到的问题记下来。</li>
+    <li><strong>做一次降级实验</strong>：临时把长连接地址改错，看能不能自动降级到轮询并给出提示。</li>
+    <li><strong>加上"数据更新时间"</strong>：在实时区域加一行"更新于 X 秒前"，弱网时用户能自己判断数据新不新。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>重连为什么要用指数退避？为什么还要加随机抖动？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>指数退避</strong>解决两个问题：固定 1 秒重试会让断网用户的请求疯狂打到服务器；而固定很长又会让恢复太慢。所以"快速起步（1 秒）+ 逐步翻倍 + 设上限（30~60 秒）"。</p>
+    <p><strong>随机抖动</strong>是因为：如果所有断线客户端都用同一个间隔，它们会在<strong>同一时刻一起重连</strong>，形成"惊群"，瞬间把服务端打垮。加上 ±20% 抖动把重连时间打散。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>连不上时的兜底方案是什么？轮询频率怎么定？弱网时该怎么提示用户？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>兜底</strong>：长连接失败 N 次 → 降级成轮询 → 还不行就明确提示用户 + 给重试按钮。</p>
+    <p><strong>轮询频率</strong>：静态频率怎么选都是错的（太频繁浪费、太稀疏卡顿）。用<strong>动态频率</strong>——有数据时 2~3 秒，连续无数据就放慢到 10 秒，页面切后台暂停。</p>
+    <p><strong>弱网提示</strong>：重连中用不打断操作的横幅（不弹窗、不清内容）；恢复后提示一下；数据可能过期时加"更新于 X 秒前"的时间戳或者置灰；加载中用骨架屏而不是空白转圈。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="02-sse-and-websocket.html">← 上一篇：SSE 与 WebSocket</a>
+  <a href="04-resume-and-task-state.html">下一篇：断线续传与任务状态 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>步骤 2 · 做系统 — 材料目录</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 做系统（C + D 域，60 题）</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>步骤 2 · 做系统</h1>
+<p class="lead">
+  覆盖 <strong>上下文治理与流式通信（23 题）</strong>和 <strong>后端、数据与中间件（37 题）</strong>，合计 60 题。
+  这一步骤的知识<strong>必须在项目里落地</strong>，所以每份材料末尾都带一份「动手清单」。
+</p>
+
+<div class="analogy">
+  <span class="tag">和步骤 1 最大的不同</span>
+  <p>步骤 1 是"看懂"，按顺序读完就行。步骤 2 是"<strong>做出来</strong>"——<strong>边做边翻材料，不要先通读</strong>。</p>
+</div>
+
+<div class="warn">
+  <span class="tag">建议先读导读</span>
+  <p><a href="00-how-to-study.html"><strong>00 · 这一步骤怎么学</strong></a>：讲清了要做什么项目、怎么把清单当需求清单、以及"做出来"的标准。花 10 分钟看完再动手。</p>
+</div>
+
+<h2 id="c">上下文治理与流式通信（23 题）</h2>
+
+<div class="cards">
+  <a class="card" href="01-context-management.html">
+    <div class="num">01</div>
+    <h3>上下文治理</h3>
+    <p>Agent 跑到十几轮开始犯糊涂，其实是上下文脏了。五种治理手段的优先级、压缩质量不行怎么办、claude code 的四条设计取舍。</p>
+    <div class="qbadges"><span class="q">JR-11</span><span class="q">JR-12</span><span class="q">JR-14</span></div>
+  </a>
+
+  <a class="card" href="02-sse-and-websocket.html">
+    <div class="num">02</div>
+    <h3>SSE 与 WebSocket</h3>
+    <p>"一个字一个字往外蹦"是怎么实现的。两种方案的对比、SSE 的数据格式、WebSocket 的前端流程、怎么选。</p>
+    <div class="qbadges"><span class="q">FN-6</span><span class="q">HQ-19</span><span class="q">YF-20</span><span class="q">SH-10</span><span class="q">SH-11</span><span class="q">SH-12</span></div>
+  </a>
+
+  <a class="card" href="03-streaming-details.html">
+    <div class="num">03</div>
+    <h3>流式的工程细节</h3>
+    <p>跑通了不等于跑得住。心跳保活、指数退避重连、降级轮询、弱网和数据过期时怎么提示用户。</p>
+    <div class="qbadges"><span class="q">SH-13</span><span class="q">SH-14</span><span class="q">SH-15</span><span class="q">SH-16</span><span class="q">SH-17</span><span class="q">SH-18</span><span class="q">SH-19</span><span class="q">SH-20</span><span class="q">SH-21</span></div>
+  </a>
+
+  <a class="card" href="04-resume-and-task-state.html">
+    <div class="num">04</div>
+    <h3>断线续传与任务状态</h3>
+    <p>用户刷新页面，回答不能白丢。用序号对账做续传、前端怎么感知长任务状态、边收边渲染的坑、AGUI 这类协议在设计什么。</p>
+    <div class="qbadges"><span class="q">YC-10</span><span class="q">HQ-18</span><span class="q">HQ-20</span><span class="q">HQ-21</span><span class="q">HQ-22</span></div>
+  </a>
+</div>
+
+
+<h2 id="d">后端、数据与中间件（37 题）</h2>
+
+<div class="cards">
+  <a class="card" href="05-index-and-slow-query.html">
+    <div class="num">05</div><h3>索引与慢查询</h3>
+    <p>联合索引的最左匹配、索引失效的四种情况、慢查询排查的固定动作、大表优化、一个真实的 IO 爆红排查。</p>
+    <div class="qbadges"><span class="q">TK-9</span><span class="q">TK-10</span><span class="q">HQ-10</span><span class="q">HQ-11</span><span class="q">HQ-12</span><span class="q">HQ-13</span><span class="q">YF-15</span><span class="q">YF-17</span></div>
+  </a>
+  <a class="card" href="06-consistency-and-concurrency.html">
+    <div class="num">06</div><h3>数据一致性与并发</h3>
+    <p>超卖是怎么发生的、并发扣减的四种解法、秒杀系统怎么设计、缓存一致性、以及"只用 MySQL 怎么办"。</p>
+    <div class="qbadges"><span class="q">HQ-23</span><span class="q">HQ-24</span><span class="q">YC-1</span><span class="q">PY-12</span><span class="q">PY-13</span><span class="q">PY-14</span><span class="q">PY-15</span><span class="q">PY-16</span><span class="q">PY-17</span></div>
+  </a>
+  <a class="card" href="07-async-jobs-and-queue.html">
+    <div class="num">07</div><h3>异步任务与队列</h3>
+    <p>任务会在哪三个环节丢、怎么保证不丢、重复执行在 AI 场景有多贵、断点续跑怎么实现、队列挂了的兜底。</p>
+    <div class="qbadges"><span class="q">HQ-14</span><span class="q">HQ-15</span><span class="q">HQ-16</span><span class="q">HQ-17</span><span class="q">PY-20</span><span class="q">PY-21</span></div>
+  </a>
+  <a class="card" href="08-payment-and-reconciliation.html">
+    <div class="num">08</div><h3>支付与对账</h3>
+    <p>为什么"收到回调就发货"是错的、回调验签怎么做、保证用户一定到账的三层设计。</p>
+    <div class="qbadges"><span class="q">PY-18</span><span class="q">PY-19</span><span class="q">PY-22</span></div>
+  </a>
+  <a class="card" href="09-architecture-and-scale.html">
+    <div class="num">09</div><h3>架构分层与高并发</h3>
+    <p>后端分几层、微服务什么时候该拆、限流与熔断的区别、以及 express 的中间件原理。</p>
+    <div class="qbadges"><span class="q">HJ-8</span><span class="q">HJ-10</span><span class="q">PY-9</span><span class="q">KJ-10</span></div>
+  </a>
+  <a class="card" href="10-nestjs-and-orm.html">
+    <div class="num">10</div><h3>NestJS 与 ORM<span style="font-size:12px;color:var(--muted);font-weight:400">（按方向选读）</span></h3>
+    <p>请求管线的七站、用拦截器统一加日志、Pipe 的作用、DI 单例的陷阱、TypeORM 与 Prisma 怎么选。</p>
+    <div class="qbadges"><span class="q">HQ-2</span><span class="q">HQ-3</span><span class="q">HQ-5</span><span class="q">HQ-6</span><span class="q">HQ-7</span><span class="q">HQ-8</span><span class="q">HQ-9</span></div>
+  </a>
+</div>
+
+
+<h2 id="how">怎么用这一步骤的材料</h2>
+
+<table>
+  <thead><tr><th style="width:22%">阶段</th><th>做法</th></tr></thead>
+  <tbody>
+    <tr><td><strong>动手前</strong></td><td>读 <a href="00-how-to-study.html">00 导读</a>，把需求清单抄下来当开发任务</td></tr>
+    <tr><td><strong>做到某一块时</strong></td><td>翻对应那一份材料（不用按顺序通读）</td></tr>
+    <tr><td><strong>做完之后</strong></td><td>做材料末尾的「动手清单」，把知识真正落地</td></tr>
+    <tr><td><strong>每完成一块</strong></td><td>用五段式记一张答题卡：结论 / 做法 / 数字 / 坑 / 权衡</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">完成标志（做到这些才算过关）</span>
+  <ul class="checklist">
+    <li>系统能跑通「提问 → 混合检索 → 精排 → 流式输出」全流程</li>
+    <li>知识库里至少有 <strong>1 万份真实文档</strong></li>
+    <li>刷新页面后回答能接着往下收（断线续传跑通）</li>
+    <li>能说出流式方案为什么选 SSE 而不是 WebSocket</li>
+    <li>能报出至少三个数字（数据量、首字延迟、token 消耗）</li>
+  </ul>
+</div>
+
+<hr>
+
+<p style="font-size:13px;color:var(--muted);margin-top:32px">
+  材料写法与排版规范见 <a href="../plan/spec.md" style="color:var(--muted)">学习资料/规范.md</a>（维护用）。
+</p>
+
+</main>
+</div>
+
+</body>
+</html>

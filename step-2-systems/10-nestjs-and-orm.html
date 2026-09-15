@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · NestJS 与 ORM — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 10/12 份 ｜ D 域 · 后端、数据与中间件</span>
+</header>
+
+<div class="layout">
+
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item cur" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>10 · NestJS 与 ORM</h1>
+<p class="lead">
+  这一页是<strong>按方向选读</strong>内容：只有目标公司用 NestJS + TypeORM 才需要细看（对应的题号都是 <code>HQ</code> 开头的）。
+  其他方向<strong>扫一眼概念即可</strong>。
+</p>
+
+<div class="qbadges"><span class="q">HQ-2</span><span class="q">HQ-3</span><span class="q">HQ-5</span><span class="q">HQ-6</span><span class="q">HQ-7</span><span class="q">HQ-8</span><span class="q">HQ-9</span></div>
+
+<div class="warn">
+  <span class="tag">这一页怎么用</span>
+  <p>如果目标方向明确用 NestJS：<strong>完整读</strong>，最好自己搭一个 demo。<br>
+  如果不确定：只读主图和第 3、4 节（DI 单例、ORM 选型）——这两个概念<strong>换个框架也通用</strong>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>看主图，记住请求管线有哪几站。</div>
+  <div><b>第二遍（15 分钟）</b>读正文，重点是"为什么用拦截器而不是复制粘贴"。</div>
+  <div><b>第三遍</b>做末尾的动手清单，搭一个最小 demo。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你接手一个项目，<strong>120 个接口</strong>。产品说："给所有接口都加上操作日志，记录谁在什么时候调了什么、耗时多久。"</p>
+
+<p>笨办法是：<strong>每个接口里都复制一段记日志的代码</strong>——120 个地方，漏一个就少一个，以后改格式要改 120 遍。</p>
+
+<p>NestJS 的答案是：<strong>用拦截器在一处统一处理</strong>。而拦截器只是它请求管线里的一站——这一页的主图就是这条管线。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · NestJS 的请求管线</p>
+  <h3>一个请求要经过七站，每一站都能做一类统一的事</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 230" role="img" aria-label="NestJS 请求处理管线：中间件、守卫、拦截器、管道、控制器、拦截器、响应">
+    <defs>
+      <marker id="a10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-d" x="10" y="34" width="96" height="58" rx="8"></rect>
+    <text x="58" y="58" text-anchor="middle" style="font-weight:600">中间件</text>
+    <text x="58" y="78" text-anchor="middle" class="lbl-muted">日志 / 鉴权</text>
+
+    <rect class="box-t" x="114" y="34" width="96" height="58" rx="8"></rect>
+    <text x="162" y="58" text-anchor="middle" style="font-weight:600">守卫</text>
+    <text x="162" y="78" text-anchor="middle" class="lbl-muted">权限判断</text>
+
+    <rect class="box-m" x="218" y="34" width="96" height="58" rx="8"></rect>
+    <text x="266" y="58" text-anchor="middle" style="font-weight:600">拦截器</text>
+    <text x="266" y="78" text-anchor="middle" class="lbl-muted">前置切面</text>
+
+    <rect class="box-t" x="322" y="34" width="96" height="58" rx="8"></rect>
+    <text x="370" y="58" text-anchor="middle" style="font-weight:600">管道</text>
+    <text x="370" y="78" text-anchor="middle" class="lbl-muted">参数校验</text>
+
+    <rect class="box-s" x="426" y="34" width="96" height="58" rx="8"></rect>
+    <text x="474" y="58" text-anchor="middle" style="font-weight:600">控制器</text>
+    <text x="474" y="78" text-anchor="middle" class="lbl-muted">业务处理</text>
+
+    <rect class="box-m" x="530" y="34" width="96" height="58" rx="8"></rect>
+    <text x="578" y="58" text-anchor="middle" style="font-weight:600">拦截器</text>
+    <text x="578" y="78" text-anchor="middle" class="lbl-muted">后置切面</text>
+
+    <rect class="box-d" x="634" y="34" width="96" height="58" rx="8"></rect>
+    <text x="682" y="58" text-anchor="middle" style="font-weight:600">响应</text>
+    <text x="682" y="78" text-anchor="middle" class="lbl-muted">返回数据</text>
+
+    <line class="ar" x1="108" y1="63" x2="112" y2="63" marker-end="url(#a10)"></line>
+    <line class="ar" x1="212" y1="63" x2="216" y2="63" marker-end="url(#a10)"></line>
+    <line class="ar" x1="316" y1="63" x2="320" y2="63" marker-end="url(#a10)"></line>
+    <line class="ar" x1="420" y1="63" x2="424" y2="63" marker-end="url(#a10)"></line>
+    <line class="ar" x1="524" y1="63" x2="528" y2="63" marker-end="url(#a10)"></line>
+    <line class="ar" x1="628" y1="63" x2="632" y2="63" marker-end="url(#a10)"></line>
+
+    <rect fill="var(--c-risk-bg)" stroke="var(--c-risk)" x="10" y="146" width="720" height="50" rx="9"></rect>
+    <text x="370" y="168" text-anchor="middle" fill="var(--c-risk)" style="font-weight:600">异常过滤器</text>
+    <text x="370" y="186" text-anchor="middle" class="lbl-muted">任何一站抛出的错误，都在这里统一转成规范的错误响应</text>
+
+    <line class="ar" x1="266" y1="96" x2="266" y2="142" stroke-dasharray="3 3"></line>
+    <line class="ar" x1="370" y1="96" x2="370" y2="142" stroke-dasharray="3 3"></line>
+    <line class="ar" x1="474" y1="96" x2="474" y2="142" stroke-dasharray="3 3"></line>
+    <line class="ar" x1="578" y1="96" x2="578" y2="142" stroke-dasharray="3 3"></line>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：这条管线的价值是<strong>"横切关注点"只写一次</strong>。日志、鉴权、参数校验、异常处理，这些每个接口都要做的事，各自有专门的站点负责，业务代码里就不用重复写了。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">记住每站的原话：<strong>中间件管日志鉴权，守卫管权限，拦截器管切面，管道管参数，控制器管业务，异常过滤器管兜底。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-data)"></i>基础</span>
+  <span><i style="background:var(--c-tool)"></i>校验 / 权限</span>
+  <span><i style="background:var(--c-model)"></i>切面</span>
+  <span><i style="background:var(--c-store)"></i>业务</span>
+  <span><i style="background:var(--c-risk)"></i>异常兜底</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 怎么给上百个接口统一加日志</h2>
+
+<p>这就是 <code>HQ-7</code>。答题的关键是说出<strong>"用框架的切面机制，而不是挨个改"</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:22%">做法</th><th style="width:34%">说明</th><th>适合什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>全局拦截器</strong><br><span style="color:var(--muted);font-size:13.5px">首选</span></td>
+      <td>注册一个全局拦截器，用 <code>next.handle()</code> 前后包住请求，在 <code>tap</code> 里记录耗时、用户、入参、结果</td>
+      <td>绝大多数场景。一处代码覆盖所有接口</td>
+    </tr>
+    <tr>
+      <td><strong>中间件</strong></td>
+      <td>更早执行，也拿得到 req/res</td>
+      <td>日志要记录"还没进业务就失败"的请求</td>
+    </tr>
+    <tr>
+      <td><strong>装饰器 + 拦截器</strong></td>
+      <td>写一个 <code>@Log('操作名')</code> 装饰器，配合拦截器读取元数据</td>
+      <td>需要区分业务语义时（"这是'删除用户'操作，不是'查询'"）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">答题时的加分点</span>
+  <ul>
+    <li><strong>说清"在哪一层"</strong>：用拦截器而不是管道或控制器——因为拦截器能<strong>同时拿到入参和返回值</strong>，还能算耗时。</li>
+    <li><strong>说清怎么区分操作类型</strong>：光有 URL 不够（<code>POST /users</code> 是"创建"还是"登录"？），所以配一个装饰器标注操作名。</li>
+    <li><strong>说清"日志写哪里"</strong>：同步写数据库会拖慢接口，通常<strong>先写日志队列异步落库</strong>（呼应 <a href="07-async-jobs-and-queue.html">07</a>）。</li>
+    <li><strong>说清"别记敏感信息"</strong>：密码、token、身份证号要脱敏，否则日志本身就是泄露源。</li>
+  </ul>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 管道（Pipe）是什么</h2>
+
+<p><code>HQ-8</code>。一句话：<strong>管道是"进入业务逻辑之前的守门员"，负责转换和校验参数。</strong></p>
+
+<div class="pipeline">
+  <details class="node u"><summary>① 请求到达</summary><div class="body">URL 参数、查询参数、请求体的原始值被解析出来。这时它们都还是<strong>字符串或未校验的对象</strong>。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>② 管道处理</summary><div class="body"><strong>转换</strong>（<code>"123"</code> → <code>123</code>，字符串转成数字/日期/枚举）+ <strong>校验</strong>（必填、长度、格式）。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>③ 交给控制器</summary><div class="body">控制器拿到的已经是<strong>干净的、类型正确的</strong>数据，业务代码里不用再写一堆 <code>if (!xxx) throw</code>。</div></details>
+</div>
+
+<table>
+  <thead><tr><th style="width:24%">内置管道</th><th>作用</th></tr></thead>
+  <tbody>
+    <tr><td><code>ValidationPipe</code></td><td><strong>最常用</strong>。配合 DTO 类 + 装饰器（<code>@IsString()</code> <code>@IsInt()</code>）自动校验，不通过直接返回 400</td></tr>
+    <tr><td><code>ParseIntPipe</code></td><td>把路径参数转成整数，转不了就报错</td></tr>
+    <tr><td><code>ParseUUIDPipe</code></td><td>校验是不是合法的 UUID</td></tr>
+    <tr><td><code>DefaultValuePipe</code></td><td>给缺省的参数补默认值</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">为什么用管道而不是在控制器里 if 判断</span>
+  <p>因为<strong>校验规则能跟 DTO 定义绑在一起</strong>，一处定义、全局生效，而且错误格式统一。</p>
+  <p>对比一下：不用管道的话，每个接口开头都有一堆 <code>if (typeof body.age !== 'number') throw new BadRequestException(...)</code>——重复、容易漏、错误格式还不一致。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 依赖注入：Provider 是单例还是每次新建</h2>
+
+<p><code>HQ-5</code> 问的这个问题很具体，答案是：<strong>默认是单例</strong>（整个应用启动时创建一次，所有请求共用）。</p>
+
+<table>
+  <thead><tr><th style="width:20%">作用域</th><th style="width:34%">什么时候创建</th><th>什么时候用</th></tr></thead>
+  <tbody>
+    <tr><td><strong>单例</strong>（默认）</td><td>应用启动时创建一次，全局共用</td><td><strong>绝大多数场景</strong>：Service、工具类、数据库连接池</td></tr>
+    <tr><td><strong>请求级</strong></td><td>每个请求创建一个新实例</td><td>实例里存了"当前请求"相关的状态（比如当前登录用户）</td></tr>
+    <tr><td><strong>瞬态</strong></td><td>每次注入都创建新的</td><td>很少用，比如需要互相隔离的工具实例</td></tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">这里有个陷阱，说出来很加分</span>
+  <p><strong>单例 Service 里不能存请求相关的状态。</strong></p>
+  <p>比如你在 Service 里写 <code>this.currentUser = user</code>，那 A 用户请求刚设置完，B 用户的请求就把它覆盖了——<strong>这就是经典的并发串数据 bug</strong>，而且很难复现。</p>
+  <p>正确做法：需要请求上下文时，<strong>把它当参数传进去</strong>，或者用框架的请求上下文机制，而不是存在 Service 的成员变量上。</p>
+</div>
+
+<h3>单例模式的优点（<code>HQ-6</code>）</h3>
+
+<table>
+  <thead><tr><th style="width:26%">优点</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>省资源</strong></td><td>不用每个请求都 new 一个对象。对<strong>连接池、HTTP 客户端、缓存</strong>这类重量级对象尤其重要</td></tr>
+    <tr><td><strong>状态可共享</strong></td><td>需要全局共享的状态（比如内存缓存的配置）天然只有一份</td></tr>
+    <tr><td><strong>可控的初始化时机</strong></td><td>应用启动时就建好，能提早发现配置错误</td></tr>
+  </tbody>
+</table>
+
+<p><strong>代价</strong>：单例之间如果有可变状态，就会有并发问题；也不好做隔离测试。<strong>所以单例最适合"无状态的服务"</strong>——这也是为什么 Service 层应该写成无状态的。</p>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. TypeORM 和 Prisma 怎么选</h2>
+
+<p><code>HQ-2</code> / <code>HQ-3</code>。两者都是 Node 生态里常用的数据库工具，但<strong>设计理念完全不同</strong>：</p>
+
+<table>
+  <thead><tr><th style="width:16%"></th><th style="width:42%">TypeORM</th><th>Prisma</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>核心理念</strong></td>
+      <td><strong>面向对象</strong>：用类和装饰器定义实体，实体之间可以有关系</td>
+      <td><strong>Schema 驱动</strong>：先写一份 schema 文件，用命令生成类型安全的客户端</td>
+    </tr>
+    <tr>
+      <td><strong>类型安全</strong></td>
+      <td>一般，容易出现类型和实际表结构不一致</td>
+      <td><strong>很强</strong>，生成的客户端查询方法都有类型提示</td>
+    </tr>
+    <tr>
+      <td><strong>上手成本</strong></td>
+      <td>要理解实体、关系、仓库、查询构造器等一套概念</td>
+      <td>学一个 schema 语法 + 客户端 API 就行，<strong>上手更快</strong></td>
+    </tr>
+    <tr>
+      <td><strong>复杂查询</strong></td>
+      <td><strong>更灵活</strong>，QueryBuilder 能拼出很复杂的 SQL</td>
+      <td>复杂查询有时要写原生 SQL，灵活性弱一些</td>
+    </tr>
+    <tr>
+      <td><strong>和 NestJS 的配合</strong></td>
+      <td><strong>官方一等公民</strong>，<code>@nestjs/typeorm</code> 集成得很顺</td>
+      <td>需要额外封装，没有官方集成那么自然</td>
+    </tr>
+    <tr>
+      <td><strong>适合</strong></td>
+      <td>已经在用 NestJS、关系复杂、需要大量自定义查询</td>
+      <td>追求类型安全和开发体验、表结构相对规整的新项目</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">被问"调研过优缺点吗"怎么答</span>
+  <p>"我们选 TypeORM 主要是因为项目已经在用 NestJS，官方集成最顺，而且我们的查询比较复杂（多表关联 + 聚合），QueryBuilder 更灵活。</p>
+  <p>Prisma 的<strong>类型安全确实更好</strong>，写起来也更舒服，如果重做新项目我会认真考虑它。当时没选它的顾虑是：复杂查询要退回原生 SQL，而且它对 NestJS 的依赖注入体系没有官方支持，要多写一层封装。"</p>
+  <p><strong>关键是要说出"我们基于什么约束做的选择"，而不是哪个更好。</strong></p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. TypeORM 的两种运行模式</h2>
+
+<p><code>HQ-9</code>。其实问的是"你的实体和表结构怎么保持同步"：</p>
+
+<table>
+  <thead><tr><th style="width:24%">模式</th><th style="width:34%">怎么工作</th><th>适合</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>实体模式</strong><br><span style="color:var(--muted);font-size:13.5px">Entity / 装饰器</span></td>
+      <td>表结构由实体类 + 装饰器定义（<code>@Entity</code> <code>@Column</code>），代码即 schema</td>
+      <td>开发阶段、快速迭代。<strong>用迁移（migration）把变更同步到数据库</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Schema 同步模式</strong></td>
+      <td>开启 <code>synchronize</code>，启动时自动对比实体和表结构，<strong>自动改表</strong></td>
+      <td><strong>只用于本地开发</strong>——生产环境开这个等于让框架随便改你的表结构，非常危险</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">这题真正想验证的</span>
+  <p>对方问这个，是想确认你<strong>知不知道 <code>synchronize</code> 不能上生产</strong>。</p>
+  <p>正确的做法是<strong>用迁移文件</strong>：每次改表结构生成一个迁移脚本，经过评审后在部署时按顺序执行。这样表变更是<strong>可追溯、可回滚</strong>的——<code>synchronize: true</code> 在开发环境爽，在生产环境是事故源头（它可能直接删列）。</p>
+</div>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s6">6. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「怎么给几十上百个接口统一加操作日志」</span>
+  <p><strong>【结论】</strong>用框架的<strong>切面机制</strong>在一处统一处理，而不是每个接口里复制一段——那样漏一个就少一个，改格式还要改上百遍。</p>
+  <p><strong>【做法】</strong>注册一个<strong>全局拦截器</strong>，它在控制器前后各执行一次，能同时拿到入参、返回值和耗时。为了区分业务语义（<code>POST /users</code> 到底是"创建"还是"登录"），再配一个装饰器标注操作名，拦截器读取这个元数据。</p>
+  <p><strong>【写入】</strong>日志不直接同步写库（会拖慢接口），而是丢进队列异步落库。</p>
+  <p><strong>【安全】</strong>记录前对密码、token、身份证号做脱敏——日志本身也可能是泄露源。</p>
+  <p><strong>【权衡】</strong>拦截器覆盖所有接口很方便，但也意味着所有请求都会多一层开销。所以我们对高频的健康检查接口做了排除。</p>
+</div>
+
+<details class="ask">
+  <summary>NestJS 的模块、控制器、服务是什么关系？</summary>
+  <ul>
+    <li><strong>模块（Module）</strong>：组织单元，把相关的控制器和服务打包在一起，并声明"我要用别人的什么、我允许别人用什么"。</li>
+    <li><strong>控制器（Controller）</strong>：负责<strong>接口层</strong>——定义路由、解析参数、返回响应，<strong>不写业务逻辑</strong>。</li>
+    <li><strong>服务（Service）</strong>：负责<strong>业务逻辑</strong>，通过依赖注入被控制器使用。</li>
+  </ul>
+  <p>这个划分对应 <a href="09-architecture-and-scale.html">09</a> 讲的"应用层 / 领域层"——Controller 是应用层，Service 是领域层。</p>
+</details>
+
+<details class="ask">
+  <summary>ORM 的 N+1 查询问题是什么？</summary>
+  <p>用 ORM 的"懒加载"时很容易踩到：查 10 条订单，然后循环里每条订单再去查它的用户——<strong>本来 1 次查询能搞定，结果发了 11 次</strong>（1 次查订单 + 10 次查用户）。</p>
+  <p><strong>为什么慢</strong>：每次查询都有网络往返开销，10 次就是 10 倍的延迟。</p>
+  <p><strong>怎么解决</strong>：用<strong>预加载</strong>（<code>relations</code> 或 <code>join</code>）一次性把关联数据查出来。这也是排查 ORM 慢查询时第一个要看的地方（呼应 <a href="05-index-and-slow-query.html">05</a> 的 <code>HQ-10</code>）。</p>
+</details>
+
+<details class="ask">
+  <summary>为什么 Service 应该写成无状态的？</summary>
+  <p>因为 Provider 默认是<strong>单例</strong>——所有请求共用同一个实例。如果 Service 里存了"当前请求"的状态：</p>
+  <ul>
+    <li>A 请求设置了 <code>this.user = alice</code>，还没执行完；</li>
+    <li>B 请求进来设置了 <code>this.user = bob</code>；</li>
+    <li>A 请求后面读到的是 <code>bob</code> → <strong>串数据了</strong>。</li>
+  </ul>
+  <p>这种 bug 偶发、难复现、后果可能很严重（比如 A 用户看到了 B 用户的数据）。所以<strong>需要请求上下文时，当参数传进去</strong>，不要存在成员变量上。</p>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <ol>
+    <li><strong>搭一个最小 NestJS demo</strong>：一个控制器 + 一个服务 + 一个模块，跑起来。不用做复杂功能，先把"模块/控制器/服务"的关系敲实。</li>
+    <li><strong>写一个全局拦截器记日志</strong>：记录 URL、方法、耗时、用户。跑几个请求看输出。</li>
+    <li><strong>加一个 ValidationPipe + DTO</strong>：给一个接口加参数校验，故意传错参数，看返回的错误格式。</li>
+    <li><strong>写一个全局异常过滤器</strong>：让所有错误都返回统一格式（<code>{ code, message }</code>），而不是框架默认的一大坨。</li>
+    <li><strong>验证单例陷阱</strong>：在 Service 里存一个成员变量，并发发两个请求，看会不会串。<strong>亲手复现一次，这个知识点就再也忘不掉了。</strong></li>
+    <li><strong>用迁移改一次表结构</strong>：体会一下 <code>synchronize: true</code> 和写迁移文件的区别。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>NestJS 的请求管线有哪几站？每站负责什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>中间件</strong>（日志、鉴权）→ <strong>守卫</strong>（权限判断）→ <strong>拦截器·前置</strong>（切面逻辑）→ <strong>管道</strong>（参数转换与校验）→ <strong>控制器</strong>（业务处理）→ <strong>拦截器·后置</strong> → <strong>响应</strong>。</p>
+    <p>任何一站抛出的异常，都由<strong>异常过滤器</strong>统一转成规范错误响应。</p>
+    <p>这条管线的价值是：<strong>日志、鉴权、校验、异常处理这些"每个接口都要做"的事，各自只写一次。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>Provider 默认是单例还是每请求新建？这带来什么好处和陷阱？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>默认是单例</strong>——应用启动时创建一次，所有请求共用。</p>
+    <p><strong>好处</strong>：省资源（连接池、HTTP 客户端这类重量级对象不用反复创建）、状态可共享、初始化时机可控。</p>
+    <p><strong>陷阱</strong>：<strong>单例 Service 里不能存请求相关的状态</strong>。存了就会串数据——A 用户设置完还没执行完，B 用户就把它覆盖了。这种 bug 偶发难查，所以 Service 应该写成无状态的，需要请求上下文时当参数传进去。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="09-architecture-and-scale.html">← 上一篇：架构分层与高并发</a>
+  <a href="index.html">回到材料目录 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

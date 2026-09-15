@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · RAG 是什么 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 1/9 份 ｜ A 域 · LLM 与 RAG</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item cur" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>01 · RAG 是什么</h1>
+<p class="lead">
+  这一页讲一件事：<strong>怎么让模型回答它"没读过"的东西</strong>——比如你们公司的内部制度。
+  第一次读，先只看图和加粗句。
+</p>
+
+<div class="qbadges"><span class="q">JR-5</span><span class="q">TK-8</span><span class="q">PY-5</span><span class="q">YU-17</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页会用到「上下文」「向量」「幻觉」这些词。看着眼生的话，先花 5 分钟看 <a href="00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句，跳过表格。</div>
+  <div><b>第二遍（15 分钟）</b>读正文和例子。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡，自己讲一遍。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你把 AI 接进公司内部系统，员工问它：<strong>「我们公司的年假怎么算？」</strong></p>
+
+<table>
+  <thead><tr><th style="width:26%">如果只有大模型</th><th>如果加上 RAG</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>它会答：<em>「一般公司年假是 5 到 15 天，具体看工龄……」</em><br><br>——听起来很像那么回事，但它<strong>根本没读过你们的员工手册</strong>，这是它编的。</td>
+      <td>它先去《员工手册》里翻出年假那一条，然后照着答：<em>「入职满一年 5 天，满三年 10 天（来源：员工手册 4.2 节）」</em><br><br>——<strong>有依据，还标了出处，员工能自己去核对。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">RAG 的全部思路就是这一句话</span>
+  <p><strong>提问时，先把相关资料找出来放进上下文，再让模型照着资料回答。</strong></p>
+  <p>这个"找资料"的动作就叫<strong>检索（Retrieval）</strong>，找到资料后用来"增强"模型的回答能力，所以叫<strong>检索增强生成</strong>（Retrieval-Augmented Generation，缩写 RAG）。</p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · RAG 的两条链路</p>
+  <h3>离线把资料变"能查"，在线查完再回答</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 310" role="img" aria-label="RAG 全链路：离线索引与在线问答两条链路">
+    <defs>
+      <marker id="a01" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <!-- 离线 -->
+    <text x="20" y="22" style="font-weight:600">离线 · 提前把文档变成"能查"的知识库（用户看不到这个过程）</text>
+    <rect class="box-d" x="20" y="36" width="130" height="58" rx="9"></rect>
+    <text x="85" y="62" text-anchor="middle" style="font-weight:600">文档</text>
+    <text x="85" y="80" text-anchor="middle" class="lbl-muted">PDF / Word / 网页</text>
+
+    <rect class="box-t" x="175" y="36" width="130" height="58" rx="9"></rect>
+    <text x="240" y="62" text-anchor="middle" style="font-weight:600">解析</text>
+    <text x="240" y="80" text-anchor="middle" class="lbl-muted">提取文字 / 表格</text>
+
+    <rect class="box-t" x="330" y="36" width="130" height="58" rx="9"></rect>
+    <text x="395" y="62" text-anchor="middle" style="font-weight:600">切分</text>
+    <text x="395" y="80" text-anchor="middle" class="lbl-muted">切成小段</text>
+
+    <rect class="box-m" x="485" y="36" width="130" height="58" rx="9"></rect>
+    <text x="550" y="62" text-anchor="middle" style="font-weight:600">向量化</text>
+    <text x="550" y="80" text-anchor="middle" class="lbl-muted">每段算成向量</text>
+
+    <rect class="box-s" x="640" y="36" width="130" height="58" rx="9"></rect>
+    <text x="705" y="62" text-anchor="middle" style="font-weight:600">入库</text>
+    <text x="705" y="80" text-anchor="middle" class="lbl-muted">存起来备用</text>
+
+    <line class="ar" x1="153" y1="65" x2="171" y2="65" marker-end="url(#a01)"></line>
+    <line class="ar" x1="308" y1="65" x2="326" y2="65" marker-end="url(#a01)"></line>
+    <line class="ar" x1="463" y1="65" x2="481" y2="65" marker-end="url(#a01)"></line>
+    <line class="ar" x1="618" y1="65" x2="636" y2="65" marker-end="url(#a01)"></line>
+
+    <!-- 知识库 -->
+    <rect class="box-s" x="20" y="128" width="750" height="46" rx="9"></rect>
+    <text x="395" y="157" text-anchor="middle">知识库　向量库存向量（负责"按意思找"）　+　ES 存原文和元数据（负责"按关键词找"和出处）</text>
+    <line class="ar" x1="705" y1="96" x2="705" y2="124" marker-end="url(#a01)"></line>
+
+    <!-- 在线 -->
+    <text x="20" y="206" style="font-weight:600">在线 · 用户提问时现场检索并回答（必须快，用户就在旁边等着）</text>
+    <rect class="box-u" x="20" y="220" width="130" height="58" rx="9"></rect>
+    <text x="85" y="246" text-anchor="middle" style="font-weight:600">提问</text>
+    <text x="85" y="264" text-anchor="middle" class="lbl-muted">口语、很短</text>
+
+    <rect class="box-m" x="175" y="220" width="130" height="58" rx="9"></rect>
+    <text x="240" y="246" text-anchor="middle" style="font-weight:600">查询优化</text>
+    <text x="240" y="264" text-anchor="middle" class="lbl-muted">改写 / 扩写</text>
+
+    <rect class="box-s" x="330" y="220" width="130" height="58" rx="9"></rect>
+    <text x="395" y="246" text-anchor="middle" style="font-weight:600">召回</text>
+    <text x="395" y="264" text-anchor="middle" class="lbl-muted">捞出 50 条候选</text>
+
+    <rect class="box-m" x="485" y="220" width="130" height="58" rx="9"></rect>
+    <text x="550" y="246" text-anchor="middle" style="font-weight:600">精排</text>
+    <text x="550" y="264" text-anchor="middle" class="lbl-muted">挑出最相关的 5 条</text>
+
+    <rect class="box-s" x="640" y="220" width="130" height="58" rx="9"></rect>
+    <text x="705" y="246" text-anchor="middle" style="font-weight:600">生成</text>
+    <text x="705" y="264" text-anchor="middle" class="lbl-muted">照着资料回答</text>
+
+    <line class="ar" x1="153" y1="249" x2="171" y2="249" marker-end="url(#a01)"></line>
+    <line class="ar" x1="308" y1="249" x2="326" y2="249" marker-end="url(#a01)"></line>
+    <line class="ar" x1="463" y1="249" x2="481" y2="249" marker-end="url(#a01)"></line>
+    <line class="ar" x1="618" y1="249" x2="636" y2="249" marker-end="url(#a01)"></line>
+    <line class="ar" x1="395" y1="178" x2="395" y2="216" marker-end="url(#a01)"></line>
+  </svg>
+
+  <p style="margin:0 0 4px"><strong>这张图在说什么</strong>：上半部分是"提前把文档处理好存进库"，用户看不见；下半部分是"用户提问时现场查、现场答"。中间的<strong>知识库</strong>把两条链路连起来。</p>
+  <p class="lbl-muted" style="margin:0;font-size:13.5px">一句话记住：<strong>离线管"存得进、查得到"，在线管"查得准、答得好"</strong>。两条链路的优化手段完全不同，出问题时要先判断是哪条链路的错。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 计算</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 处理</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 它到底解决哪三个问题</h2>
+
+<p>开头那个"年假"的例子，其实同时暴露了三个问题。这三个问题几乎每轮都会被问到：</p>
+
+<table>
+  <thead><tr><th style="width:20%">问题</th><th style="width:38%">具体表现</th><th>RAG 怎么解决</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>模型不知道</strong><br><span style="color:var(--muted);font-size:13.5px">私有知识缺失</span></td>
+      <td>你们公司的制度、内部接口文档、客户资料——训练时它根本没读过</td>
+      <td>把这些文档处理成知识库，提问时检索出来喂给它</td>
+    </tr>
+    <tr>
+      <td><strong>模型记不住</strong><br><span style="color:var(--muted);font-size:13.5px">知识会过时</span></td>
+      <td>它的知识停在训练那天。上个月刚改的报销标准，它不知道</td>
+      <td>知识库随时能更新，新文档入库后立刻生效，<strong>不用重新训练模型</strong></td>
+    </tr>
+    <tr>
+      <td><strong>模型会编</strong><br><span style="color:var(--muted);font-size:13.5px">幻觉</span></td>
+      <td>不知道的时候不承认，而是编一个"一般公司年假是 5 到 15 天"</td>
+      <td>强制它照着检索到的资料回答，并要求<strong>标注出处</strong>——用户能自己核对</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">第三个问题常被低估</span>
+  <p>在严肃场景（法律、医疗、政策、金融）里，<strong>"能溯源"往往比"答得准"更重要</strong>。用户要的不只是一个答案，而是"这个答案出自哪份文件第几条"。这类场景下 RAG 几乎是唯一选择，因为只有它天然带着出处。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 一个容易钻牛角尖的问题：RAG 是不是"文档问答"？</h2>
+
+<p>很多人对 RAG 的理解停在"文档切分 → 向量化 → 召回 Top-K"这一套流程。这是最常见的形态，但<strong>它不是 RAG 的本质</strong>。</p>
+
+<p>RAG 的本质是一种更宽的说法，只要满足这三步就算：</p>
+
+<pre><code>① 先从外部取信息  →  ② 用它增强模型的上下文  →  ③ 再生成答案</code></pre>
+
+<p>按这个定义，下面这些<strong>全都是 RAG</strong>：</p>
+
+<table>
+  <thead><tr><th style="width:40%">形态</th><th>为什么算 RAG</th></tr></thead>
+  <tbody>
+    <tr><td>Agent 调搜索引擎查资料</td><td>检索发生在工具调用里，取回的内容塞进了上下文</td></tr>
+    <tr><td>代码助手用关键词搜索找代码</td><td>从代码库里取信息来增强上下文；关键词搜索本身就是一种检索</td></tr>
+    <tr><td>Agent 的长期记忆</td><td>把历史对话存起来，需要时取出来——取出来这一步就是检索</td></tr>
+    <tr><td>Skill 的按需加载</td><td>先给一句话描述，需要时再取详细内容——<strong>对"做事方法"的 RAG</strong></td></tr>
+  </tbody>
+</table>
+
+<p>这个认知的用处很直接：当对方问"<strong>现在模型上下文都那么长了，RAG 是不是要死了</strong>"，你就能答：<strong>被淘汰的只是某种粗糙的实现方式，而不是这个思路</strong>——照这个定义，RAG 早就到处都是了。</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. RAG、微调、长上下文，该用哪个</h2>
+
+<p>这三个经常被拿来互相比较，其实它们<strong>解决的不是同一件事</strong>：</p>
+
+<table>
+  <thead><tr><th style="width:14%">方案</th><th style="width:26%">解决什么</th><th style="width:26%">代价</th><th>什么时候用</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>RAG</strong></td>
+      <td>让模型"知道"新知识和私有资料</td>
+      <td>要搭一整套检索链路；检索质量决定上限</td>
+      <td><strong>知识类需求的首选</strong>：更新快、可溯源、成本低</td>
+    </tr>
+    <tr>
+      <td><strong>微调</strong></td>
+      <td>改变模型"怎么说话"：输出格式、语气、术语习惯</td>
+      <td>要数据要算力；知识更新要重训；容易过拟合</td>
+      <td><strong>格式 / 风格类</strong>需求；或把大模型能力蒸馏到小模型省钱</td>
+    </tr>
+    <tr>
+      <td><strong>长上下文</strong></td>
+      <td>一次能塞进更多材料</td>
+      <td>贵；<strong>塞得越多噪声越大，模型容易被无关内容带偏</strong></td>
+      <td>材料总量很小时（几份文档）可以直接全塞；量大仍然要靠检索</td>
+    </tr>
+    <tr>
+      <td><strong>私有化部署</strong></td>
+      <td>数据不出内网、长期成本可控</td>
+      <td>要 GPU、要运维；模型能力通常弱于头部闭源</td>
+      <td>合规要求高（政府、金融、医疗），或调用量大到比自己部署还贵</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一句话分工</span>
+  <p><strong>RAG 教它"说什么"，微调教它"怎么说"</strong>，两者不冲突、可以叠加。</p>
+  <p>常见的错误是用微调去灌知识——知识更新要重训、还容易过拟合，而且模型照样会编。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 答错了，先分清是哪一类错</h2>
+
+<p>RAG 答错只可能是两种原因，<strong>而它们的修法完全相反</strong>。先分清，再动手：</p>
+
+<svg class="svgfig" viewBox="0 0 800 210" role="img" aria-label="RAG 两种失败模式的判断方法">
+  <defs>
+    <marker id="a01b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+    </marker>
+  </defs>
+
+  <rect class="box-u" x="290" y="16" width="220" height="52" rx="9"></rect>
+  <text x="400" y="40" text-anchor="middle" style="font-weight:600">用户说"答得不对"</text>
+  <text x="400" y="58" text-anchor="middle" class="lbl-muted">人工翻一遍召回的那 50 条</text>
+
+  <path class="ar" d="M 330 68 C 270 100 230 110 190 130" marker-end="url(#a01b)"></path>
+  <path class="ar" d="M 470 68 C 530 100 570 110 610 130" marker-end="url(#a01b)"></path>
+  <text x="196" y="100" class="lbl-muted">正确答案不在里面</text>
+  <text x="516" y="100" class="lbl-muted">正确答案就在里面</text>
+
+  <rect class="box-t" x="30" y="134" width="320" height="60" rx="9"></rect>
+  <text x="50" y="158" style="font-weight:600">检索层的问题</text>
+  <text x="50" y="178" class="lbl-muted">查什么叫"没召回"：改切分 / 换向量模型 / 加关键词</text>
+
+  <rect class="box-m" x="450" y="134" width="320" height="60" rx="9"></rect>
+  <text x="470" y="158" style="font-weight:600">生成层的问题</text>
+  <text x="470" y="178" class="lbl-muted">查什么叫"证据没用上"：改提示词 / 换模型 / 减噪声</text>
+</svg>
+
+<p><strong>这张图在说什么</strong>：先确认"正确答案在不在召回结果里"。在，问题出在后面；不在，问题出在前面。</p>
+
+<div class="warn">
+  <span class="tag">这句话讲的时候很值钱</span>
+  <p><strong>"如果召回的 50 条里根本没有正确答案，那怎么调提示词都没用。"</strong></p>
+  <p>大多数人的第一反应是去改提示词——那是整条链路最下游的地方，方向就错了。先确认上游没坏，再动下游。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「简单介绍一下 RAG 的流程」<span style="color:var(--muted);font-weight:400">（约 3 分钟）</span></span>
+  <p><strong>【结论】</strong>RAG 是检索增强生成，核心是先从外部知识库取相关信息，再让模型基于这些信息生成答案。它主要解决三个问题：模型不知道私有知识、知识会过时、以及容易产生幻觉。</p>
+  <p><strong>【做法】</strong>我们分两条链路。离线链路把文档解析、切分、向量化后入库，同时把原文和元数据存进 ES。在线链路拿到问题后先做查询改写，然后并行走两路召回——ES 做关键词、向量库做语义，用 RRF 融合成 Top 50，再用交叉编码器精排到 Top 5，组装进提示词让模型基于证据回答，并要求标注出处。</p>
+  <p><strong>【数字】</strong>知识库目前 XX 万段，单次问答检索加精排的 P95 是 X 秒；加了混合检索之后，专有名词类问题的命中率从 X% 提到 Y%。</p>
+  <p><strong>【坑】</strong>最开始只做了向量召回，结果用户搜产品型号和条款编号经常搜不到——向量擅长语义、不擅长精确匹配。加了关键词那一路才解决。</p>
+  <p><strong>【权衡】</strong>精排提升了准确率但增加了延迟，所以我把候选从 100 缩到 30，并对高频问题做了结果缓存，把延迟控制在可接受范围。</p>
+</div>
+
+<details class="ask">
+  <summary>RAG 和微调怎么选？</summary>
+  <p>按需求性质分：<strong>要它"知道"新知识 → RAG；要它"说话方式"改变 → 微调。</strong></p>
+  <p>常见的误区是拿微调去灌知识——那样知识更新要重训、还容易过拟合，而且模型仍然可能编。正确做法是 RAG 负责知识、微调负责格式和风格，两者叠加。</p>
+</details>
+
+<details class="ask">
+  <summary>"RAG 已死"的说法怎么看？</summary>
+  <p>先承认现象：确实每隔一阵就有这类文章，拿关键词搜索、长上下文、模型自身的知识来论证。</p>
+  <p>再指出问题：这些论证把 RAG <strong>狭隘地定义成"外部文档充当上下文"</strong>，是以偏概全。关键词搜索本身就是一种检索，Agent 的长期记忆就是把历史取出来，Skill 的按需加载就是对"做事方法"的检索——<strong>用本质是 RAG 的东西去证明 RAG 死了，是自我反驳</strong>。</p>
+  <p>结论：会过时的是某些粗糙实现，不是这个思路。</p>
+</details>
+
+<details class="ask">
+  <summary>你怎么衡量一个 RAG 系统做得好不好？</summary>
+  <p>分两层看，别只盯最终答案：</p>
+  <ul>
+    <li><strong>检索层</strong>：Recall@K（正确片段有没有进前 K）、MRR（排得靠不靠前）——需要人工标注评测集。</li>
+    <li><strong>生成层</strong>：答案正确率、<strong>引用准确率</strong>（引用是不是真的支持结论）、拒答率（该说不知道时有没有说）。</li>
+    <li><strong>线上</strong>：点踩率、追问率、引用点击率、平均轮次（一轮解决 vs 反复追问）。</li>
+  </ul>
+  <p>加分点：<strong>引用准确率</strong>是 RAG 特有的指标。很多团队只看答案对不对，忽略了"引用是不是真的支撑这句话"。</p>
+</details>
+
+<details class="ask">
+  <summary>知识库的数据源一般有哪些？</summary>
+  <p>按处理难度从低到高：</p>
+  <ul>
+    <li><strong>结构化</strong>：数据库表、CSV——最好处理，但通常走 SQL 查询而不是向量检索</li>
+    <li><strong>半结构化</strong>：Markdown、HTML、语雀/Confluence 导出的文档——有结构，切分质量高</li>
+    <li><strong>办公文档</strong>：PDF、Word、PPT——要解析，表格和公式是难点</li>
+    <li><strong>非结构化</strong>：图片、扫描件、录音转写、视频字幕——要 OCR / 语音识别，质量最不稳定</li>
+  </ul>
+  <p>回答时补一句工程细节会更可信：<strong>每条数据都要带元数据</strong>（来源、版本、生效时间、权限），否则后面做过滤、做引用、做权限控制都要返工。</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>RAG 解决哪三个问题？它和微调、长上下文各自负责什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>三个问题</strong>：模型不知道私有知识、知识会过时、不知道时会编（幻觉）。</p>
+    <p><strong>分工</strong>：RAG 教它"说什么"（知识），微调教它"怎么说"（格式、风格、术语）；长上下文只是让一次能塞更多材料，但塞得越多噪声越大、也越贵，所以量大时仍然要靠检索来挑。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>用户反馈"答得不准"，你怎么判断是检索的问题还是生成的问题？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>先看<strong>召回结果里有没有正确答案</strong>：</p>
+    <ul>
+      <li><strong>不在里面</strong> → 检索层的问题：去查切分粒度、向量模型、要不要加关键词那一路。</li>
+      <li><strong>就在里面</strong> → 生成层的问题：去查提示词组装、证据有没有被噪声淹没、模型能力。</li>
+    </ul>
+    <p>关键判断：<strong>召回结果里没有正确答案时，调提示词是没用的</strong>——那是链路最下游。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="00-key-terms.html">← 前置：先认识这几个词</a>
+  <a href="02-chunking-and-embedding.html">下一篇：索引——切分与向量化 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

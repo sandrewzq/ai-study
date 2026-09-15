@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · 向量库与索引算法 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 3/9 份 ｜ A 域 · LLM 与 RAG</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item cur" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>03 · 向量库与索引算法</h1>
+<p class="lead">
+  承接上一篇：库里已经存了 <strong>50 万个 chunk 的向量</strong>。这一页讲<strong>怎么在几十毫秒内从里面找出最像的那几个</strong>，
+  以及<strong>该选哪个向量库</strong>。
+</p>
+
+<div class="qbadges"><span class="q">JR-7</span><span class="q">JR-8</span><span class="q">HQ-28</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页要用「向量」「召回」这两个概念。看着眼生的话，先看 <a href="00-key-terms.html">00 · 先认识这几个词</a> 的第二组。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句。</div>
+  <div><b>第二遍（15 分钟）</b>读参数表和对比表。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>库里 50 万个向量。用户提问，系统要把问题也算成一个向量，然后<strong>找出跟它最像的 50 个</strong>。</p>
+
+<p>最直白的做法：<strong>和 50 万个向量一个个算距离，再排序取前 50。</strong>这叫"暴力检索"，结果 100% 准确。</p>
+
+<table>
+  <thead><tr><th style="width:26%">向量条数</th><th style="width:34%">要算多少次距离</th><th>体感</th></tr></thead>
+  <tbody>
+    <tr><td>1 万</td><td>1 万次</td><td>很快，暴力检索完全够用</td></tr>
+    <tr><td>100 万</td><td>100 万次</td><td>开始顶不住，延迟飙到几百毫秒甚至几秒</td></tr>
+    <tr><td>1 亿</td><td>1 亿次</td><td>不可用</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">所以要用"近似"检索</span>
+  <p>大规模场景用的是 <strong>ANN（近似最近邻）</strong>：<strong>牺牲一点点准确率，换几十上百倍的速度</strong>。</p>
+  <p>注意是"牺牲一点点"——不是随便找，而是"大概率能找到真正最近的那几个"。这个概率是可以调的，就是后面那些参数的作用。</p>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 最常用的索引算法 HNSW</p>
+  <h3>像查地图一样：先上高速大步跳，再走小路精确找</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 330" role="img" aria-label="HNSW 分层跳转示意">
+    <defs>
+      <marker id="a03" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--c-model)"></path>
+      </marker>
+    </defs>
+
+    <!-- 第 3 层 -->
+    <text x="20" y="82" class="lbl-muted">第 3 层</text>
+    <text x="20" y="100" class="lbl-muted">节点很少</text>
+    <line class="ln" x1="260" y1="76" x2="700" y2="76"></line>
+    <line class="ar" x1="260" y1="76" x2="472" y2="76" stroke-width="2.5" marker-end="url(#a03)"></line>
+    <circle cx="260" cy="76" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="480" cy="76" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="700" cy="76" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <text x="260" y="52" text-anchor="middle" class="lbl-muted">起点</text>
+
+    <!-- 层间连线 -->
+    <line class="ar" x1="480" y1="84" x2="480" y2="168" stroke-width="2.5" marker-end="url(#a03)"></line>
+    <line class="ln" x1="260" y1="84" x2="260" y2="168"></line>
+    <line class="ln" x1="700" y1="84" x2="700" y2="168"></line>
+
+    <!-- 第 2 层 -->
+    <text x="20" y="182" class="lbl-muted">第 2 层</text>
+    <text x="20" y="200" class="lbl-muted">逐步变密</text>
+    <line class="ln" x1="260" y1="176" x2="700" y2="176"></line>
+    <circle cx="260" cy="176" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="370" cy="176" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="480" cy="176" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="590" cy="176" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="700" cy="176" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+
+    <!-- 层间连线 2→1 -->
+    <line class="ar" x1="480" y1="184" x2="500" y2="268" stroke-width="2.5" marker-end="url(#a03)"></line>
+    <line class="ln" x1="260" y1="184" x2="260" y2="268"></line>
+    <line class="ln" x1="370" y1="184" x2="380" y2="268"></line>
+    <line class="ln" x1="590" y1="184" x2="620" y2="268"></line>
+    <line class="ln" x1="700" y1="184" x2="680" y2="268"></line>
+
+    <!-- 第 1 层 -->
+    <text x="20" y="282" class="lbl-muted">第 1 层</text>
+    <text x="20" y="300" class="lbl-muted">节点最多，最精确</text>
+    <line class="ln" x1="260" y1="276" x2="680" y2="276"></line>
+    <line class="ar" x1="500" y1="276" x2="552" y2="276" stroke-width="2.5" marker-end="url(#a03)"></line>
+    <circle cx="260" cy="276" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="320" cy="276" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="380" cy="276" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="440" cy="276" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="500" cy="276" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="560" cy="276" r="12" fill="var(--c-store-bg)" stroke="var(--c-store)" stroke-width="2.5"></circle>
+    <circle cx="620" cy="276" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <circle cx="680" cy="276" r="8" fill="var(--c-model-bg)" stroke="var(--c-model)"></circle>
+    <text x="560" y="308" text-anchor="middle" class="lbl-muted">找到的目标</text>
+  </svg>
+
+  <p style="margin:0 0 4px"><strong>这张图在说什么</strong>：HNSW 把所有向量组织成一张<strong>多层图</strong>。上层节点少、连接跨度大（像高速公路），越往下节点越密（像小街小巷）。查询时从上层大步跳到目标附近，再逐层往下精确找——<strong>不需要遍历全部节点</strong>。</p>
+  <p class="lbl-muted" style="margin:0;font-size:13.5px">这是"用一点点准确率换几十倍速度"的典型实现：正常情况下它能找到真正最近的那个点，只是不保证 100%。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 计算</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 处理</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. HNSW 的三个参数</h2>
+
+<p>对方问"想提升召回率调什么"，答案就在这张表里：</p>
+
+<table>
+  <thead><tr><th style="width:22%">参数</th><th style="width:30%">管什么</th><th style="width:24%">调大的后果</th><th>什么时候生效</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>M</code></td>
+      <td>每个节点连多少个邻居</td>
+      <td>更准，但<strong>内存占用上升</strong>、建索引更慢</td>
+      <td>建索引时</td>
+    </tr>
+    <tr>
+      <td><code>efConstruction</code></td>
+      <td>建索引时每步找多大范围</td>
+      <td>索引质量更好，但建索引更慢</td>
+      <td>建索引时</td>
+    </tr>
+    <tr>
+      <td><code>efSearch</code></td>
+      <td>查询时找多大范围</td>
+      <td>召回率更高，但延迟上升</td>
+      <td><strong>查询时，可动态调</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这段回答很加分</span>
+  <p>"HNSW 的 <code>efSearch</code> 是<strong>运行时可调</strong>的——线上可以动态调它来权衡召回率和延迟，<strong>不需要重建索引</strong>。而 <code>M</code> 和 <code>efConstruction</code> 只在建索引时生效，改了要重建。"</p>
+  <p>再主动说出它的缺点：<strong>HNSW 吃内存</strong>，因为整张图要常驻内存（节点 + 边）。数据量特别大时，要么上大内存机器，要么换 IVF + 量化来压。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. IVF：先分班再找</h2>
+
+<p>另一种思路。一句话：<strong>先把所有向量分成若干"班"（聚类），查询时只搜最近的几个班</strong>。</p>
+
+<div class="analogy">
+  <span class="tag">类比</span>
+  <p>把全校学生按特征分成 100 个班，每班算出一个"中心点"。来了一个查询，先算出它最接近哪 3 个班，<strong>只在这 3 个班里找人</strong>，其余 97 个班直接跳过。</p>
+  <p><strong>好处</strong>：要比较的向量少了一大截，省内存、建索引快。<br>
+  <strong>代价</strong>：如果目标恰好被分进了没搜的那 97 个班，就<strong>直接漏掉</strong>了。</p>
+</div>
+
+<table>
+  <thead><tr><th style="width:22%">参数</th><th>作用</th></tr></thead>
+  <tbody>
+    <tr><td><code>nlist</code></td><td>分成多少个班。一般取"总条数的平方根"这个量级</td></tr>
+    <tr><td><code>nprobe</code></td><td>查询时搜几个班。<strong>调大 → 召回更好但更慢</strong>，角色和 HNSW 的 <code>efSearch</code> 一样</td></tr>
+  </tbody>
+</table>
+
+<h3>HNSW 和 IVF 怎么选</h3>
+
+<table>
+  <thead><tr><th style="width:16%"></th><th style="width:42%">HNSW</th><th>IVF</th></tr></thead>
+  <tbody>
+    <tr><td><strong>速度</strong></td><td>快</td><td>较快</td></tr>
+    <tr><td><strong>准确率</strong></td><td>高</td><td>中等（可能漏召回）</td></tr>
+    <tr><td><strong>内存</strong></td><td><strong>高</strong>（图结构要常驻）</td><td>低</td></tr>
+    <tr><td><strong>建索引</strong></td><td>慢</td><td>快</td></tr>
+    <tr><td><strong>适合</strong></td><td>千万级以内、要低延迟高召回（<strong>大多数场景的默认选择</strong>）</td><td>数据量极大、内存受限、能接受稍低的召回</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 内存还是不够？上量化</h2>
+
+<p><strong>量化（PQ）一句话：把高维向量压缩成很短的编码，用少量精度换大幅内存下降。</strong></p>
+
+<p>做法是把一个 1024 维的向量切成若干段，每段用一个"代表值"替代，最终一个向量可能从 4KB 压到几十字节。代价是距离计算变成近似值，召回率会降一些。</p>
+
+<p>常见的组合是 <strong>IVF + PQ</strong>：先分班（省搜索范围），再量化（省内存）。十亿级规模常用这个方案。</p>
+
+<div class="warn">
+  <span class="tag">应对策略</span>
+  <p>量化属于"知道有这么回事就行"的深度。<strong>除非目标是向量检索或基础设施岗，否则不用深入。</strong>答出"内存不够时可以用量化压缩，代价是精度略降"就够，把 HNSW 的参数讲清楚性价比更高。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 选向量库：五个问题</h2>
+
+<table>
+  <thead><tr><th style="width:20%">选择</th><th style="width:40%">适合场景</th><th>要注意的</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Milvus</strong></td>
+      <td>千万级以上、要独立部署、功能全（多种索引、分区、多租户）</td>
+      <td>组件多、运维重</td>
+    </tr>
+    <tr>
+      <td><strong>Qdrant</strong> / <strong>Weaviate</strong></td>
+      <td>中小规模，想要好用的元数据过滤和开箱即用的接口</td>
+      <td>生态比 Milvus 小一些</td>
+    </tr>
+    <tr>
+      <td><strong>pgvector</strong></td>
+      <td>已经在用 PostgreSQL、数据量不大、<strong>不想多维护一个组件</strong></td>
+      <td>超大规模性能不如专用库；但事务、关联查询、权限能直接复用</td>
+    </tr>
+    <tr>
+      <td><strong>Elasticsearch</strong></td>
+      <td>已经在用 ES —— <strong>关键词和向量一套搞定</strong></td>
+      <td>向量能力不如专用库精细</td>
+    </tr>
+    <tr>
+      <td><strong>Chroma</strong> / <strong>FAISS</strong></td>
+      <td>本地开发、Demo、小规模实验</td>
+      <td>不是生产级数据库（FAISS 是库不是服务，没有持久化和并发管理）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">选型五问（照这个顺序答，而不是直接报名字）</span>
+  <ol>
+    <li><strong>数据量多大？</strong>十万以内 pgvector 就够；千万级以上才需要专用库。</li>
+    <li><strong>要不要独立部署？</strong>团队有没有精力多维护一个中间件。</li>
+    <li><strong>能不能复用现有组件？</strong>已经在用 ES 或 PG 的话优先复用——<strong>少一个组件就少一份故障面</strong>。</li>
+    <li><strong>过滤需求强不强？</strong>多租户、权限、按时间过滤，要看它对"带过滤条件的向量检索"支持得好不好。</li>
+    <li><strong>写入模式是什么？</strong>持续增量写还是批量重建，这会影响索引选择和运维方案。</li>
+  </ol>
+  <p>最后补一句实话："我们最终选 X，是因为<strong>已经在用 Y、团队熟悉、规模也撑得住</strong>"——基于约束的选择，比"因为 X 最流行"可信得多。</p>
+</div>
+
+<h3>数据量怎么估（被追问时能报出数）</h3>
+
+<pre><code>原始向量内存 ≈ 向量条数 × 维度 × 4 字节（float32）
+
+例：100 万条 × 1024 维 × 4B ≈ 4.1 GB      ← 只是原始向量本身
+    HNSW 还要额外存图结构，通常再乘 1.5~2 倍
+    ⇒ 实际常驻内存约 6~8 GB
+
+用 PQ 量化可压到原来的 1/10 左右。</code></pre>
+
+<p>回答示例：<em>"我们大概 XX 万份文档、切成 XX 万个 chunk，向量维度 1024，原始向量约 X GB，加上 HNSW 索引常驻约 Y GB——这也正是我们当初选 IVF 而不是 HNSW 的原因。"</em></p>
+
+<p><strong>数字要和你的选型对得上</strong>，这比数字本身是多少更重要。</p>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「你们用的什么向量库？选型依据是什么？」</span>
+  <p><strong>【结论】</strong>我们用的是 X，核心原因是<strong>已经在用 Y、且我们的规模（XX 万向量）它能撑得住</strong>，不需要多维护一个中间件。</p>
+  <p><strong>【做法】</strong>索引用的是 HNSW，在这个量级下延迟和召回都最好。线上把 <code>efSearch</code> 作为可调参数，用它来平衡召回率和延迟。写入走批量加增量：新文档实时插入，每周做一次小规模重建，避免图结构退化。</p>
+  <p><strong>【数字】</strong>XX 万条向量，1024 维，原始约 X GB、索引常驻约 Y GB；P99 检索延迟 X 毫秒，召回率（对比暴力检索）约 X%。</p>
+  <p><strong>【坑】</strong>早期用"先检索再过滤"做权限隔离，结果小部门用户经常搜不到东西——因为无权限的高分内容把名额占了。后来改成检索时就带上过滤条件。</p>
+  <p><strong>【权衡】</strong>HNSW 吃内存，如果数据量再涨一个数量级，计划换 IVF + 量化，或者做冷热分层：热数据用 HNSW，冷数据用 IVF 放磁盘。</p>
+</div>
+
+<details class="ask">
+  <summary>怎么知道近似检索的召回率够不够？</summary>
+  <p>做一个小规模对照实验：<strong>取几千条查询，分别用暴力检索（精确）和近似检索各跑一遍，比较两者 Top-K 的重合度</strong>。重合度就是近似召回率。</p>
+  <p>数据量大时没法全量暴力检索，所以只在这个抽样集上验证；线上再用人工抽检和业务指标（命中率、点踩率）兜底监控。</p>
+</details>
+
+<details class="ask">
+  <summary>向量库能直接替代 Elasticsearch 吗？</summary>
+  <p>不能，两者解决不同问题：向量库解决"语义相似"，ES 解决"关键词精确匹配 + 复杂过滤聚合"。真实场景几乎都需要两者结合。</p>
+  <p>三种组合：<strong>只用 ES</strong>（它同时支持两种，最省事）；<strong>向量库 + ES 双写</strong>（各发挥所长，但要处理数据一致性）；<strong>只用向量库</strong>（适合对精确匹配要求不高的场景）。</p>
+</details>
+
+<details class="ask">
+  <summary>权限过滤为什么不能"先检索再筛掉"？</summary>
+  <p>两个原因：</p>
+  <ul>
+    <li><strong>安全</strong>：无权限的内容一旦进了上下文，就已经是泄露了——模型完全可能把它说出来。</li>
+    <li><strong>效果</strong>：先检索再筛，无权限的高分内容会把名额占掉，导致有权限的内容一条都进不来。小部门用户会经常"什么都搜不到"。</li>
+  </ul>
+  <p>正确做法是<strong>检索时就带上过滤条件</strong>（预过滤），或者从物理上做租户隔离。</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么不能暴力检索？HNSW 是怎么做到快的？线上想提升召回率调哪个参数？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>暴力检索</strong>要和库里每一个向量算距离，复杂度随数据量线性增长——百万级开始就顶不住了。</p>
+    <p><strong>HNSW</strong> 把向量组织成多层图：上层节点少、跨度大，下层密、精度高。查询时从上层大步跳到目标附近，再逐层往下精确定位，<strong>不用遍历全部节点</strong>。</p>
+    <p><strong>调 <code>efSearch</code></strong>（查询时的搜索范围）——它是运行时可调的，不用重建索引。IVF 里对应的参数叫 <code>nprobe</code>。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>选向量库要考虑哪几件事？为什么"能复用现有组件"经常是最重要的那条？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>五件事：<strong>数据量、要不要独立部署、能不能复用现有组件、过滤需求强不强、写入模式</strong>。</p>
+    <p>"复用现有组件"重要，是因为<strong>每多一个中间件就多一份运维负担和故障面</strong>。已经在用 ES 或 PostgreSQL 的话，它们自带的向量能力往往就够用了，没必要为了"更专业的向量库"引入一整套新的部署和监控。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="02-chunking-and-embedding.html">← 上一篇：索引——切分与向量化</a>
+  <a href="04-retrieval-and-rerank.html">下一篇：检索优化与重排 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

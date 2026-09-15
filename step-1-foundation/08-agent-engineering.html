@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · Agent 工程化与选型 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 8/9 份 ｜ B 域 · Agent、多智能体与工具协议</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item cur" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>08 · Agent 工程化与选型</h1>
+<p class="lead">
+  前面两页讲了 Agent 怎么运作、什么时候该拆。这一页收尾：<strong>怎么把它做成一个能上线、能维护、能选型的系统</strong>。
+  核心问题是——<strong>大家都用同一个模型，为什么做出来的 Agent 好用程度差好几倍？</strong>
+</p>
+
+<div class="qbadges"><span class="q">JR-2</span><span class="q">JR-3</span><span class="q">JR-13</span><span class="q">HQ-25</span><span class="q">HQ-36</span><span class="q">PY-2</span><span class="q">PY-3</span><span class="q">YU-19</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页默认你看过 <a href="06-agent-basics-and-tools.html">06 · Agent 基础与工具协议</a>（主循环和工具协议）和 <a href="00-key-terms.html">00 · 先认识这几个词</a>（概念解释）。没看的话先看那两份。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句。</div>
+  <div><b>第二遍（20 分钟）</b>读正文，重点看第 2 节（Harness）和第 6 节（案例）。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个问题</h2>
+
+<p>你和别人用的是<strong>同一个模型</strong>，做的也是同一类任务，但人家的 Agent 就是更稳、更少跑偏、更省钱。差在哪？</p>
+
+<p>差在<strong>模型外面包的那层东西</strong>：提示词怎么写、工具怎么定义、上下文怎么管、循环怎么刹车、出错了怎么办、日志记不记。这一整套，业内叫 <strong>Harness（外壳）</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这一页的核心概念</p>
+  <h3>模型只是发动机，Harness 才是整台车</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 292" role="img" aria-label="Harness 的组成：裸模型加外围八个部件">
+    <text x="20" y="22" style="font-weight:600">Harness（Agent 的外壳）</text>
+    <rect x="20" y="34" width="760" height="236" rx="12" fill="none" stroke="var(--c-tool)" stroke-width="1.5" stroke-dasharray="6 5"></rect>
+
+    <rect class="box-d" x="50" y="52" width="165" height="48" rx="8"></rect>
+    <text x="62" y="73" style="font-weight:600">系统提示词</text>
+    <text x="62" y="91" class="lbl-muted">定义身份与规矩</text>
+
+    <rect class="box-d" x="229" y="52" width="165" height="48" rx="8"></rect>
+    <text x="241" y="73" style="font-weight:600">工具定义与执行</text>
+    <text x="241" y="91" class="lbl-muted">有哪些工具、怎么调</text>
+
+    <rect class="box-d" x="408" y="52" width="165" height="48" rx="8"></rect>
+    <text x="420" y="73" style="font-weight:600">上下文管理</text>
+    <text x="420" y="91" class="lbl-muted">裁剪 / 隔离</text>
+
+    <rect class="box-d" x="587" y="52" width="165" height="48" rx="8"></rect>
+    <text x="599" y="73" style="font-weight:600">循环控制</text>
+    <text x="599" y="91" class="lbl-muted">轮次 / token / 时间</text>
+
+    <rect class="box-d" x="50" y="112" width="165" height="48" rx="8"></rect>
+    <text x="62" y="133" style="font-weight:600">错误处理</text>
+    <text x="62" y="151" class="lbl-muted">失败了怎么办</text>
+
+    <rect class="box-d" x="229" y="112" width="165" height="48" rx="8"></rect>
+    <text x="241" y="133" style="font-weight:600">可观测性</text>
+    <text x="241" y="151" class="lbl-muted">日志与成本统计</text>
+
+    <rect class="box-d" x="408" y="112" width="165" height="48" rx="8"></rect>
+    <text x="420" y="133" style="font-weight:600">权限与沙箱</text>
+    <text x="420" y="151" class="lbl-muted">能读写什么</text>
+
+    <rect class="box-d" x="587" y="112" width="165" height="48" rx="8"></rect>
+    <text x="599" y="133" style="font-weight:600">人机协作</text>
+    <text x="599" y="151" class="lbl-muted">什么时候停下来问人</text>
+
+    <rect class="box-m" x="50" y="184" width="702" height="66" rx="10"></rect>
+    <text x="401" y="212" text-anchor="middle" style="font-weight:600">裸模型（LLM）</text>
+    <text x="401" y="233" text-anchor="middle" class="lbl-muted">同一个模型装在不同的外壳里，效果能差好几倍</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：上面那 8 个部件都不是模型自带的，是<strong>你要自己搭的工程</strong>。同一个模型，外壳搭得好不好，直接决定它稳不稳、贵不贵、好不好调。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">为什么这个概念现在很火：<strong>模型半年才更新一次，外壳你每天都能改。</strong>所以改外壳的投入产出比，往往高于等一个更强的模型。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 外壳</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. claude code 的核心循环与四条设计原则</h2>
+
+<div class="warn">
+  <span class="tag">先明确对方想听什么</span>
+  <p>问这个（<code>JR-13</code> <code>KJ-1</code>）不是让你背源码。答"我逐行读过源码"却讲不出设计取舍，反而扣分。他要听的是：<strong>你理解它为什么这么设计</strong>。</p>
+</div>
+
+<p><strong>核心循环</strong>就是 06 讲的 ReAct 循环，只是工具换成了代码相关的：</p>
+
+<pre><code>读代码 / 搜代码（工具调用）
+      ↓
+思考：问题在哪、下一步做什么
+      ↓
+改代码（工具调用）
+      ↓
+跑测试 / 看结果（工具调用）
+      ↓
+  结果符合预期？──否──→ 回到第一步
+      │
+      是 → 结束</code></pre>
+
+<p>真正有价值的是它围绕这个循环做的<strong>四条设计取舍</strong>——这些原则不依赖具体实现，自己写一个 agent loop 也能验证：</p>
+
+<table>
+  <thead><tr><th style="width:22%">原则</th><th style="width:34%">做法</th><th>为什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>检索优于全量</strong></td>
+      <td>不把整个代码库塞进上下文，先搜索<strong>定位</strong>，只把相关片段带进来</td>
+      <td>上下文装不下整个仓库；全塞进去噪声大、还贵</td>
+    </tr>
+    <tr>
+      <td><strong>工具结果要裁剪</strong></td>
+      <td>读文件只读需要的行区间，命令输出做截断</td>
+      <td>避免"读了一个 5000 行文件"直接占满上下文</td>
+    </tr>
+    <tr>
+      <td><strong>子任务隔离</strong></td>
+      <td>搜索、探索类工作交给子 Agent，<strong>只回传结论</strong></td>
+      <td>探索过程又长又乱，不该污染主线上下文</td>
+    </tr>
+    <tr>
+      <td><strong>提示词可缓存</strong></td>
+      <td>稳定的系统提示和工具定义放最前面并缓存</td>
+      <td>降本提速，也减少上下文抖动</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的落点</span>
+  <p>"claude code 的所有设计最终都指向同一件事——<strong>管住每一个 session 的上下文</strong>。因为决定 Agent 表现的往往不是模型上限，而是上下文质量。这也是为什么它宁可多调几次工具去精确定位，也不愿意把大块内容直接塞进上下文。"</p>
+</div>
+
+<details class="ask">
+  <summary>关于"源码泄露"事件该怎么聊？</summary>
+  <p>保持专业和克制，别表现出"我扒了人家的东西"的态度。可以这样答：</p>
+  <p>"我看过社区的讨论和基于它做的分析。有意思的不是某段实现细节，而是它印证了几个设计原则：<strong>检索优于全量、工具结果必须裁剪、子任务要隔离、提示词要能缓存</strong>。这些原则不依赖具体实现，自己实现一个 agent loop 也能验证。"</p>
+  <p>然后把话题引到自己的实践上——这比背源码细节有价值得多。</p>
+</details>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. Harness 到底是什么</h2>
+
+<p>上一节主图里那 8 个部件，加上把它们串起来的逻辑，合起来就叫 Harness。换个说法：</p>
+
+<div class="analogy">
+  <span class="tag">类比</span>
+  <p><strong>模型是发动机，Harness 是整台车。</strong>同一个发动机装在不同车架上，跑出来的性能、油耗、舒适度差很多。</p>
+  <p>而且更关键的一点：<strong>发动机半年才换一次，车架你自己随时能改。</strong></p>
+</div>
+
+<table>
+  <thead><tr><th style="width:26%">部件</th><th>不管它会发生什么</th></tr></thead>
+  <tbody>
+    <tr><td><strong>系统提示词</strong></td><td>模型不知道自己的角色和边界，什么都敢答</td></tr>
+    <tr><td><strong>工具定义与执行</strong></td><td>模型只会说话，干不了活；工具描述写不清它就选错</td></tr>
+    <tr><td><strong>上下文管理</strong></td><td>跑十几轮之后上下文被历史塞满，模型开始跑偏</td></tr>
+    <tr><td><strong>循环控制</strong></td><td>死循环，一直烧钱不产出</td></tr>
+    <tr><td><strong>错误处理</strong></td><td>工具一失败整个任务就崩</td></tr>
+    <tr><td><strong>可观测性</strong></td><td>出问题完全没法查，只能"感觉最近变差了"</td></tr>
+    <tr><td><strong>权限与沙箱</strong></td><td>模型可能删掉不该删的文件、调用不该调的接口</td></tr>
+    <tr><td><strong>人机协作</strong></td><td>该停下来问人的时候它自作主张</td></tr>
+  </tbody>
+</table>
+
+<details class="ask">
+  <summary>Harness 和 Agent 框架（LangChain 之类）是什么关系？</summary>
+  <p>有重叠但不完全等同：</p>
+  <ul>
+    <li><strong>框架</strong>是给你用的<strong>代码库</strong>，你用它搭 Harness。</li>
+    <li><strong>Harness</strong> 是最终<strong>跑起来的那个系统</strong>——框架只是其中一部分，还包括你写的提示词、工具实现、循环控制、日志、权限。</li>
+  </ul>
+  <p>所以完全不用框架也能有 Harness（很多人手写 agent loop，反而更可控）；反过来，用了框架不等于 Harness 做得好。</p>
+</details>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. LangChain 和 LangGraph 怎么选</h2>
+
+<table>
+  <thead><tr><th style="width:16%"></th><th style="width:42%">LangChain</th><th>LangGraph</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>定位</strong></td>
+      <td>各种组件的<strong>工具箱</strong>：模型、向量库、工具、检索器的统一封装</td>
+      <td>用<strong>图</strong>来编排流程和 Agent</td>
+    </tr>
+    <tr>
+      <td><strong>核心概念</strong></td>
+      <td>链、提示词模板、检索器、工具</td>
+      <td>节点 + 边 + 状态</td>
+    </tr>
+    <tr>
+      <td><strong>适合</strong></td>
+      <td>简单线性流程、快速搭原型、需要现成的组件集成</td>
+      <td>多分支、循环、多 Agent、需要显式状态和人工介入</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>判断标准很简单：流程有没有分支和循环。</strong>线性流程（检索 → 拼提示词 → 生成）用 LangChain 就够，甚至不用框架也行；有分支、有循环、要多 Agent 协作，才需要 LangGraph 那种状态机。</p>
+
+<h3>版本变化（<code>HQ-25</code> 问的就是这个）</h3>
+<p>对方问"不同版本/模块的区别"，其实是在验证你是否真的用过：</p>
+
+<table>
+  <thead><tr><th style="width:32%">模块</th><th>职责</th></tr></thead>
+  <tbody>
+    <tr><td><code>langchain-core</code></td><td>核心抽象（提示词、消息类型、可组合的调用单元）</td></tr>
+    <tr><td><code>langchain-community</code></td><td>社区维护的各种第三方集成</td></tr>
+    <tr><td>各家厂商的独立包</td><td>模型适配，单独发版、单独升级</td></tr>
+    <tr><td><code>langgraph</code></td><td>图编排，独立于 LangChain 演进</td></tr>
+  </tbody>
+</table>
+
+<p>另一个变化是<strong>写法</strong>：早期用 <code>LLMChain</code> 这类类的方式，现在推荐用管道符把组件串起来，或者直接上 LangGraph。</p>
+
+<div class="skeleton">
+  <span class="tag">选型怎么答（要说出取舍）</span>
+  <p>"选它是因为生态全、组件多、原型快。但有几个实际问题：<strong>抽象层厚，出问题不好排查</strong>——一层层封下去，报错信息很难定位到根因；而且<strong>版本迭代快，容易踩不兼容</strong>。</p>
+  <p>所以我们的做法是：<strong>框架只用在"胶水"部分</strong>——模型接入、工具封装用它省事；<strong>核心链路（检索、重排、上下文管理）自己写</strong>，避免被框架绑架。这样将来换框架的迁移成本也可控。"</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 通用能力模块怎么抽象</h2>
+
+<p>对方问"你们抽象了哪些通用 AI 能力"（<code>JR-3</code>），实际在问<strong>你的工程化水平</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:24%">模块</th><th>抽象了什么</th></tr></thead>
+  <tbody>
+    <tr><td><strong>模型接入层</strong></td><td>统一各家模型的调用接口；超时重试、限流、<strong>失败自动切到备用模型</strong></td></tr>
+    <tr><td><strong>提示词层</strong></td><td>模板管理、版本管理、变量注入（提示词是资产，要能迭代和回滚）</td></tr>
+    <tr><td><strong>检索层</strong></td><td>统一的检索接口（向量 / 关键词 / 混合），<strong>上层不关心底层用的什么库</strong></td></tr>
+    <tr><td><strong>工具层</strong></td><td>工具注册、参数校验、权限控制、调用日志</td></tr>
+    <tr><td><strong>上下文层</strong></td><td>会话管理、压缩、裁剪策略</td></tr>
+    <tr><td><strong>可观测层</strong></td><td>token 统计、成本核算、调用链追踪、效果评估</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一句话点出抽象的目的</span>
+  <p>"抽象的目的有两个：<strong>一是换模型、换向量库不用改业务代码</strong>——我们实际换过一次向量模型，只改了配置层；<strong>二是成本和效果可度量</strong>——每个模块的 token 消耗、延迟、命中率都能单独看到，不然优化就是盲猜。"</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 意图识别与路由</h2>
+
+<p>用户的问题五花八门，不可能都走同一条路。所以需要<strong>先判断他想干什么，再决定送到哪里处理</strong>。</p>
+
+<pre><code>用户提问
+   ├─ ① 规则层（最快最便宜）：关键词命中、菜单选择、业务类型判断
+   ├─ ② 小模型分类（快）：专门训一个小模型做意图分类
+   └─ ③ 大模型判断（慢但准）：复杂、模糊的交给它
+        ↓
+   路由到：知识库问答 / 业务数据查询 / 闲聊 / 转人工</code></pre>
+
+<table>
+  <thead><tr><th style="width:26%">方式</th><th style="width:34%">优点</th><th>缺点</th></tr></thead>
+  <tbody>
+    <tr><td><strong>关键词规则</strong></td><td>快、准、可解释、零成本</td><td>覆盖窄，用户换个说法就失效</td></tr>
+    <tr><td><strong>小模型分类</strong></td><td>成本低、延迟低、稳定</td><td>要标注数据训练；意图变了要重训</td></tr>
+    <tr><td><strong>大模型分类</strong></td><td>灵活、零样本可用、意图随时改</td><td>慢、贵；结果有一定随机性</td></tr>
+    <tr><td><strong>向量相似度</strong></td><td>意图多变时好维护（改描述即可）</td><td>相似意图容易混</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">加分点：必须提置信度和兜底</span>
+  <p>"意图识别一定要有<strong>置信度机制和兜底路径</strong>。识别不出来的时候<strong>别硬猜</strong>——猜错了用户会遇到答非所问，体验比直接说'我没理解，你是想问 X 还是 Y'差得多。</p>
+  <p>我们的做法是<strong>分层过滤</strong>：规则先兜一层（明确的直接路由），剩下的交给模型；模型置信度低于阈值就走通用问答或者给澄清选项。这样既保证了大部分请求的低延迟，又保住了准确率。"</p>
+</div>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6">6. 完整案例：一个检索 Agent 的设计</h2>
+
+<p>这道题（<code>YU-19</code>「你自主设计过智能体吗」）用五段式准备一个具体例子。<strong>下面是完整示范。</strong></p>
+
+<div class="skeleton">
+  <span class="tag">参考回答</span>
+  <p><strong>【结论】</strong>我设计过一个检索 Agent，职责是把用户的口语问题变成精准的知识库查询，并返回可靠的证据。</p>
+  <p><strong>【做法】</strong>它有三步：先做查询改写（含多轮对话的指代消解），然后并行发两路检索——关键词和向量语义，用 RRF 融合，再用交叉编码器精排到 Top 5 返回。工具集就三个：改写、检索、精排。它<strong>只读不写</strong>，不碰任何业务数据。</p>
+  <p><strong>【数字】</strong>上线后专有名词类问题的命中率从 X% 提到 Y%，检索环节 P95 约 X 毫秒，占整个问答链路耗时的 X%。</p>
+  <p><strong>【坑】</strong>一开始我把三个步骤合成一个"大检索"工具，模型经常一次传错参数整条链路就失败。拆成三个小工具之后，模型可以单独重试某一步，鲁棒性明显变好。</p>
+  <p><strong>【权衡】</strong>但拆细了轮次变多、延迟上升。最后的折中是"改写 + 检索"合并成一个工具，"精排"独立——因为精排失败率高且需要单独调参，值得单独一步。</p>
+</div>
+
+<div class="warn">
+  <span class="tag">这个例子为什么好</span>
+  <ul>
+    <li>有<strong>具体的职责边界</strong>（只读、不碰业务数据）</li>
+    <li>有<strong>数字</strong>（命中率、延迟、占比）</li>
+    <li>有<strong>真实的坑</strong>（工具粒度问题）</li>
+    <li>有<strong>权衡和修正过程</strong>（一个大工具 → 三个小工具 → 折中方案）</li>
+  </ul>
+  <p>对方听完能判断出：这个人真的设计过、跑过、改过。</p>
+</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7">7. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「claude code 的核心循环 / 多层架构是怎么做的」</span>
+  <p><strong>【结论】</strong>它的核心是一个主循环：模型判断该做什么，调用工具（读代码、搜代码、改代码、跑测试），把结果回灌到上下文，再进入下一轮，直到问题解决。</p>
+  <p><strong>【做法】</strong>真正值得说的是它围绕这个循环做的工程取舍，有<strong>四条原则</strong>：检索优于全量（先用搜索精确定位，不把整个仓库塞进去）；工具结果要裁剪（读文件只读需要的行区间）；子任务隔离（探索类工作交给子 Agent，只回传结论）；提示词可缓存（稳定部分放最前面）。</p>
+  <p><strong>【坑】</strong>我自己实现 agent loop 时踩过反例：一开始把整个文件内容都塞进上下文，跑几轮就爆了，而且模型被无关代码干扰、改错地方。改成先搜索定位、只读相关行区间之后，效果立刻不一样。</p>
+  <p><strong>【权衡】</strong>这些设计都有代价——检索多花一次工具调用、裁剪可能导致信息不全、子 Agent 有通信开销。所以判断标准是：<strong>只有当信息明显超出上下文预算时才做这些取舍</strong>，小任务不值得。</p>
+  <p><strong>【落点】</strong>所有设计最终指向同一件事：<strong>管住每一个 session 的上下文</strong>。决定 Agent 表现的不是模型上限，而是上下文质量。</p>
+</div>
+
+<details class="ask">
+  <summary>为什么说"抽象层太厚不好排查"？</summary>
+  <p>因为出问题时你要一层层往下找：框架封装了重试逻辑，你看到的报错是"链执行失败"，但根因可能是底层网络超时、也可能是提示词变量没注入、还可能是输出格式解析失败。</p>
+  <p>实践上两条应对：<strong>① 把关键链路自己写</strong>，框架只用在边缘；<strong>② 强行打开详细日志</strong>，确保每一层的输入输出都能看到。第二条在排查线上问题时是救命的。</p>
+</details>
+
+<details class="ask">
+  <summary>怎么评估 Harness 改得好不好？</summary>
+  <p>不能在线上凭感觉，要有一套<strong>离线评测</strong>：</p>
+  <ul>
+    <li>固定一批任务（含成功案例和已知的困难案例），每次改动都跑一遍。</li>
+    <li>看三类指标：<strong>任务成功率</strong>、<strong>平均轮次 / token 消耗</strong>、<strong>失败类型的分布</strong>（是工具选错变少了，还是死循环变少了）。</li>
+    <li>改动的收益要大于它带来的复杂度——<strong>Harness 越复杂，出问题的面也越大</strong>。</li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>你们为什么用 / 不用 Agent 框架？</summary>
+  <p>两种回答都有说服力，关键是给出理由：</p>
+  <ul>
+    <li><strong>用</strong>："生态全、原型快，尤其是模型接入和工具封装这些重复劳动能省掉。"</li>
+    <li><strong>不用</strong>："我们的链路不复杂，直接手写 agent loop 更可控、更好调试，也避免被框架的版本升级绑架。"</li>
+  </ul>
+  <p>通用建议：<strong>框架用在边缘（接入、封装），核心链路（检索、重排、上下文管理）自己掌控</strong>。</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>Harness 是什么？包含哪些部分？为什么说它比换模型还重要？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>Harness</strong> = 把裸模型包装成能干活的系统所需要的整套东西：系统提示词、工具定义与执行、上下文管理、循环控制、错误处理、可观测性、权限沙箱、人机协作。</p>
+    <p><strong>为什么重要</strong>：同一个模型装在不同 Harness 里效果能差好几倍（同一个发动机装不同车架）；更关键的是<strong>模型半年才更新一次，Harness 你每天都能改</strong>——改它的投入产出比往往高于等更强的模型。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>讲一个你设计过的 Agent（五段式）。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>结论</strong>：一句话说清它的职责边界（"检索 Agent，负责把口语问题变成精准查询，只读不写"）。</li>
+      <li><strong>做法</strong>：几步流程 + 工具集（工具越少越好说清）。</li>
+      <li><strong>数字</strong>：命中率、延迟、占比。</li>
+      <li><strong>坑</strong>：工具粒度的真实教训（一个大工具 → 三个小工具）。</li>
+      <li><strong>权衡</strong>：拆细了灵活但轮次多，最后怎么折中的。</li>
+    </ol>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="07-multi-agent.html">← 上一篇：多智能体</a>
+  <a href="09-review-and-answers.html">下一篇：自查与参考回答 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

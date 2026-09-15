@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · SSE 与 WebSocket — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 2/12 份 ｜ C 域 · 上下文治理与流式通信</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item cur" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>02 · SSE 与 WebSocket</h1>
+<p class="lead">
+  AI 回答时"一个字一个字往外蹦"，这个效果是怎么实现的？答案就是这一页的两个东西。
+  这是 C 域<strong>被问得最多</strong>的一块（6 家公司问过），而且一定会连着追问细节。
+</p>
+
+<div class="qbadges"><span class="q">FN-6</span><span class="q">HQ-19</span><span class="q">YF-20</span><span class="q">SH-10</span><span class="q">SH-11</span><span class="q">SH-12</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页是工程实现，不要求你先懂 AI 原理。但要分清「流式输出」是什么——见 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a> 的第四组。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，先分清"单向"和"双向"。</div>
+  <div><b>第二遍（15 分钟）</b>读对比表和选型决策树。</div>
+  <div><b>第三遍</b>做末尾的动手清单——这一块必须自己接一次。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你在用 AI 对话，它的回答一个字一个字地出现，你能看到它"正在想"。但如果你等它全部生成完再一次性显示，体验会差很多——<strong>总时长一样，但感觉慢了好几倍。</strong></p>
+
+<p>问题来了：服务器要"持续不断地往外吐字"，浏览器要"持续不断地接"。<strong>普通的 HTTP 请求做不到这件事</strong>——它是"一问一答，答完就结束"。</p>
+
+<p>所以需要一种能"保持连接、持续传输"的技术。主流有两种：<strong>SSE</strong> 和 <strong>WebSocket</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 两者最本质的区别</p>
+  <h3>SSE 是单向的，WebSocket 是双向的</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 150" role="img" aria-label="SSE 单向与 WebSocket 双向的通信模型对比">
+    <defs>
+      <marker id="a02b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <!-- SSE -->
+    <text x="20" y="24" style="font-weight:600">SSE · 服务器单向推</text>
+    <rect class="box-u" x="20" y="46" width="118" height="52" rx="9"></rect>
+    <text x="79" y="70" text-anchor="middle" style="font-weight:600">浏览器</text>
+    <text x="79" y="88" text-anchor="middle" class="lbl-muted">EventSource</text>
+    <rect class="box-m" x="232" y="46" width="118" height="52" rx="9"></rect>
+    <text x="291" y="70" text-anchor="middle" style="font-weight:600">服务器</text>
+    <text x="291" y="88" text-anchor="middle" class="lbl-muted">持续写文本流</text>
+    <line class="ar" x1="142" y1="62" x2="228" y2="62" marker-end="url(#a02b)"></line>
+    <text x="185" y="52" text-anchor="middle" class="lbl-muted">① 请求</text>
+    <line class="ar" x1="228" y1="88" x2="142" y2="88" marker-end="url(#a02b)"></line>
+    <text x="185" y="106" text-anchor="middle" class="lbl-muted">② 持续推</text>
+    <text x="20" y="130" class="lbl-muted">底层就是普通 HTTP，浏览器自带断线重连</text>
+
+    <line x1="400" y1="10" x2="400" y2="140" class="ln" stroke-dasharray="4 4"></line>
+
+    <!-- WebSocket -->
+    <text x="430" y="24" style="font-weight:600">WebSocket · 双向</text>
+    <rect class="box-u" x="430" y="46" width="118" height="52" rx="9"></rect>
+    <text x="489" y="70" text-anchor="middle" style="font-weight:600">浏览器</text>
+    <text x="489" y="88" text-anchor="middle" class="lbl-muted">new WebSocket()</text>
+    <rect class="box-m" x="642" y="46" width="118" height="52" rx="9"></rect>
+    <text x="701" y="70" text-anchor="middle" style="font-weight:600">服务器</text>
+    <text x="701" y="88" text-anchor="middle" class="lbl-muted">随时收发</text>
+    <line class="ar" x1="552" y1="62" x2="638" y2="62" marker-end="url(#a02b)"></line>
+    <text x="595" y="52" text-anchor="middle" class="lbl-muted">① 握手</text>
+    <line class="ar" x1="638" y1="88" x2="552" y2="88" marker-end="url(#a02b)"></line>
+    <text x="595" y="106" text-anchor="middle" class="lbl-muted">② 之后双向</text>
+    <text x="430" y="130" class="lbl-muted">握手成功后，任一方都能主动发消息</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：<strong>SSE 只有服务器能往浏览器推，浏览器不能主动发。</strong>WebSocket 握手之后是双向的，两边随时都能发。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">这个区别直接决定了选型：<strong>只是"服务器持续吐字给用户看"，用 SSE 就够</strong>；如果用户还要频繁主动发消息（比如协作编辑、游戏），才用 WebSocket。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>浏览器 / 用户侧</span>
+  <span><i style="background:var(--c-model)"></i>服务器侧</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 处理</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 对比 ============ -->
+<h2 id="s1">1. 三种方案对比</h2>
+
+<p>除了这两个，还有一种最土的办法：<strong>轮询</strong>（每隔几秒问一次"好了吗"）。三种放一起看：</p>
+
+<table>
+  <thead><tr><th style="width:16%"></th><th style="width:28%">SSE</th><th style="width:28%">WebSocket</th><th>轮询</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>方向</strong></td>
+      <td><strong>单向</strong>：只有服务器能推</td>
+      <td><strong>双向</strong>：两边都能随时发</td>
+      <td>单向（靠客户端反复问）</td>
+    </tr>
+    <tr>
+      <td><strong>底层</strong></td>
+      <td>普通 HTTP 长连接</td>
+      <td>独立协议，需要握手升级</td>
+      <td>普通 HTTP</td>
+    </tr>
+    <tr>
+      <td><strong>数据格式</strong></td>
+      <td>纯文本（<code>text/event-stream</code>）</td>
+      <td>文本或二进制</td>
+      <td>普通响应</td>
+    </tr>
+    <tr>
+      <td><strong>自动重连</strong></td>
+      <td><strong>浏览器自带</strong>，不用自己写</td>
+      <td>要自己实现</td>
+      <td>不需要</td>
+    </tr>
+    <tr>
+      <td><strong>实现成本</strong></td>
+      <td>低，服务端就是持续写响应</td>
+      <td>高一些，要管握手、心跳、事件协议</td>
+      <td>最低，但效果最差</td>
+    </tr>
+    <tr>
+      <td><strong>代理 / 网关兼容</strong></td>
+      <td>基本无痛（就是 HTTP）</td>
+      <td>有些网关 / 负载均衡要专门配置</td>
+      <td>无痛</td>
+    </tr>
+    <tr>
+      <td><strong>适合</strong></td>
+      <td>AI 流式输出、任务进度推送、日志实时展示</td>
+      <td>聊天室、协作编辑、游戏、需要高频双向交互</td>
+      <td>兜底方案；对实时性要求极低时</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一句话选型</span>
+  <p><strong>只是"服务器持续推数据给前端看" → 用 SSE；需要"频繁双向交互" → 用 WebSocket。</strong></p>
+  <p>AI 对话场景里绝大多数是前者，所以<strong>主流做法是用 SSE</strong>——它更简单、天然兼容 HTTP 基础设施、浏览器还自带重连。</p>
+</div>
+
+<!-- ============ SSE 细节 ============ -->
+<h2 id="s2">2. SSE 的实现细节</h2>
+
+<p>SSE 的数据格式非常简单，就是<strong>一行一行的纯文本</strong>，每条消息以两个换行结束：</p>
+
+<pre><code>data: {"text": "员工"}
+data: {"text": "餐厅"}
+
+data: {"text": "不提供"}
+data: {"text": "外带打包"}
+
+data: [DONE]</code></pre>
+
+<p>每一行以 <code>data:</code> 开头，浏览器拿到之后触发 <code>onmessage</code>，前端把 <code>text</code> 拼起来实时渲染。<strong>这就是"一个字一个字蹦出来"的全部原理。</strong></p>
+
+<table>
+  <thead><tr><th style="width:26%">要点</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>响应头</strong></td><td>必须带 <code>Content-Type: text/event-stream</code>，并且<strong>关闭缓冲</strong>（否则会被攒起来一次性发，就不"流"了）</td></tr>
+    <tr><td><strong>前端接收</strong></td><td>用 <code>EventSource</code>，监听 <code>onmessage</code>；也可以用 <code>fetch</code> + 读 <code>ReadableStream</code>（后者更灵活，比如要带自定义请求头）</td></tr>
+    <tr><td><strong>结束标记</strong></td><td>约定一个 <code>[DONE]</code> 之类的标记，前端收到就知道结束了</td></tr>
+    <tr><td><strong>常见坑</strong></td><td>Nginx 默认会缓冲响应，必须显式关掉（<code>X-Accel-Buffering: no</code>）；否则现象就是"卡住很久然后一次性全出来"</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ WebSocket 细节 ============ -->
+<h2 id="s3">3. WebSocket 的前端流程</h2>
+
+<p>前端接 WebSocket 的四步（对应 <code>SH-10</code> ~ <code>SH-12</code>）：</p>
+
+<div class="pipeline">
+  <details class="node u"><summary>建立连接</summary><div class="body">用 <code>new WebSocket(url)</code> 发起，走一次 HTTP 握手升级协议。要监听 <code>onopen</code>（成功）、<code>onerror</code>（出错）、<code>onclose</code>（断开）三个事件。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>监听消息</summary><div class="body">用 <code>onmessage</code> 收消息。约定用 JSON：<code>{ type, data, id }</code>——<code>type</code> 区分事件类型，<code>data</code> 是内容。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>分发处理</summary><div class="body">按 <code>type</code> 分发到不同处理函数（比如 <code>token</code> 追加到回答、<code>progress</code> 更新进度条、<code>error</code> 提示用户）。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>心跳与重连</summary><div class="body">定时发心跳包保活；断开后按退避策略重连。这两件事 <strong>WebSocket 都要自己写</strong>，SSE 不用。</div></details>
+</div>
+
+<div class="warn">
+  <span class="tag">"和后端约定事件"具体约什么</span>
+  <p>这是 <code>SH-12</code> 想问的。实际要约定这几样：</p>
+  <ul>
+    <li><strong>消息类型枚举</strong>：<code>token</code>（流式片段）、<code>progress</code>（进度）、<code>done</code>（结束）、<code>error</code>（错误）、<code>ping/pong</code>（心跳）</li>
+    <li><strong>每种类型的字段结构</strong>：比如 <code>token</code> 要带 <code>seq</code>（序号，用于断线续传去重）</li>
+    <li><strong>结束与错误语义</strong>：怎么表示"正常结束"、怎么带错误码</li>
+    <li><strong>版本号</strong>：协议变了怎么兼容旧客户端</li>
+  </ul>
+</div>
+
+<!-- ============ 选型 ============ -->
+<h2 id="s4">4. 怎么选：三个问题</h2>
+
+<div class="tree">
+  <p class="q">① 客户端需要频繁主动发消息给服务器吗？</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">需要</span>用 <strong>WebSocket</strong>（协作编辑、聊天室、游戏）</div>
+    <div class="a no"><span class="yn">不需要</span>看下一个问题</div>
+  </div>
+
+  <p class="q">② 需要传二进制数据（文件、音视频）吗？</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">需要</span>用 <strong>WebSocket</strong>（SSE 只支持文本）</div>
+    <div class="a no"><span class="yn">不需要</span>看下一个问题</div>
+  </div>
+
+  <p class="q">③ 是"服务器持续推数据给前端展示"这类场景吗？（AI 流式输出、进度、日志）</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">是</span>用 <strong>SSE</strong>：更简单、天然兼容 HTTP、浏览器自带重连</div>
+  </div>
+</div>
+
+<p><strong>补充一句实话</strong>：很多团队选 WebSocket 是因为"听起来更高级"，实际上 AI 对话场景用 SSE 更省事——少写重连、少踩网关配置的坑。</p>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「SSE 和 WebSocket 有什么区别，分别用在什么场景」</span>
+  <p><strong>【结论】</strong>最本质的区别是<strong>方向</strong>：SSE 是服务器<strong>单向</strong>推送，WebSocket 握手之后是<strong>双向</strong>的。</p>
+  <p><strong>【SSE】</strong>底层就是普通 HTTP 长连接，服务端持续往响应里写文本流，格式是简单的 <code>data:</code> 行。它的好处是<strong>浏览器自带断线重连</strong>、天然兼容各种网关、实现成本低。缺点是只能服务器推，而且只能传文本。</p>
+  <p><strong>【WebSocket】</strong>需要一次 HTTP 握手升级成独立协议，之后两边都能随时发消息，支持二进制。灵活但<strong>心跳、重连、事件协议都要自己实现</strong>，部分网关还要专门配置。</p>
+  <p><strong>【怎么选】</strong>只是"服务器推数据给前端看"（AI 流式输出、任务进度、日志）→ 用 SSE；需要频繁双向交互或传二进制（协作编辑、聊天室）→ 用 WebSocket。</p>
+  <p><strong>【我们的选择】</strong>我们 AI 对话用的是 SSE。因为需求就是单向推 token，SSE 少写一堆重连逻辑，而且通过 Nginx 只要关掉缓冲就能跑。唯一要注意的是代理的缓冲问题——一开始没关，现象是"卡很久然后一次性全出来"。</p>
+</div>
+
+<details class="ask">
+  <summary>SSE 断线了怎么办？</summary>
+  <p><strong>浏览器自带的 <code>EventSource</code> 会自动重连</strong>——这是 SSE 相对 WebSocket 的一大优势，你什么代码都不用写。它会带上 <code>Last-Event-ID</code> 请求头，服务端如果支持，可以据此把断线期间漏掉的消息补上。</p>
+  <p>但要注意：<strong>自动重连只是"重新连上"，不等于"接着上次继续"</strong>。要做到"接着上次继续"，需要服务端支持断点续传（见下一篇）。</p>
+  <p>如果用 <code>fetch</code> + 流式读取而不是 <code>EventSource</code>（因为要带自定义请求头），那就得自己实现重连和退避。</p>
+</details>
+
+<details class="ask">
+  <summary>为什么前端有时用 fetch 而不用 EventSource？</summary>
+  <p>因为 <code>EventSource</code> 有几个限制：</p>
+  <ul>
+    <li><strong>不能自定义请求头</strong>——没法带 <code>Authorization</code>，只能靠 Cookie 或把 token 放 URL 里（不安全）。</li>
+    <li><strong>只能发 GET 请求</strong>——没法 POST 一大段消息体。</li>
+    <li><strong>不能主动中断</strong>后的自定义处理不够灵活。</li>
+  </ul>
+  <p>所以很多项目用 <code>fetch</code> 拿到 <code>ReadableStream</code> 自己逐块解析 SSE 格式——协议还是那个协议，只是换了个读取方式。</p>
+</details>
+
+<details class="ask">
+  <summary>SSE 支持多少并发连接？会不会把服务器拖垮？</summary>
+  <p>每个 SSE 连接<strong>占用一个长连接</strong>，不像普通请求那样用完就释放。所以要注意：</p>
+  <ul>
+    <li><strong>连接数上限</strong>：浏览器对同域名 HTTP/1.1 连接数有限制（通常 6 个），开多个标签页会互相挤占；HTTP/2 下多路复用能缓解。</li>
+    <li><strong>服务端资源</strong>：每个连接占一个线程/协程，要用异步框架（Node.js、Go、Python async）才撑得住。</li>
+    <li><strong>必须设超时</strong>：否则断开的连接会一直挂着占资源。</li>
+  </ul>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <ol>
+    <li><strong>用 SSE 把流式输出接起来</strong>：后端持续写 <code>data:</code> 行，前端用 <code>EventSource</code> 或 <code>fetch</code> + 流式读取逐块渲染。跑通"一个字一个字蹦出来"的效果。</li>
+    <li><strong>故意踩一次缓冲的坑</strong>：先不关 Nginx 缓冲跑一遍，观察"卡住很久然后一次性全出来"的现象，再关掉对比。<strong>这个体验差异你要能讲出来。</strong></li>
+    <li><strong>量一下首字延迟</strong>：记录"从发请求到第一个字出现"的时间。这个数字讲的时候很有用（"我们的首字延迟是 X 毫秒"）。</li>
+    <li><strong>试试 WebSocket 版本</strong>（可选）：用同一套业务逻辑再实现一个 WebSocket 版，对比代码量——你会直观感受到"重连、心跳都要自己写"有多麻烦。这个对比能答出很真实的选型理由。</li>
+    <li><strong>录一段口述</strong>：讲清"为什么我们选 SSE 不选 WebSocket"，带上实现成本和踩坑经历。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>SSE 和 WebSocket 最本质的区别是什么？各自适合什么场景？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>本质区别是方向</strong>：SSE 单向（只能服务器推），WebSocket 双向（握手后两边都能发）。</p>
+    <p><strong>SSE 的额外优势</strong>：底层是普通 HTTP，天然兼容网关；<strong>浏览器自带重连</strong>；实现成本低。限制是只能推文本。</p>
+    <p><strong>选型</strong>：服务器持续推数据给前端看（AI 流式、进度、日志）→ SSE；需要频繁双向交互或传二进制 → WebSocket。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>SSE 的数据长什么样？为什么会出现"卡很久然后一次性全出来"？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>SSE 数据是<strong>一行一行的纯文本</strong>，每条以 <code>data:</code> 开头、以两个换行结束，浏览器逐条触发 <code>onmessage</code>，前端把文本片段拼起来渲染。</p>
+    <p>"卡很久然后一次性全出来"是<strong>响应被缓冲了</strong>——最常见的是 Nginx 默认开缓冲，要显式关掉（<code>X-Accel-Buffering: no</code>）。另外应用层也要确保<strong>不攒够一批才 flush</strong>。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="01-context-management.html">← 上一篇：上下文治理</a>
+  <a href="03-streaming-details.html">下一篇：流式的工程细节 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

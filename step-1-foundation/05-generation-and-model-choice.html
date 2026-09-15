@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · 生成侧与模型选型 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 5/9 份 ｜ A 域 · LLM 与 RAG</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item cur" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>05 · 生成侧与模型选型</h1>
+<p class="lead">
+  检索把资料找回来了，剩下最后一公里：<strong>怎么把这些资料用好</strong>，以及<strong>用哪个模型来做这件事</strong>。
+  这一页的题不多，但都属于"答不好会显得没做过"的类型。
+</p>
+
+<div class="qbadges"><span class="q">PY-7</span><span class="q">JR-9</span><span class="q">YF-10</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页要用「上下文」「幻觉」「token」「微调」这些词。看着眼生的话，先看 <a href="00-key-terms.html">00 · 先认识这几个词</a> 的第一组和第四组。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句。</div>
+  <div><b>第二遍（12 分钟）</b>读正文和表格。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>检索环节已经找回了 5 段资料，都跟"餐厅能不能打包"有关。接下来要做的只有一件事：<strong>把这 5 段资料组装成一段文字，连同用户的提问一起发给模型。</strong></p>
+
+<p>听起来很简单，但组装方式<strong>直接决定模型用不用得上这些资料</strong>——顺序不对、要求没写清，模型就会忽略资料、自己编。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 一个反直觉的现象</p>
+  <h3>资料放在哪个位置，决定了模型用不用它</h3>
+
+  <div class="dilute">
+    <div class="row">
+      <p class="cap">放在<strong>开头</strong>（系统提示后面紧跟着资料）</p>
+      <div class="bar"><span class="seg" style="width:88%"></span></div>
+      <p class="memo">模型用得很好——开头的位置它最认真看。</p>
+    </div>
+    <div class="row">
+      <p class="cap">放在<strong>中间</strong>（前面一堆历史、后面还有别的内容）</p>
+      <div class="bar"><span class="seg" style="width:28%"></span></div>
+      <p class="memo">容易被忽略——<strong>夹在中间的内容模型常常"看漏"</strong>，业内把这个现象叫"迷失在中间"。它可能明明看到了却说"资料里没有"。</p>
+    </div>
+    <div class="row">
+      <p class="cap">放在<strong>结尾</strong>（紧挨着用户提问）</p>
+      <div class="bar"><span class="seg" style="width:80%"></span></div>
+      <p class="memo">用得也好——离问题最近，模型注意力集中。</p>
+    </div>
+  </div>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：模型对上下文的注意力<strong>不是均匀分布</strong>的，开头和结尾利用得最好，中间最容易被忽略。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">两个实用推论：① 资料少的时候随便放；资料多（十几段）时把<strong>最相关的放前面</strong>。② 与其塞十段凑数的，不如<strong>留三段精准的</strong>——少而准比多而杂有效得多。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 计算</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 处理</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 怎么组装这一段提示词</h2>
+
+<table>
+  <thead><tr><th style="width:22%">要素</th><th>要点</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>角色与任务</strong></td>
+      <td>一句话说清身份和边界："你是公司内部制度助手，只回答制度相关的问题。"</td>
+    </tr>
+    <tr>
+      <td><strong>证据区块</strong></td>
+      <td>每段资料<strong>带编号和出处</strong>，比如 <code>[1]（来源：员工手册 4.2 节）……</code>——方便模型引用，也方便你事后核对引用对不对</td>
+    </tr>
+    <tr>
+      <td><strong>约束</strong></td>
+      <td>"只依据以上资料回答"、"资料里没有的要明说不知道"、"每个结论标注引用编号"</td>
+    </tr>
+    <tr>
+      <td><strong>顺序</strong></td>
+      <td>最相关的放开头或结尾，别埋中间（见主图）</td>
+    </tr>
+    <tr>
+      <td><strong>历史对话</strong></td>
+      <td>多轮场景要带上，但注意控制长度（具体手段是步骤 2 的 C 域内容）</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 幻觉和"拒答"</h2>
+
+<p>RAG 最反直觉的一点：<strong>检索不到答案时，模型反而更容易编</strong>——因为它拿到了几段"看起来相关"的内容，会强行拼凑出一个答案。</p>
+
+<table>
+  <thead><tr><th style="width:26%">手段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>显式允许拒答</strong></td>
+      <td>提示词里明确写："如果资料中没有相关信息，回答'根据现有资料无法回答'。"<strong>不给它台阶，它就不会承认不知道</strong></td>
+    </tr>
+    <tr>
+      <td><strong>强制引用</strong></td>
+      <td>要求每个结论标注来源编号。编造的内容会因为"找不到引用"而暴露</td>
+    </tr>
+    <tr>
+      <td><strong>检索前的门槛</strong></td>
+      <td>如果最高相似度低于某个阈值，<strong>直接走兜底话术，不进模型</strong>——从源头避免硬答</td>
+    </tr>
+    <tr>
+      <td><strong>生成后校验</strong></td>
+      <td>用小模型或规则检查：引用是否真实存在、结论是否被引用内容支持</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一个容易被忽略的指标</span>
+  <p>评估 RAG 时，除了"答对率"，一定要单独看两个指标：</p>
+  <ul>
+    <li><strong>该拒答没拒答</strong>（幻觉）——最严重，会误导用户</li>
+    <li><strong>不该拒答却拒答</strong>（过度保守）——体验差，但比上面好得多</li>
+  </ul>
+  <p>很多团队只优化"答对率"，结果把模型调成了"什么都敢答"，反而更危险。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 输出格式：Markdown 还是 JSON</h2>
+
+<p>先说为什么要纠结格式：因为系统要拿模型的输出<strong>做后续处理</strong>——渲染卡片、存库、调接口、驱动前端组件。<strong>不可解析的输出等于白给。</strong></p>
+
+<table>
+  <thead><tr><th style="width:16%">格式</th><th style="width:42%">优点</th><th>缺点</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Markdown</strong></td>
+      <td>流式友好（边生成边渲染）；模型生成稳定；前端渲染成本低</td>
+      <td>不是严格结构，程序解析要写规则</td>
+    </tr>
+    <tr>
+      <td><strong>JSON</strong></td>
+      <td>严格结构，程序直接反序列化；字段清晰</td>
+      <td><strong>流式不友好</strong>（没写完就是非法 JSON）；内容长了容易出错（少括号、多逗号）；模型要为转义分心</td>
+    </tr>
+    <tr>
+      <td><strong>结构化输出 / 函数调用</strong></td>
+      <td>格式由接口层保证，最可靠</td>
+      <td>需要模型和 SDK 支持；只能表达有限结构</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这道题的答法</span>
+  <p><strong>【结论】</strong>原则是：<strong>要流式渲染给人看的用 Markdown；要喂给程序做后续处理的用 JSON 或结构化输出。</strong></p>
+  <p><strong>【为什么主用 Markdown】</strong>三个原因：</p>
+  <ul>
+    <li><strong>流式</strong>：JSON 没生成完就是非法结构，前端没法边收边渲染；Markdown 可以边收边渲染，用户体感快很多。</li>
+    <li><strong>稳定</strong>：模型写 JSON 容易出错，尤其内容长了之后少个括号整个就废了；Markdown 容错性好，格式错了顶多渲染难看，不影响内容。</li>
+    <li><strong>顺手</strong>：模型训练语料里 Markdown 极多，输出它最自然，格式漂移最少。</li>
+  </ul>
+  <p><strong>【什么时候用 JSON】</strong>需要严格结构时（比如要生成一组表单字段、触发特定前端组件），用<strong>结构化输出约束</strong>让接口层保证格式，而不是让模型"自由发挥写 JSON"，同时做校验和失败重试。</p>
+</div>
+
+<h3>流式输出下的那些坑（做过的人才知道）</h3>
+<table>
+  <thead><tr><th style="width:32%">难题</th><th>解法</th></tr></thead>
+  <tbody>
+    <tr><td>JSON 流式没法增量解析</td><td>用支持增量解析的库，或者让模型输出"每行一个完整对象"，逐行解析</td></tr>
+    <tr><td>Markdown 表格渲染错乱</td><td>流式时先按纯文本渲染，表格结构收完整了再切成表格组件</td></tr>
+    <tr><td>代码块没闭合</td><td>前端容错：收到 <code>```</code> 但还没收到结束标记时，按"已开始的代码块"渲染</td></tr>
+    <tr><td>引用编号满天飞</td><td>前端解析 <code>[1]</code> 这类标记，替换成可点击的角标，指向对应资料</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 模型怎么选：六个维度</h2>
+
+<table>
+  <thead><tr><th style="width:18%">维度</th><th>要问自己的问题</th></tr></thead>
+  <tbody>
+    <tr><td><strong>能力</strong></td><td>你的任务需要多强？简单分类抽取用小模型就够；复杂推理必须上大模型</td></tr>
+    <tr><td><strong>成本</strong></td><td>输入输出分别多少钱/百万 token？能不能分级路由</td></tr>
+    <tr><td><strong>延迟</strong></td><td>首字多快出来？流式场景用户对这个极敏感</td></tr>
+    <tr><td><strong>合规</strong></td><td>数据能不能出内网/出境？政府、金融项目通常必须私有化</td></tr>
+    <tr><td><strong>上下文长度</strong></td><td>要塞多长的资料？注意"标称长度"和"实际有效长度"不是一回事</td></tr>
+    <tr><td><strong>稳定性与生态</strong></td><td>限流策略、可用性、工具调用能力、SDK 成熟度</td></tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">别只答"我们用了最强的模型"</span>
+  <p>对方想听的是<strong>取舍逻辑</strong>。一个高分回答长这样：</p>
+  <p>"我们把任务<strong>分了级</strong>：意图识别、格式校验这种简单任务用便宜的小模型，成本和延迟都低；只有最终答案生成和复杂推理才用最强的模型。整体成本降了大概 X%，效果几乎没损失——因为简单任务本来就不需要大模型。"</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 微调、API、私有化、蒸馏</h2>
+
+<table>
+  <thead><tr><th style="width:16%">方案</th><th style="width:38%">什么时候用</th><th>注意</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>调 API</strong></td>
+      <td><strong>默认选择</strong>。知识更新走 RAG，不靠微调</td>
+      <td>成本随量线性增长；数据合规要评估</td>
+    </tr>
+    <tr>
+      <td><strong>微调</strong></td>
+      <td>固定输出格式、特定语气风格、垂直领域术语；或把大模型能力蒸馏到小模型省钱</td>
+      <td>要数据要算力；<strong>用它灌知识是错的</strong>——知识更新要重训，还照样会编</td>
+    </tr>
+    <tr>
+      <td><strong>私有化部署</strong></td>
+      <td>数据不能出内网；或调用量大到自建更便宜</td>
+      <td>要 GPU 和运维；开源模型能力通常弱一些，要用工程手段补</td>
+    </tr>
+    <tr>
+      <td><strong>蒸馏</strong></td>
+      <td>用大模型生成高质量数据，训一个小模型专做某个任务（如意图分类、改写）</td>
+      <td>只适合<strong>任务边界清晰</strong>的场景，通用能力会退化</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这道题的答法</span>
+  <p><strong>【结论】</strong>我们没有做微调，走的是<strong>第三方 API + RAG</strong>。因为核心需求是"知道公司内部知识"，这属于知识问题，应该由 RAG 解决——微调灌知识既贵又难更新，还照样会编。</p>
+  <p><strong>【做法】</strong>模型接入做了一层统一封装：超时重试、限流、失败自动切到备用模型；按任务难度分级路由——简单任务走小模型，复杂生成走大模型。</p>
+  <p><strong>【什么时候会考虑微调】</strong>两个信号：一是输出格式始终不稳定，反复调提示词也压不住；二是某个高频任务用大模型太贵，想蒸馏到小模型。这两个才是微调的合理场景。</p>
+  <p><strong>【合规】</strong>如果客户是政府单位、要求数据不出内网，API 路线就走不通，必须换私有化部署——这类项目要在选型阶段就当成硬约束，而不是事后改造。</p>
+</div>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6">6. 成本优化的四条路</h2>
+
+<p>这一节和后面"量化指标与成本"那一步直接相关，先建立框架：</p>
+
+<table>
+  <thead><tr><th style="width:22%">方向</th><th>手段</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>少调模型</strong></td>
+      <td>缓存（问题级 / 语义级）；规则能解决的不用模型；合并多次调用为一次</td>
+    </tr>
+    <tr>
+      <td><strong>用更便宜的模型</strong></td>
+      <td>分级路由：简单任务小模型、复杂任务大模型；高频固定任务蒸馏到小模型</td>
+    </tr>
+    <tr>
+      <td><strong>少送 token</strong></td>
+      <td>提高检索精度（少送无用资料）；上下文压缩；<strong>提示词缓存</strong>（系统提示和工具定义复用）</td>
+    </tr>
+    <tr>
+      <td><strong>少重复计算</strong></td>
+      <td>幂等去重（同一个任务重试时不要重复调模型——这一点在步骤 2 的后端部分会展开）；批处理</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7">7. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「大模型的选型逻辑是什么」</span>
+  <p><strong>【结论】</strong>我们的选型不是"选最强的"，而是<strong>按任务分级 + 按约束过滤</strong>。</p>
+  <p><strong>【做法】</strong>先用硬约束筛掉一批：数据能不能出境（决定用 API 还是私有化）、需不需要工具调用能力、上下文够不够长。然后在剩下的里按"能力 / 成本 / 延迟"权衡——意图识别、格式校验这类简单任务用便宜的小模型，最终答案生成用最强的。</p>
+  <p><strong>【数字】</strong>分级路由之后，约 X% 的请求走了小模型，整体成本下降约 X%，P95 延迟下降 X 秒，效果指标基本持平。</p>
+  <p><strong>【坑】</strong>一开始所有请求都用同一个大模型，成本很高但效果并没有更好——因为大部分请求是简单任务。分级之后才发现小模型完全够用。</p>
+  <p><strong>【权衡】</strong>分级路由增加了系统复杂度（要维护两套提示词和评测），而且判断任务难度本身也有成本。所以只在请求量足够大、成本压力明显时才做。</p>
+</div>
+
+<details class="ask">
+  <summary>怎么评估换个模型会不会变好？</summary>
+  <p>不能靠感觉，要靠评测集：</p>
+  <ul>
+    <li><strong>固定评测集</strong>：用之前建好的「问题 → 期望答案」集合，新模型跑一遍对比指标。</li>
+    <li><strong>用模型当裁判</strong>：让更强的模型给两个模型的输出打分（要有明确的评分维度和示例，否则不稳定）。</li>
+    <li><strong>人工盲评</strong>：关键场景抽样人工对比，注意<strong>打乱顺序、别告诉评审哪个是新模型</strong>。</li>
+    <li><strong>线上小流量对比</strong>：切一部分流量到新模型，看真实指标（点踩率、追问率、解决率）。</li>
+  </ul>
+  <p>加分点：换模型要同时看<strong>效果、延迟、成本</strong>三个维度。只看效果容易选出一个"更准但贵一倍、慢两倍"的模型。</p>
+</details>
+
+<details class="ask">
+  <summary>模型输出的引用编号是假的（引用不支持结论）怎么办？</summary>
+  <p>这是 RAG 特有的失败模式，叫"<strong>引用幻觉</strong>"——编号是真的，但那一篇并不支持这句话。</p>
+  <ul>
+    <li><strong>提示词层面</strong>：明确要求"引用必须是直接支持该结论的原文"，并给出正反例。</li>
+    <li><strong>校验层面</strong>：生成后用小模型判断"这段资料是否真的支持这句话"，不支持就打标记或重新生成。</li>
+    <li><strong>产品层面</strong>：把引用做成可点击的，让用户一键核对原文——<strong>这是最实用的一道防线</strong>。</li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>提示词缓存是什么？有什么坑？</summary>
+  <p>很多模型服务支持把<strong>不变的前缀</strong>（系统提示、工具定义、长文档）缓存起来，后续请求命中缓存的部分按更低价格计费、延迟也更低。</p>
+  <p>实践要点：把<strong>稳定不变的内容放在最前面</strong>，每次都变的内容（用户问题、检索结果）放后面。顺序反了就命中不了缓存——这是个很容易踩的坑。</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么结构化输出常选 Markdown 而不是 JSON？什么时候反而该用 JSON？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>三个原因：<strong>流式友好</strong>（JSON 没写完就是非法结构，没法边收边渲染）、<strong>生成稳定</strong>（长 JSON 容易少括号多逗号，一错就全废；Markdown 容错好）、<strong>模型顺手</strong>（训练语料里 Markdown 多，格式漂移最少）。</p>
+    <p>需要严格结构时（生成表单字段、触发前端组件）用 JSON，但要通过<strong>结构化输出约束</strong>让接口层保证格式，而不是让模型自由发挥，同时做校验和重试。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>模型选型看哪六个维度？为什么"分级路由"是常见的省钱手段？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>六个维度：<strong>能力、成本、延迟、合规、上下文长度、稳定性与生态</strong>。先用合规这种硬约束筛掉一批，再在剩下的里权衡。</p>
+    <p><strong>分级路由</strong>省钱，是因为真实流量里大部分请求是简单任务（意图识别、格式校验），用小模型完全够用；只有少数复杂请求才需要最强的模型。整体成本能降一大截，而效果几乎不变。代价是系统复杂度上升——要维护两套提示词和评测。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="04-retrieval-and-rerank.html">← 上一篇：检索优化与重排</a>
+  <a href="06-agent-basics-and-tools.html">下一篇：Agent 基础与工具协议 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

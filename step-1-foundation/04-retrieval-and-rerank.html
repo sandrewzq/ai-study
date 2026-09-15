@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · 检索优化与重排 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 4/9 份 ｜ A 域 · LLM 与 RAG ｜ 对应计划 §5 追问树 5.1</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item cur" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>04 · 检索优化与重排</h1>
+<p class="lead">
+  库里存好了，接下来是<strong>怎么查得准</strong>。这一页是 A 域分差最大的一页——这里的题几乎都会连着追问三层，
+  答得出第一层的人很多，答得出第三层的人很少。
+</p>
+
+<div class="qbadges"><span class="q">HQ-27</span><span class="q">HQ-29</span><span class="q">HQ-30</span><span class="q">HQ-31</span><span class="q">JR-6</span><span class="q">JR-10</span><span class="q">YF-7</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页要用「召回」「精排」「稠密 / 稀疏」这些概念。看着眼生的话，先看 <a href="00-key-terms.html">00</a> 第二组和 <a href="02-chunking-and-embedding.html">02</a> 第 6 节。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句。</div>
+  <div><b>第二遍（20 分钟）</b>读正文，重点看第 3、5 节。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡，把追问链讲一遍。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>员工问：<strong>「餐厅能打包吗？」</strong>——知识库里明明有"员工餐厅不提供外带打包服务"这一条，但系统没把它找出来。</p>
+
+<p>查了一下召回结果，里面是"餐厅环境介绍""员工福利概览"这些。为什么？</p>
+
+<table>
+  <thead><tr><th style="width:32%">原因</th><th>怎么办</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>用户的说法和文档对不上</strong><br><span style="color:var(--muted);font-size:13.5px">用户说"打包"，文档写"外带打包服务"</span></td>
+      <td>查询优化：先改写、扩写出几种说法再去查</td>
+    </tr>
+    <tr>
+      <td><strong>只做了语义匹配</strong><br><span style="color:var(--muted);font-size:13.5px">短查询里没几个词，向量算出来很"糊"</span></td>
+      <td>混合检索：再加一路关键词匹配</td>
+    </tr>
+    <tr>
+      <td><strong>捞回来一堆，但排前面的不是最相关的</strong></td>
+      <td>精排：从候选里挑出真正能回答问题的</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>这三件事就是这一页的全部内容：<strong>查询优化 → 混合召回 → 精排</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这一页最核心的一个认知</p>
+  <h3>「语义相似」不等于「能回答问题」</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 260" role="img" aria-label="双塔与交叉编码的结构对比">
+    <defs>
+      <marker id="a04" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <!-- 左：双塔 -->
+    <text x="10" y="24" style="font-weight:600">双塔（Bi-Encoder）· 用在召回</text>
+    <rect class="box-u" x="10" y="60" width="72" height="34" rx="8"></rect>
+    <text x="46" y="82" text-anchor="middle">问题</text>
+    <rect class="box-d" x="10" y="150" width="72" height="34" rx="8"></rect>
+    <text x="46" y="172" text-anchor="middle">文档</text>
+    <rect class="box-m" x="106" y="60" width="76" height="34" rx="8"></rect>
+    <text x="144" y="82" text-anchor="middle">编码器</text>
+    <rect class="box-m" x="106" y="150" width="76" height="34" rx="8"></rect>
+    <text x="144" y="172" text-anchor="middle">编码器</text>
+    <rect class="box-m" x="206" y="60" width="70" height="34" rx="8"></rect>
+    <text x="241" y="82" text-anchor="middle">向量 q</text>
+    <rect class="box-m" x="206" y="150" width="70" height="34" rx="8"></rect>
+    <text x="241" y="172" text-anchor="middle">向量 d</text>
+    <rect class="box-s" x="300" y="94" width="86" height="56" rx="8"></rect>
+    <text x="343" y="118" text-anchor="middle">算距离</text>
+    <text x="343" y="137" text-anchor="middle" class="lbl-muted">可预先算好</text>
+    <line class="ar" x1="84" y1="77" x2="102" y2="77" marker-end="url(#a04)"></line>
+    <line class="ar" x1="84" y1="167" x2="102" y2="167" marker-end="url(#a04)"></line>
+    <line class="ar" x1="184" y1="77" x2="202" y2="77" marker-end="url(#a04)"></line>
+    <line class="ar" x1="184" y1="167" x2="202" y2="167" marker-end="url(#a04)"></line>
+    <line class="ar" x1="278" y1="77" x2="296" y2="110" marker-end="url(#a04)"></line>
+    <line class="ar" x1="278" y1="167" x2="296" y2="134" marker-end="url(#a04)"></line>
+    <text x="10" y="222" class="lbl-muted">问题和文档分别编码、互相看不见</text>
+    <text x="10" y="241" class="lbl-muted">⇒ 文档向量能离线算好 ⇒ 快，但精度一般</text>
+
+    <line x1="400" y1="10" x2="400" y2="246" class="ln" stroke-dasharray="4 4"></line>
+
+    <!-- 右：交叉编码 -->
+    <text x="420" y="24" style="font-weight:600">交叉编码（Cross-Encoder）· 用在精排</text>
+    <rect class="box-u" x="420" y="60" width="72" height="34" rx="8"></rect>
+    <text x="456" y="82" text-anchor="middle">问题</text>
+    <rect class="box-d" x="420" y="150" width="72" height="34" rx="8"></rect>
+    <text x="456" y="172" text-anchor="middle">文档</text>
+    <rect class="box-t" x="516" y="98" width="70" height="50" rx="8"></rect>
+    <text x="551" y="129" text-anchor="middle">拼接</text>
+    <rect class="box-m" x="610" y="98" width="80" height="50" rx="8"></rect>
+    <text x="650" y="122" text-anchor="middle">编码器</text>
+    <text x="650" y="140" text-anchor="middle" class="lbl-muted">逐词对齐</text>
+    <rect class="box-s" x="714" y="98" width="76" height="50" rx="8"></rect>
+    <text x="752" y="122" text-anchor="middle">相关性</text>
+    <text x="752" y="140" text-anchor="middle" class="lbl-muted">精确分数</text>
+    <line class="ar" x1="494" y1="77" x2="512" y2="108" marker-end="url(#a04)"></line>
+    <line class="ar" x1="494" y1="167" x2="512" y2="138" marker-end="url(#a04)"></line>
+    <line class="ar" x1="588" y1="123" x2="606" y2="123" marker-end="url(#a04)"></line>
+    <line class="ar" x1="692" y1="123" x2="710" y2="123" marker-end="url(#a04)"></line>
+    <text x="420" y="222" class="lbl-muted">问题和文档拼在一起送进同一个模型</text>
+    <text x="420" y="241" class="lbl-muted">⇒ 能逐词比对 ⇒ 准，但每对都要现场算</text>
+  </svg>
+
+  <p style="margin:0 0 4px"><strong>这张图在说什么</strong>：找相似内容有两种技术。<strong>双塔</strong>把问题和文档<strong>分别</strong>编码成向量再比距离——因为文档向量能提前算好，所以快，但问题和文档互相看不见，精度一般。<strong>交叉编码</strong>把两者<strong>拼在一起</strong>送进模型，注意力能逐词对齐，所以准，但每一对都要现场推理一次，慢。</p>
+  <p class="lbl-muted" style="margin:0;font-size:13.5px">所以分工就很清楚了：<strong>用双塔快速从百万里捞出几十个候选（召回），再用交叉编码从这几十个里精挑出三五个（精排）</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 计算</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 处理</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 完整链路：一次提问到底经过什么</h2>
+
+<div class="pipeline">
+  <details class="node u"><summary>改写问题</summary><div class="body">把口语问题改写成适合检索的说法，顺带补全多轮对话里的指代（"那标准呢" → "差旅费报销标准是什么"）。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>两路并行召回</summary><div class="body">关键词那一路去 ES 捞 50 条，语义那一路去向量库捞 50 条。<strong>两路必须并行发</strong>，串行等于白花一倍时间。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>融合</summary><div class="body">把两路结果合成一份排名。用的是 RRF（只看名次，不看分数），原因见第 3 节。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>过滤去重</summary><div class="body">按权限、生效日期、文档类型过滤，去掉重复内容。<strong>权限必须在这一步就过滤掉，不能留给模型判断。</strong></div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>精排 + 生成</summary><div class="body">交叉编码器从候选里挑出最相关的 3~5 条，拼进提示词交给模型回答。</div></details>
+</div>
+
+<p><strong>这张图在说什么</strong>：<strong>召回求"不漏"，精排求"精准"。</strong>两步的 K 值完全不同——召回要多（50~100），送进模型的要少（3~5）。</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 查询优化：用户的问题不是好查询</h2>
+
+<p>用户提问有两个特点：<strong>短</strong>（几个词）、<strong>口语</strong>（"打包吗"）。而知识库里写的是正式表述（"不提供外带打包服务"）。<strong>用词对不上，自然召不回。</strong></p>
+
+<table>
+  <thead><tr><th style="width:18%">手段</th><th style="width:34%">做什么</th><th>例子</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>查询改写</strong></td>
+      <td>把口语问题改写成适合检索的正式表达，并对齐知识库用词</td>
+      <td>"报销咋整" → "差旅费报销流程、报销标准、所需材料"</td>
+    </tr>
+    <tr>
+      <td><strong>多查询</strong></td>
+      <td>一个问题生成 3~5 个不同说法，分别检索后合并去重</td>
+      <td>"怎么报差旅费" / "差旅报销标准" / "出差费用怎么申请"</td>
+    </tr>
+    <tr>
+      <td><strong>子查询</strong></td>
+      <td>复合问题拆成几个小问题分别查</td>
+      <td>"A 和 B 有什么区别" → 分别查 A、查 B</td>
+    </tr>
+    <tr>
+      <td><strong>HyDE</strong></td>
+      <td>先让模型<strong>假想一个答案</strong>，用这个假答案去检索</td>
+      <td>下面单独讲，这是最反直觉的一种</td>
+    </tr>
+    <tr>
+      <td><strong>指代消解</strong></td>
+      <td>把多轮对话里的"它""那个"补全成完整问题</td>
+      <td>上文在聊报销，用户问"那标准呢" → "差旅费报销标准是什么"</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="analogy">
+  <span class="tag">HyDE 的直觉（容易讲不清，重点看）</span>
+  <p>用户问"<strong>能打包吗</strong>"，知识库里写的是"<strong>员工餐厅不提供外带打包服务</strong>"。问题很短、文档也是一句话，两边措辞对不上，向量距离可能不近。</p>
+  <p>但如果先让模型<strong>编一个像模像样的答案</strong>（"员工餐厅一般不提供外带打包服务，需要堂食……"），这个假答案的措辞就和真文档接近多了，用它去检索就准得多。</p>
+  <p><strong>核心思路：用"答案的措辞"去匹配"答案"，而不是用"问题的措辞"去匹配"答案"。</strong>假答案只是用来找路，不会出现在最终回答里。</p>
+</div>
+
+<div class="warn">
+  <span class="tag">代价与选择：不要全上</span>
+  <p>查询优化每一步都要调一次模型，<strong>延迟和成本都会上升</strong>。按需组合：</p>
+  <ul>
+    <li>单轮问答、问题清晰 → <strong>只做改写</strong>就够</li>
+    <li>多轮对话 → 必须加<strong>指代消解</strong></li>
+    <li>召回效果差、专业术语多 → 加<strong>多查询 + HyDE</strong></li>
+    <li>问题明显是复合的 → 加<strong>子查询</strong></li>
+  </ul>
+  <p>另外<strong>改写结果可以缓存</strong>——高频问题直接复用，这是最省事的一个优化。</p>
+</div>
+
+<p><strong>领域词典 / 同义词表</strong>放在两个地方生效：查询改写那一层做同义词扩展（"社保" ↔ "社会保险"），ES 那一层做自定义分词词典（保证"超融合一体机"这种专业词不被切碎）。<strong>而且它是要持续维护的</strong>——线上发现搜不到的说法，就补进去。</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 融合：为什么不能把两路分数相加</h2>
+
+<p>两路召回后要把结果合成一份排名。最直觉的做法是把分数加起来，但<strong>这样是错的</strong>：</p>
+
+<table>
+  <thead><tr><th style="width:26%">问题</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>两边分数量纲不同</strong></td>
+      <td>BM25 的分数可能落在 0~20，向量相似度是 0~1。<strong>直接相加，关键词分会单方面碾压</strong>，融合就退化成"只看关键词"了</td>
+    </tr>
+    <tr>
+      <td><strong>归一化也治不好</strong></td>
+      <td>某一路出现一个远高于其他结果的分数，归一化后会把整条路的权重带偏</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">RRF 的聪明之处</span>
+  <p>RRF（倒数排名融合）<strong>干脆不看分数，只看名次</strong>：一个文档在每一路里排第几，换算成一个分数再加起来。</p>
+  <p>名次天然可比，而且<strong>对异常分数免疫</strong>，几乎没有需要调的超参——这就是它成为标准做法的原因。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 精排的代价，以及怎么缓解</h2>
+
+<p>精排准，但慢——<strong>每一对「问题 + 候选文档」都要现场跑一次推理</strong>，无法像双塔那样预计算。加了精排延迟会上升，缓解手段：</p>
+
+<table>
+  <thead><tr><th style="width:28%">手段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>缩小候选集</strong></td><td>100 条 → 30 条。候选少一半以上，延迟线性下降，精度损失通常很小</td></tr>
+    <tr><td><strong>只精排前 20 条</strong></td><td>剩下的保持原序。把算力花在最可能有用的部分</td></tr>
+    <tr><td><strong>结果缓存</strong></td><td>相同或相似的问题直接命中缓存，高频问题收益极大</td></tr>
+    <tr><td><strong>用更小的模型</strong></td><td>精排模型有不同尺寸，小模型快很多，精度损失可以接受</td></tr>
+    <tr><td><strong>批处理</strong></td><td>所有候选一次性送进模型，比逐条推理快得多</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 怎么加速检索：先问瓶颈在哪</h2>
+
+<p><strong>上来就背优化手段会显得没做过。</strong>检索链路上有四段，慢的通常不是同一处：</p>
+
+<pre><code>查询优化（调模型，通常 200~800ms）  ← 常常是最大的瓶颈
+   ↓
+两路召回（向量 + 关键词，通常 10~100ms）
+   ↓
+精排（通常 100~500ms）
+   ↓
+生成（流式输出，首字通常 300ms~2s）</code></pre>
+
+<table>
+  <thead><tr><th style="width:18%">慢在哪</th><th>怎么优化</th></tr></thead>
+  <tbody>
+    <tr><td><strong>查询优化</strong></td><td>改写结果缓存；简单场景用规则代替模型；换更小的模型</td></tr>
+    <tr><td><strong>召回</strong></td><td>调 <code>efSearch</code> 权衡；加元数据预过滤（先按部门/年份缩小范围再算向量）；两路并行</td></tr>
+    <tr><td><strong>精排</strong></td><td>缩小候选集；批处理；用小模型（见上一节）</td></tr>
+    <tr><td><strong>生成</strong></td><td>流式输出，先把首字吐出来，用户体感就快了</td></tr>
+    <tr><td><strong>通用</strong></td><td>问题级缓存（相同问题直接返回）；减少无效数据（过期文档下线）</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">回答模板</span>
+  <p>"我们会先看监控定位瓶颈：如果是<strong>查询优化</strong>慢，就用缓存和更小的模型；如果是<strong>召回</strong>慢，就调 <code>efSearch</code>、加元数据预过滤；如果是<strong>精排</strong>慢，就缩小候选集、加批处理；如果是<strong>生成</strong>慢，就上流式先把首字吐出来。"</p>
+  <p>顺带说一个真实收益会很有说服力："加了查询改写缓存之后，P95 从 X 秒降到 Y 秒。"</p>
+</div>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6">6. 答不准时，按什么顺序排查</h2>
+
+<p>这一节和第 01 篇第 4 节是同一件事，这里展开成四步。<strong>从上游往下游查，不要乱试。</strong></p>
+
+<div class="tree">
+  <p class="q">① 数据层：文档解析对了吗？切分合理吗？是不是压根没入库？权限过滤掉了吗？</p>
+  <div class="answers">
+    <div class="a no"><span class="yn">有问题</span>回到 <a href="02-chunking-and-embedding.html">02</a> 修数据——<strong>这一步坏了，后面怎么调都没用</strong></div>
+    <div class="a yes"><span class="yn">没问题</span>看下一步</div>
+  </div>
+
+  <p class="q">② 检索层：该召回的段落，在捞回来的 50 条里出现了吗？</p>
+  <div class="answers">
+    <div class="a no"><span class="yn">没出现</span>检索问题：改查询优化 / 换向量模型 / 加关键词那一路</div>
+    <div class="a yes"><span class="yn">出现了</span>看下一步</div>
+  </div>
+
+  <p class="q">③ 精排层：精排把正确的那条排到后面去了吗？</p>
+  <div class="answers">
+    <div class="a no"><span class="yn">是</span>换精排模型，或调整候选集大小</div>
+    <div class="a yes"><span class="yn">不是</span>看下一步</div>
+  </div>
+
+  <p class="q">④ 生成层：证据给对了，模型还是答错？</p>
+  <div class="answers">
+    <div class="a no"><span class="yn">是</span>提示词组装问题（证据太散、没强调"基于以下内容回答"），或者模型能力不够、噪声太大</div>
+  </div>
+</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7">7. 怎么证明召回是准的</h2>
+
+<p>严肃场景（政策、法律、医疗）必须能回答"<strong>你怎么验证的</strong>"，否则"我们准确率很高"就是空话。</p>
+
+<table>
+  <thead><tr><th style="width:22%">方法</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>建评测集</strong><br><span style="color:var(--muted);font-size:13.5px">黄金标准</span></td>
+      <td>人工标注几百个「问题 → 正确片段」对。这是唯一能客观衡量的基础</td>
+    </tr>
+    <tr>
+      <td><strong>算指标</strong></td>
+      <td><strong>Recall@K</strong>：正确片段有没有进前 K（衡量"漏没漏"）<br><strong>MRR</strong>：正确片段排得靠不靠前（衡量"准不准"）<br><strong>命中率</strong>：多少问题至少命中一条正确片段</td>
+    </tr>
+    <tr>
+      <td><strong>人工抽检</strong></td>
+      <td>定期抽样真实问答，人工判断召回内容对不对。<strong>严肃场景不能省这一步</strong></td>
+    </tr>
+    <tr>
+      <td><strong>线上反馈</strong></td>
+      <td>点踩率、追问率、引用点击率、平均轮次（一轮解决还是反复追问）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">政策文件场景的加分答法</span>
+  <p>"政策文件这类场景我们除了通用指标，还额外做两件事：</p>
+  <p><strong>一是按生效日期过滤</strong>——同一个问题不同年份答案不同，绝不能让 2019 年的文件回答 2025 年的问题；</p>
+  <p><strong>二是引用可核对</strong>——答案里每条结论都能点回原文那条，用户和审核人员可以自己验证。</p>
+  <p>另外这类场景<strong>不能只依赖用户反馈来发现问题</strong>——政策答错是要出事的，所以我们坚持人工抽检。"</p>
+</div>
+
+<!-- ============ 8 ============ -->
+<h2 id="s8">8. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「你们的检索是怎么做的 / 怎么保证召回准确」</span>
+  <p><strong>【结论】</strong>我们的检索是"查询优化 + 混合召回 + 精排"三段式。核心认知是：<strong>向量检索解决语义相似，但语义相似不等于能回答问题，所以召回之后必须精排</strong>。</p>
+  <p><strong>【做法】</strong>用户问题先做改写和指代消解；然后并行走 ES 关键词和向量两路，各取 Top 50，用 RRF 融合；融合后按权限和生效日期过滤、去重；再用交叉编码器精排到 Top 5 交给模型。两路是并行发的。</p>
+  <p><strong>【数字】</strong>知识库 XX 万段；评测集 XXX 个问题，召回 50 条的命中率 X%，精排后 Top 5 的命中率 Y%；检索全链路 P95 约 X 秒。</p>
+  <p><strong>【坑】</strong>早期只做向量召回，产品型号和条款编号经常搜不到。加了关键词那一路之后这类问题基本消失。另外一开始用"先检索再过滤"做权限，小部门用户经常搜不到东西，改成检索时带条件才解决。</p>
+  <p><strong>【权衡】</strong>精排让准确率明显提升，但延迟增加。我们把候选从 100 缩到 30，并对高频问题做了结果缓存，把延迟压回可接受范围。</p>
+</div>
+
+<details class="ask">
+  <summary>为什么用 RRF 而不是加权求和？</summary>
+  <p>因为两路分数<strong>量纲不同、不可比</strong>：BM25 是 0~20 这个量级，向量相似度是 0~1。直接相加的话关键词分会单方面主导。</p>
+  <p>归一化能缓解，但对异常值敏感。RRF 只看名次，天然可比、对异常值免疫，而且几乎没有要调的超参。</p>
+</details>
+
+<details class="ask">
+  <summary>HyDE 会不会引入幻觉，让检索跑偏？</summary>
+  <p>会，这是它的固有风险——假答案本身可能是错的。但实践中有三层保险：</p>
+  <ul>
+    <li>HyDE 只用来<strong>生成检索向量</strong>，假答案不会出现在最终回答里，不会污染给用户的内容。</li>
+    <li>它是<strong>多路召回中的一路</strong>，不是唯一路径——和原始查询的结果一起融合，错了也只是少一路贡献。</li>
+    <li>事实性要求极高的场景可以不用它，改用多查询或关键词扩展，效果更可控。</li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>topK 设多少合适？</summary>
+  <p>分两段看，很多人会混为一谈：</p>
+  <ul>
+    <li><strong>召回阶段</strong>的 K 要大（50~100），目的是"别漏"——宁可多带一些让精排去筛。</li>
+    <li><strong>送给模型的 K 要小</strong>（3~5），目的是"别吵"——塞太多无关内容反而降低答案质量，还费钱。</li>
+  </ul>
+  <p>正确结构是：<strong>召回多、精排狠、入提示词少</strong>。具体数值要靠评测集调，不同领域差异很大。</p>
+</details>
+
+<details class="ask">
+  <summary>没有足够的标注数据，怎么建评测集？</summary>
+  <ul>
+    <li><strong>从真实日志里采样</strong>：挑高频问题，人工标注正确答案所在片段——几百条就够起步。</li>
+    <li><strong>用模型造题 + 人工审核</strong>：让模型基于文档生成问答对，人工过一遍筛掉错的，效率高很多。</li>
+    <li><strong>从存量问答记录里挖</strong>：已有的客服问答天然就是"问题 → 答案"对，只是要人工关联回文档片段。</li>
+  </ul>
+  <p>关键：<strong>评测集要持续扩充</strong>。线上每发现一个答错的 case 就补一条进去，它才会真正变成"防线"而不是一次性作业。</p>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么"语义相似"不等于"能回答问题"？粗排和精排分别用什么技术，为什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>向量检索找的是语义相近的段落，但它们未必能回答用户的具体问题——比如两个段落都在讲餐厅，一个是"环境介绍"（相似的），一个是"不提供外带打包"（用户要的）。</p>
+    <p><strong>粗排用双塔</strong>：问题和文档分别编码，文档向量能离线预计算，所以快，但精度一般。<strong>精排用交叉编码</strong>：两者拼在一起送进模型，能逐词对齐，所以准，但每对都要现场推理。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>完整讲一遍追问链：RAG 流程 → 怎么加速 → 召回不准怎么办 → 为什么还要精排 → 加了精排变慢怎么办。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>流程</strong>：查询优化 → 两路并行召回 → RRF 融合 → 过滤去重 → 精排 → 生成。</li>
+      <li><strong>加速</strong>：先定位瓶颈在哪一段（查询优化常是大头），再对症——缓存、并行、预过滤、缩小候选集、流式输出。</li>
+      <li><strong>召回不准</strong>：先确认"正确片段在不在捞回来的 50 条里"。不在，是检索问题：改查询优化、换向量模型、加关键词那一路。</li>
+      <li><strong>为什么要精排</strong>：召回的 K 很大是为了"不漏"，里面混着大量不相关的；而且"意思相近"不等于"能回答"，只有交叉编码能分辨。</li>
+      <li><strong>变慢怎么办</strong>：缩小候选集、只精排前 20 条、结果缓存、换小模型、批处理。</li>
+    </ol>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="03-vector-store-and-index.html">← 上一篇：向量库与索引算法</a>
+  <a href="05-generation-and-model-choice.html">下一篇：生成侧与模型选型 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

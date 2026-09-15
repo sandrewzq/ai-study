@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · 架构分层与高并发 — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 9/12 份 ｜ D 域 · 后端、数据与中间件</span>
+</header>
+
+<div class="layout">
+
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item cur" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>09 · 架构分层与高并发</h1>
+<p class="lead">
+  前面几页讲的都是"某个点怎么做对"，这一页讲<strong>整体怎么搭</strong>：代码分几层、什么时候该拆微服务、
+  以及系统扛不住时用什么手段保命。
+</p>
+
+<div class="qbadges"><span class="q">HJ-8</span><span class="q">HJ-10</span><span class="q">PY-9</span><span class="q">KJ-10</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页偏"设计题"，没有标准答案。重点不是背出某个架构，而是<strong>能说清每个选择解决什么问题、代价是什么</strong>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>看主图，记住分层的顺序。</div>
+  <div><b>第二遍（12 分钟）</b>读"稳定性四件套"那一节。</div>
+  <div><b>第三遍</b>做末尾的动手清单——把你的项目画成一张架构图。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>"你们这个系统的后端分几层？"</strong>（<code>HJ-8</code>）</p>
+
+<p>很多人会答"三层：Controller、Service、DAO"。这不算错，但太笼统——<strong>对方想听的是每一层为什么这么分、不这么分会出什么问题。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 典型的后端分层</p>
+  <h3>每一层只干一件事，出错时才好定位</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 300" role="img" aria-label="后端分层结构：接入层、应用层、领域层、数据层">
+    <defs>
+      <marker id="a09" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-u" x="300" y="8" width="200" height="42" rx="9"></rect>
+    <text x="400" y="35" text-anchor="middle" style="font-weight:600">客户端 / 前端</text>
+    <line class="ar" x1="400" y1="52" x2="400" y2="68" marker-end="url(#a09)"></line>
+
+    <rect class="box-t" x="40" y="72" width="720" height="46" rx="9"></rect>
+    <text x="60" y="93" style="font-weight:600">接入层</text>
+    <text x="60" y="111" class="lbl-muted">网关 · 鉴权 · 限流 · 路由　—— 不碰业务逻辑</text>
+
+    <rect class="box-m" x="40" y="126" width="720" height="46" rx="9"></rect>
+    <text x="60" y="147" style="font-weight:600">应用层</text>
+    <text x="60" y="165" class="lbl-muted">接口编排 · 事务边界 · 参数转换　—— 不写业务规则</text>
+
+    <rect class="box-s" x="40" y="180" width="720" height="46" rx="9"></rect>
+    <text x="60" y="201" style="font-weight:600">领域层（核心）</text>
+    <text x="60" y="219" class="lbl-muted">业务规则 · 状态流转 · 校验　—— 不关心 HTTP 和数据库细节</text>
+
+    <rect class="box-d" x="40" y="234" width="720" height="46" rx="9"></rect>
+    <text x="60" y="255" style="font-weight:600">数据层</text>
+    <text x="60" y="273" class="lbl-muted">MySQL · Redis · 队列 · 对象存储　—— 不写业务判断</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：分层的价值是<strong>把变化隔离开</strong>——换数据库只动数据层，改业务规则只动领域层，加限流只动接入层。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">反过来，如果 Service 层里直接写 SQL、Controller 里写业务判断，那就变成"三层只是三个文件夹"，<strong>分层等于没分</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>客户端</span>
+  <span><i style="background:var(--c-tool)"></i>接入</span>
+  <span><i style="background:var(--c-model)"></i>应用 / 编排</span>
+  <span><i style="background:var(--c-store)"></i>领域 / 业务</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 存储</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 每层该干什么、不该干什么</h2>
+
+<table>
+  <thead><tr><th style="width:16%">层</th><th style="width:38%">该干</th><th>不该干（常见错误）</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>接入层</strong></td>
+      <td>鉴权、限流、路由、协议转换（HTTP → 内部调用）</td>
+      <td>写业务判断；直接查数据库</td>
+    </tr>
+    <tr>
+      <td><strong>应用层</strong></td>
+      <td>编排一次业务用例的步骤、决定<strong>事务边界</strong>、组装返回数据</td>
+      <td>写核心业务规则（那是领域层的事）；拼 SQL</td>
+    </tr>
+    <tr>
+      <td><strong>领域层</strong></td>
+      <td>业务规则、状态流转校验、领域计算</td>
+      <td>关心 HTTP 状态码、依赖具体的数据库表结构</td>
+    </tr>
+    <tr>
+      <td><strong>数据层</strong></td>
+      <td>封装对数据库/缓存/队列的访问</td>
+      <td>写业务判断（"如果状态是 X 就不能改"这种规则应该在上层）</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>判断分层分得好不好，有个简单标准</strong>：<strong>能不能在不改业务代码的前提下换掉数据库？</strong>能，说明隔离做到了；不能，说明 SQL 泄漏到了上层。</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 微服务：什么时候该拆</h2>
+
+<p><code>PY-9</code> 问"有没有做过微服务、数据中台"。这题最容易踩的坑是<strong>把微服务说得越好越显得专业</strong>——恰恰相反，能说清"我们为什么没拆"反而更可信。</p>
+
+<table>
+  <thead><tr><th style="width:50%">该拆的信号</th><th>不该拆的情况</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>不同模块的<strong>扩容需求差别很大</strong>（AI 推理要 GPU，管理后台几乎不用）</td>
+      <td>团队只有几个人，还没到需要独立部署的规模</td>
+    </tr>
+    <tr>
+      <td>不同模块的<strong>发布节奏差别很大</strong>，互相拖累</td>
+      <td>模块之间<strong>调用极其频繁</strong>，拆了就是无数跨网络调用</td>
+    </tr>
+    <tr>
+      <td>需要<strong>故障隔离</strong>（一个模块挂了不能拖垮全部）</td>
+      <td>还没搞清业务边界就拆——边界错了，拆完还要合回去</td>
+    </tr>
+    <tr>
+      <td>团队规模大到<strong>沟通成本超过协作收益</strong></td>
+      <td>没有配套的监控、日志、链路追踪——拆完没法排查问题</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">讲解落点</span>
+  <p>"我们没有一上来就拆微服务。因为团队只有 X 个人，业务边界也还在变。<strong>先做模块化</strong>——代码上按领域分模块、约定不互相越界访问，等某一块的扩容或发布真的成为瓶颈了，再把它抽出来独立部署。</p>
+  <p>微服务解决的是<strong>组织和扩容问题</strong>，不是代码质量问题。没有这些问题的团队拆了，只会多出一堆分布式事务和排查困难。"</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 稳定性四件套：限流、熔断、缓存、队列</h2>
+
+<p><code>HJ-10</code> 问的就是这个。四个手段解决的是<strong>不同的问题</strong>，别混在一起说：</p>
+
+<table>
+  <thead><tr><th style="width:14%">手段</th><th style="width:30%">解决什么问题</th><th style="width:28%">怎么做</th><th>代价</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>缓存</strong></td>
+      <td>热点数据反复查库，浪费资源</td>
+      <td>Redis 缓存查询结果；本地缓存放变化更少的数据</td>
+      <td>要处理一致性（见 <a href="06-consistency-and-concurrency.html">06</a>）</td>
+    </tr>
+    <tr>
+      <td><strong>限流</strong></td>
+      <td>流量突增把系统打垮</td>
+      <td>网关按用户/IP/全局限流；超出直接返回"稍后再试"</td>
+      <td>可能误伤正常用户，要配白名单</td>
+    </tr>
+    <tr>
+      <td><strong>熔断</strong></td>
+      <td><strong>下游挂了，把上游也拖死</strong>（雪崩）</td>
+      <td>统计下游失败率，超过阈值就"熔断"——一段时间内直接不调用，快速失败；过一会再试探恢复</td>
+      <td>熔断期间功能降级，要设计降级后的表现</td>
+    </tr>
+    <tr>
+      <td><strong>队列</strong></td>
+      <td>瞬时高峰 vs 处理能力不匹配</td>
+      <td>请求入队，消费者按自己的能力匀速处理（削峰）</td>
+      <td>有延迟；队列本身要保证不丢（见 <a href="07-async-jobs-and-queue.html">07</a>）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">限流和熔断的区别（最容易被问）</span>
+  <p><strong>限流是"我扛不住，别来了"</strong>——保护<strong>自己</strong>，主动拒绝多余流量。</p>
+  <p><strong>熔断是"下游坏了，我别等了"</strong>——保护<strong>自己不被下游拖死</strong>，快速失败而不是傻等超时。</p>
+  <p>一句话：<strong>限流管入口，熔断管出口。</strong></p>
+</div>
+
+<p><strong>举个真实的连锁反应</strong>：模型 API 变慢 → 你的请求线程全被占住等着 → 线程池耗尽 → 连"查看历史记录"这种不依赖模型的接口也响应不了 → 整个应用不可用。<strong>熔断就是为了在第一步就切断这个链条</strong>：发现模型接口失败率过高，直接返回"服务繁忙"，把线程留给其他功能。</p>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 追问：express 的底层原理</h2>
+
+<p><code>KJ-10</code> 问"express 的底层原理，如果让你设计实现怎么做"。这题考的是<strong>你能不能把一个框架拆解成最小模型</strong>。</p>
+
+<p>express 的本质是<strong>一个中间件数组 + 一个"下一个"函数</strong>：</p>
+
+<div class="pipeline">
+  <details class="node u"><summary>① 请求进来</summary><div class="body">创建 <code>req</code> 和 <code>res</code> 两个对象。express 把它们包装得比原生更顺手（比如 <code>res.json()</code>）。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>② 依次执行中间件</summary><div class="body">框架内部维护一个函数数组。<strong>每个中间件收到 <code>(req, res, next)</code></strong>，处理完调用 <code>next()</code> 就交给下一个。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>③ 路由匹配</summary><div class="body">把 URL 路径和注册的路由做匹配（express 用 <code>path-to-regexp</code> 把 <code>/user/:id</code> 转成正则）。匹配上了才执行对应的处理函数。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>④ 结束响应</summary><div class="body">某个中间件调用了 <code>res.send()</code> / <code>res.json()</code>，响应就结束了，后面的中间件不再执行。</div></details>
+</div>
+
+<div class="skeleton">
+  <span class="tag">"如果让你设计"怎么答</span>
+  <p>说清三个核心机制就够了：</p>
+  <ul>
+    <li><strong>中间件数组 + next 推进</strong>：这是整个框架的骨架。本质是<strong>责任链模式</strong>。</li>
+    <li><strong>洋葱模型</strong>：中间件可以在 <code>next()</code> 之前和之后都做事，形成"进去一圈、出来一圈"的效果（所以请求日志能算出总耗时）。</li>
+    <li><strong>错误处理靠参数个数区分</strong>：<code>(err, req, res, next)</code> 四个参数的中间件就是错误处理器——这是 express 里很巧妙的一个设计。</li>
+  </ul>
+  <p>再加一句局限：<strong>它是回调式的，异步错误捕获不友好</strong>（async 函数里抛错不会自动进错误中间件，要手动 try/catch 或包一层）。这也是 Koa / NestJS 出现的原因之一。</p>
+</div>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「传统业务系统的后端分几层」</span>
+  <p><strong>【结论】</strong>我们分四层：<strong>接入层、应用层、领域层、数据层</strong>。分层的目的是把变化隔离——换数据库只动数据层，改业务规则只动领域层。</p>
+  <p><strong>【各层职责】</strong>接入层做鉴权、限流、路由，不碰业务；应用层负责编排一次业务用例的步骤、决定事务边界；领域层放业务规则和状态流转；数据层封装对数据库/缓存的访问。</p>
+  <p><strong>【怎么判断分得好】</strong>一个简单标准：<strong>能不能不改业务代码就换掉数据库。</strong>能，说明隔离做到了。</p>
+  <p><strong>【权衡】</strong>分层也有成本——多一层就多一层转换代码。所以小项目不必严格四层，但<strong>"业务规则不能写在数据访问层"这条底线要守住</strong>，否则以后换存储就要重写业务。</p>
+</div>
+
+<details class="ask">
+  <summary>什么是"数据中台"？我们需不需要？</summary>
+  <p>数据中台是把各业务线的数据<strong>统一采集、清洗、建模、对外提供</strong>的一套能力，解决"每个业务各自建一套数据、口径不一致"的问题。</p>
+  <p><strong>什么时候需要</strong>：业务线多、数据源杂、有多个团队都在做重复的数据加工。</p>
+  <p><strong>什么时候不需要</strong>：只有一两个业务、数据量不大——这时候硬做中台就是<strong>为了架构而架构</strong>，投入大、见效慢。务实地说："我们数据量还没到那个规模，所以先用数仓 + 定时任务满足报表需求。"</p>
+</details>
+
+<details class="ask">
+  <summary>接口变慢了，怎么判断是哪里慢？</summary>
+  <p>靠<strong>链路追踪</strong>：给每个请求生成一个 traceId，贯穿所有调用，记录每一段的耗时。这样一眼就能看出是数据库慢、还是模型调用慢、还是网络慢。</p>
+  <p>没有链路追踪的话，退而求其次：在代码里打点记录关键步骤的耗时（比如"检索 200ms、精排 150ms、模型 1200ms"），<strong>先定位到段，再深入那一层排查</strong>。</p>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <ol>
+    <li><strong>把你的项目画成一张架构图</strong>：照主图那四层，标出你的每个模块属于哪一层。<strong>这张图讲的时候可以直接画给对方看。</strong></li>
+    <li><strong>找出一次"分层被破坏"的地方</strong>：比如有没有在接口处理函数里直接写 SQL、或者把业务判断写在数据访问层。改掉它。</li>
+    <li><strong>给模型调用加超时和熔断</strong>：模型接口是最不稳定的一环。设置超时时间，连续失败 N 次就熔断一段时间，返回降级话术。<strong>这是 AI 应用最该做的一件事。</strong></li>
+    <li><strong>给关键接口加限流</strong>：比如每分钟每用户最多 10 次问答，超了返回"请求过于频繁"。</li>
+    <li><strong>量三个数字</strong>：单个问答请求里，检索、精排、模型生成各占多少毫秒。这三个数字能答掉一大堆"你怎么优化性能"的问题。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>后端分几层？每层的职责是什么？怎么判断分层分得好不好？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>四层</strong>：接入层（鉴权/限流/路由）、应用层（编排 + 事务边界）、领域层（业务规则）、数据层（封装存储访问）。</p>
+    <p><strong>判断标准</strong>：<strong>能不能不改业务代码就换掉数据库</strong>。能，说明 SQL 没有泄漏到上层；不能，说明分层只是三个文件夹。</p>
+    <p>分层的价值是<strong>把变化隔离开</strong>——改一处不用动全身。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>限流和熔断有什么区别？为什么 AI 应用特别需要熔断？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>限流管入口</strong>：我扛不住，别来了——保护自己不被过多流量打垮。<br><strong>熔断管出口</strong>：下游坏了，我别等了——保护自己不被下游拖死，快速失败。</p>
+    <p><strong>AI 应用为什么特别需要</strong>：模型接口是最慢、最不稳定的一环。它一变慢，你的请求线程全被占住等待，线程池耗尽之后<strong>连不依赖模型的接口也响应不了</strong>，整个应用雪崩。熔断能在第一步切断这个链条。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="08-payment-and-reconciliation.html">← 上一篇：支付与对账</a>
+  <a href="10-nestjs-and-orm.html">下一篇：NestJS 与 ORM →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

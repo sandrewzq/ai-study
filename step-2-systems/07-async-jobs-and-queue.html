@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · 异步任务与队列 — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 7/12 份 ｜ D 域 · 后端、数据与中间件</span>
+</header>
+
+<div class="layout">
+
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item cur" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>07 · 异步任务与队列</h1>
+<p class="lead">
+  AI 应用里有大量"慢活"：解析文档、批量向量化、跑长推理。<strong>这些活不能卡着用户等</strong>，必须丢到后台慢慢做。
+  而一旦"丢到后台"，问题就来了：进程崩了怎么办？重启后任务还在吗？
+</p>
+
+<div class="qbadges"><span class="q">HQ-14</span><span class="q">HQ-15</span><span class="q">HQ-16</span><span class="q">HQ-17</span><span class="q">PY-20</span><span class="q">PY-21</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页和 <a href="04-resume-and-task-state.html">04 · 断线续传与任务状态</a> 是同一个主题的两面：04 讲<strong>前端怎么知道任务状态</strong>，这一页讲<strong>后端怎么保证任务不丢</strong>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>看主图，记住"任务可能在三个地方丢"。</div>
+  <div><b>第二遍（15 分钟）</b>读保证机制和幂等那一节。</div>
+  <div><b>第三遍</b>做末尾的动手清单——故意杀一次进程看任务会不会丢。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你上传了 500 份 PDF，后台开始批量向量化。跑到第 300 份的时候，<strong>K8s 把 Pod 重启了</strong>（可能是发版，可能是内存超限）。</p>
+
+<p>重启之后你发现：</p>
+
+<ul>
+  <li>有些文档的状态卡在"处理中"，永远不会变了</li>
+  <li>有些文档被<strong>重新处理了一遍</strong>，白花了 token</li>
+  <li>剩下 200 份压根没开始</li>
+</ul>
+
+<p>这就是 <code>HQ-14</code> 那道题问的：<strong>"进程崩溃 / K8S 重启后，任务会不会丢？"</strong>——做过的人能答出"会在哪些环节丢、怎么防"，没做过的人只能说"应该不会吧"。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 一个任务要经过三个地方，每个地方都可能丢</p>
+  <h3>不只是"队列会不会丢"，是整条链路都可能丢</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 160" role="img" aria-label="任务从生产者到消费者的链路与三个丢失风险点">
+    <defs>
+      <marker id="a07" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-m" x="30" y="44" width="150" height="56" rx="9"></rect>
+    <text x="105" y="70" text-anchor="middle" style="font-weight:600">业务代码</text>
+    <text x="105" y="89" text-anchor="middle" class="lbl-muted">发起任务</text>
+
+    <rect class="box-s" x="290" y="44" width="150" height="56" rx="9"></rect>
+    <text x="365" y="70" text-anchor="middle" style="font-weight:600">队列</text>
+    <text x="365" y="89" text-anchor="middle" class="lbl-muted">持久化排队</text>
+
+    <rect class="box-t" x="560" y="44" width="170" height="56" rx="9"></rect>
+    <text x="645" y="70" text-anchor="middle" style="font-weight:600">Worker</text>
+    <text x="645" y="89" text-anchor="middle" class="lbl-muted">真正执行任务</text>
+
+    <line class="ar" x1="184" y1="72" x2="286" y2="72" marker-end="url(#a07)"></line>
+    <line class="ar" x1="444" y1="72" x2="556" y2="72" marker-end="url(#a07)"></line>
+
+    <circle cx="105" cy="128" r="13" fill="var(--c-risk-bg)" stroke="var(--c-risk)"></circle>
+    <text x="105" y="133" text-anchor="middle" fill="var(--c-risk)" style="font-weight:600">1</text>
+    <circle cx="365" cy="128" r="13" fill="var(--c-risk-bg)" stroke="var(--c-risk)"></circle>
+    <text x="365" y="133" text-anchor="middle" fill="var(--c-risk)" style="font-weight:600">2</text>
+    <circle cx="645" cy="128" r="13" fill="var(--c-risk-bg)" stroke="var(--c-risk)"></circle>
+    <text x="645" y="133" text-anchor="middle" fill="var(--c-risk)" style="font-weight:600">3</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：很多人只关心"队列会不会丢消息"，但真实链路有三个风险点。</p>
+
+  <table>
+    <thead><tr><th style="width:10%">风险点</th><th style="width:42%">会发生什么</th><th>怎么防</th></tr></thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center"><strong>①</strong></td>
+        <td>业务代码<strong>还没把任务写进队列</strong>就崩了 → 任务压根不存在</td>
+        <td>任务先落库（状态=pending），再由另一个流程投递到队列</td>
+      </tr>
+      <tr>
+        <td style="text-align:center"><strong>②</strong></td>
+        <td>Worker <strong>取走任务后崩了</strong>，任务既不在队列里、也没做完</td>
+        <td>队列要支持<strong>"确认机制"</strong>：处理完才 ack，没 ack 的超时后重新投递</td>
+      </tr>
+      <tr>
+        <td style="text-align:center"><strong>③</strong></td>
+        <td>任务<strong>做完了但没确认</strong>，重启后会被重新执行一遍</td>
+        <td>业务侧做<strong>幂等</strong>：同一个任务重复执行也只生效一次</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>业务侧</span>
+  <span><i style="background:var(--c-store)"></i>队列 / 存储</span>
+  <span><i style="background:var(--c-tool)"></i>执行侧</span>
+  <span><i style="background:var(--c-risk)"></i>风险点</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 为什么长任务要用队列</h2>
+
+<p>先回答"为什么"（<code>PY-20</code> 问的也是这个，只是换成支付场景）：</p>
+
+<table>
+  <thead><tr><th style="width:22%">原因</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>不让用户等</strong></td>
+      <td>同步接口等 30 秒，浏览器早超时了、用户也跑了。丢队列里立刻返回"已受理"，前端用任务状态接口查进度（见 04）</td>
+    </tr>
+    <tr>
+      <td><strong>削峰</strong></td>
+      <td>瞬间来 1000 个向量化请求，数据库和模型接口扛不住。队列把瞬时压力<strong>摊平成匀速消费</strong></td>
+    </tr>
+    <tr>
+      <td><strong>可重试</strong></td>
+      <td>调用模型超时了？队列可以自动重试，同步接口里就只能给用户报错</td>
+    </tr>
+    <tr>
+      <td><strong>解耦</strong></td>
+      <td>业务代码只管"提交任务"，不关心谁执行、什么时候执行、用哪个模型</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 保证任务不丢：三道保证</h2>
+
+<p>这是 <code>HQ-15</code>。答题时按"<strong>入队 → 消费 → 完成</strong>"三段来说，比罗列技术名词清楚得多。</p>
+
+<h3>保证一：入队就要持久化</h3>
+
+<table>
+  <thead><tr><th style="width:26%">做法</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>队列本身要持久化</strong></td><td>用 Redis 做队列时要开持久化（AOF / RDB），否则 Redis 重启任务全没；更稳的做法是用支持持久化的队列（如数据库队列、专业消息队列）</td></tr>
+    <tr><td><strong>先落库，再投递</strong></td><td>业务侧先写一条任务记录（状态 pending），<strong>再</strong>投递到队列。这样即使投递失败，也能靠定时任务扫出 pending 的补投</td></tr>
+    <tr><td><strong>投递失败要能发现</strong></td><td>不要假设"投递一定成功"。要么用事务/本地消息表保证，要么有补偿扫描</td></tr>
+  </tbody>
+</table>
+
+<h3>保证二：消费要确认（ack）</h3>
+
+<table>
+  <thead><tr><th style="width:26%">机制</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>处理完才 ack</strong></td><td>Worker 取任务时，任务<strong>不会立刻从队列删除</strong>，而是标记为"处理中"；执行成功后才 ack 删除</td></tr>
+    <tr><td><strong>超时重投</strong></td><td>如果 Worker 崩了没 ack，队列在超时后把任务<strong>重新投给别的 Worker</strong></td></tr>
+    <tr><td><strong>这就是"至少一次"</strong></td><td>注意：这个机制保证的是"<strong>至少执行一次</strong>"，不是"只执行一次"。所以必然<strong>可能重复</strong>——必须靠业务幂等兜底</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这句认知很关键</span>
+  <p>"消息队列保证的是<strong>至少一次</strong>投递，不是恰好一次。所以<strong>重复执行是必然会发生的，不是异常</strong>。</p>
+  <p>正确的心态不是'怎么防止重复'，而是'<strong>假设一定会重复，让重复执行没有副作用</strong>'——也就是幂等。"</p>
+</div>
+
+<h3>保证三：失败要有重试和死信</h3>
+
+<table>
+  <thead><tr><th style="width:22%">策略</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>指数退避重试</strong></td><td>失败后间隔逐次拉长（1s、2s、4s…），避免一瞬间把下游打死</td></tr>
+    <tr><td><strong>限制重试次数</strong></td><td>重试 3~5 次还不行，就不要再试了</td></tr>
+    <tr><td><strong>死信队列</strong></td><td>重试耗尽的任务丢到"死信队列"，<strong>人工介入</strong>或者告警。不要静默丢弃</td></tr>
+    <tr><td><strong>区分可重试错误</strong></td><td>超时、限流 → 值得重试；参数错误、权限不足 → 重试一万次也没用，直接进死信</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 重复执行的代价：AI 场景特别贵</h2>
+
+<p><code>HQ-16</code> 问的正是这个：<strong>"任务重试会造成重复执行、重复调用大模型，你如何优化、降低成本？"</strong></p>
+
+<p>普通后端里"重复执行"可能只是多写一条数据；但在 AI 应用里，<strong>每次重复都是在真金白银地烧 token</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:26%">手段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>幂等键去重</strong><br><span style="color:var(--muted);font-size:13.5px">最有效</span></td>
+      <td>给每个任务算一个幂等键（比如 <code>文档ID + 切片位置 + 模型版本</code>），<strong>执行前先查有没有做过</strong>，做过就直接返回之前的结果</td>
+    </tr>
+    <tr>
+      <td><strong>结果落库 + 唯一索引</strong></td>
+      <td>把模型返回结果存起来，对幂等键建<strong>唯一索引</strong>。重复执行时插入会冲突，天然去重</td>
+    </tr>
+    <tr>
+      <td><strong>批量化</strong></td>
+      <td>100 个切片单独调用 100 次模型，不如合并成几批调用——省的不只是钱，还有网络往返</td>
+    </tr>
+    <tr>
+      <td><strong>先判断再调用</strong></td>
+      <td>调用模型前先检查"这一步是不是已经有结果了"（比如这个文档已经向量化过了）。<strong>最便宜的模型调用是不调用</strong></td>
+    </tr>
+    <tr>
+      <td><strong>记录调用账本</strong></td>
+      <td>每次模型调用都记一条日志（任务 id、用量、花费）。这样才<strong>能发现重复调用、也能算出省了多少钱</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">讲的时候把"钱"说出来</span>
+  <p>"重复执行在普通业务里可能只是个数据问题，但在 AI 场景里直接就是成本问题。所以我们的任务表对<strong>幂等键建了唯一索引</strong>，执行前先查、执行后落库。</p>
+  <p>改造之前，一次 Pod 重启会导致约 X% 的文档被重复向量化，白烧了大概 Y 元；加上幂等之后这个浪费基本归零。"</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 断点续跑：任务中途中断怎么接着做</h2>
+
+<p><code>HQ-17</code>。一个向量化任务要处理 500 份文档，跑到第 300 份崩了——<strong>不要从头再来</strong>。</p>
+
+<div class="pipeline">
+  <details class="node m"><summary>① 拆分粒度</summary><div class="body">不要把"处理 500 份文档"当成<strong>一个</strong>任务，而是拆成<strong>500 个子任务</strong>（或者按批拆成 50 个）。粒度越细，重做的代价越小。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>② 记录进度</summary><div class="body">每个子任务完成后立刻<strong>写一条成功记录</strong>（任务 id + 子项 id + 状态）。这张表就是"进度表"。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>③ 重启时跳过已完成的</summary><div class="body">任务重新开始时，先查进度表，<strong>只处理还没有成功记录的子项</strong>。这就是断点续跑。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>④ 幂等保证</summary><div class="body">即使因为并发导致某个子项被处理两次，唯一索引也会挡住重复写入——<strong>进度记录本身就是幂等的依据</strong>。</div></details>
+</div>
+
+<p><strong>关键认知</strong>：断点续跑不是靠"记住执行到哪一行代码"，而是靠<strong>把任务的完成情况持久化成数据</strong>，重启后读数据决定从哪继续。</p>
+
+<div class="warn">
+  <span class="tag">和 04 的呼应</span>
+  <p>04 讲的"断线续传"是<strong>前端视角</strong>：用户刷新页面，从断掉的地方接着看。</p>
+  <p>这里讲的"断点续跑"是<strong>后端视角</strong>：进程重启，任务从断掉的地方接着做。</p>
+  <p>两者的底层是同一个东西——<strong>把进度变成可查询的数据</strong>。这也是为什么 04 强调"任务要和连接解耦"。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 队列挂了怎么办：支付场景的一致性</h2>
+
+<p><code>PY-21</code> 问："如果队列挂掉，如何保证支付结果和系统状态一致？"</p>
+
+<p>支付场景的特点是：<strong>钱的事不能"最终一致就算了"</strong>。所以要有兜底：</p>
+
+<table>
+  <thead><tr><th style="width:26%">手段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>以支付渠道为准</strong></td>
+      <td>本地状态和渠道状态不一致时，<strong>永远以渠道（微信/支付宝）的记录为准</strong>——它是权威数据源</td>
+    </tr>
+    <tr>
+      <td><strong>主动查询补偿</strong></td>
+      <td>不能只依赖回调（回调可能丢）。要有定时任务<strong>主动去渠道查订单状态</strong>，发现"已支付但本地还是待支付"就补上</td>
+    </tr>
+    <tr>
+      <td><strong>本地消息表</strong></td>
+      <td>把"要发的消息"和业务数据写在<strong>同一个事务</strong>里，再用定时任务把消息表里的记录投递出去。这样不会出现"业务成功但消息没发出去"</td>
+    </tr>
+    <tr>
+      <td><strong>每日对账</strong></td>
+      <td>每天拉渠道的流水和本地订单比对，不一致的进人工处理队列。<strong>这是最后一道防线</strong></td>
+    </tr>
+    <tr>
+      <td><strong>状态机 + 幂等</strong></td>
+      <td>订单状态设计成明确的状态机（待支付 → 已支付 → 已发货），每次状态流转都要校验"当前状态允不允许转"，并用唯一索引防重复处理</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的答题层次</span>
+  <p><strong>第一层</strong>（会背）：用可靠队列、消息持久化、手动 ack。</p>
+  <p><strong>第二层</strong>（做过）：再加上<strong>主动查询补偿</strong>——因为回调必然会丢，不能只等它。</p>
+  <p><strong>第三层</strong>（懂业务）：说出<strong>"以渠道为准"</strong>和<strong>"每日对账"</strong>，并强调支付场景不能只追求最终一致，要有<strong>可人工介入的兜底</strong>。</p>
+</div>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s6">6. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「进程崩溃 / K8S 重启后，队列里的任务会不会丢」</span>
+  <p><strong>【结论】</strong>不能只看队列，整条链路有三个风险点：<strong>入队前、消费中、确认前</strong>。</p>
+  <p><strong>【入队前】</strong>业务代码先写一条任务记录（状态 pending），再投递到队列。这样即使投递失败，也能靠定时任务扫出 pending 的补投。</p>
+  <p><strong>【消费中】</strong>队列要支持确认机制：Worker 取任务时不删除，处理成功才 ack；没 ack 的超时后重新投递。注意这保证的是<strong>至少一次</strong>，不是恰好一次。</p>
+  <p><strong>【确认前】</strong>既然一定会重复，就要靠<strong>业务幂等</strong>兜底——我们给任务表对幂等键建了唯一索引，执行前先查、执行后落库。</p>
+  <p><strong>【数字】</strong>改造前一次发版重启会导致约 X% 的文档被重复向量化，白烧了 Y 元；加上幂等和进度表之后，重复处理的浪费基本归零。</p>
+  <p><strong>【权衡】</strong>入队前落库增加了写库开销，队列确认机制也会降低一点吞吐。但相比"任务丢了要人工补"，这点开销完全值得。</p>
+</div>
+
+<details class="ask">
+  <summary>为什么说"恰好一次"是做不到的？</summary>
+  <p>因为"执行"和"确认"是两次独立的操作，中间的崩溃无法避免：</p>
+  <ul>
+    <li>如果<strong>先确认再执行</strong>：确认完就崩了 → 任务丢了（丢了）</li>
+    <li>如果<strong>先执行再确认</strong>：执行完、还没确认就崩了 → 重启后重做（重了）</li>
+  </ul>
+  <p>两害相权，工程上选"<strong>宁可重做，不能丢</strong>"——所以是"至少一次 + 业务幂等"，合起来达到效果上的"恰好一次"。</p>
+</details>
+
+<details class="ask">
+  <summary>任务队列用 Redis 还是专业消息队列？</summary>
+  <table>
+    <thead><tr><th style="width:26%"></th><th>Redis（如 Bull / BullMQ）</th><th>专业队列（Kafka / RabbitMQ）</th></tr></thead>
+    <tbody>
+      <tr><td><strong>适合</strong></td><td>中小规模、任务量不大、已经在用 Redis</td><td>高吞吐、要多消费组、要严格顺序或回溯</td></tr>
+      <tr><td><strong>优点</strong></td><td>接入简单、不用多维护组件、延迟低</td><td>可靠性、吞吐、生态都更强</td></tr>
+      <tr><td><strong>代价</strong></td><td>可靠性依赖 Redis 持久化配置，要自己小心</td><td>运维复杂度高，小项目属于过度设计</td></tr>
+    </tbody>
+  </table>
+  <p>还是一句话：<strong>先看规模，别一上来就上 Kafka。</strong></p>
+</details>
+
+<details class="ask">
+  <summary>任务执行到一半要更新进度，怎么让前端看到？</summary>
+  <p>两个渠道配合（和 04 的结论一致）：</p>
+  <ul>
+    <li><strong>写库</strong>：每次进度变化写一条任务记录，前端<strong>轮询或加载时查</strong>——这是可靠的、能回溯的。</li>
+    <li><strong>推事件</strong>：通过 SSE / WebSocket 主动推给正在看的用户——这是实时的。</li>
+  </ul>
+  <p>注意别写得太频繁：每处理 1 个文档就写一次库，500 个文档就是 500 次写。可以<strong>按批更新</strong>（每 10 个或每 2 秒一次）。</p>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <ol>
+    <li><strong>给你的批量向量化加上任务表</strong>：一个总任务 + N 个子任务，每个子任务有状态。这是断点续跑的基础。</li>
+    <li><strong>故意杀一次进程</strong>：任务跑到一半 <code>kill -9</code>，重启后看能不能接着跑。<strong>这条能跑通，讲的时候就是"我做过"。</strong></li>
+    <li><strong>加幂等键 + 唯一索引</strong>：给子任务表对 <code>(task_id, item_id)</code> 建唯一索引，然后故意让同一个任务提交两次，确认不会重复处理。</li>
+    <li><strong>记录模型调用账本</strong>：每次调用大模型都记一条（任务 id、token 用量、耗时）。这样你能算出<strong>重复执行浪费了多少钱</strong>。</li>
+    <li><strong>做一次重试实验</strong>：让任务里故意抛错，观察重试间隔是不是按 1s、2s、4s 增长，以及超过次数后有没有进死信。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>任务可能在哪些环节丢？为什么"恰好一次"做不到？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>三个环节</strong>：① <strong>入队前</strong>（业务代码崩了，任务压根没进队列）→ 先落库再投递；② <strong>消费中</strong>（Worker 取走后崩了）→ 用确认机制，没 ack 的超时重投；③ <strong>确认前</strong>（做完了没确认，重启会重做）→ 业务幂等。</p>
+    <p><strong>为什么"恰好一次"做不到</strong>：先确认再执行会丢任务，先执行再确认会重复执行，中间的崩溃无法避免。所以工程上选"至少一次 + 业务幂等"，效果上等价于恰好一次。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>断点续跑怎么实现？重复执行在 AI 应用里为什么特别贵？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>断点续跑</strong>：把大任务拆成细粒度子任务 → 每个子任务完成后写一条成功记录（进度表）→ 重启时先查进度表，<strong>只处理没有成功记录的子项</strong>。关键不是"记住执行到哪"，而是"<strong>把进度变成可查询的数据</strong>"。</p>
+    <p><strong>AI 场景特别贵</strong>：普通业务里重复执行可能只是多写一条数据，这里每次重复都是<strong>真金白银的 token 消耗</strong>。所以要用幂等键 + 唯一索引去重，并记录调用账本，才能算出浪费了多少。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="06-consistency-and-concurrency.html">← 上一篇：数据一致性与并发</a>
+  <a href="08-payment-and-reconciliation.html">下一篇：支付与对账 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

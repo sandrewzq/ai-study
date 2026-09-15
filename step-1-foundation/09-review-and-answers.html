@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · 自查与参考回答 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 9/9 份 ｜ 验收</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item cur" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>09 · 自查与参考回答</h1>
+<p class="lead">
+  前面 8 份是"看"，这一份是"说"。<strong>用法只有一条：先合上所有材料，对着题目自己讲一遍并录音，讲完再展开对照。</strong>
+  直接看答案等于没练。
+</p>
+
+<div class="qbadges"><span class="q">覆盖步骤 1 全部 45 题</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页的题目会用到 00 里的所有概念。哪个词想不起来，回 <a href="00-key-terms.html">00 · 先认识这几个词</a> 查，别硬猜。</p>
+</div>
+
+<div class="howto">
+  <div><b>不要通读</b>这一页的答案——通读一遍的收益接近零。</div>
+  <div><b>一题一题来</b>：看题 → 合上材料录音 1~2 分钟 → 再展开对照。</div>
+  <div><b>记下卡壳的题</b>，回到对应那一份重读那一节。</div>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这一页怎么用</p>
+  <h3>自查五步：讲 → 录 → 对照 → 补 → 复述</h3>
+
+  <div class="pipeline">
+    <details class="node u"><summary>看题</summary><div class="body">随机挑一题，别按顺序挑——实际提问也不会按你复习的顺序问。</div></details>
+    <div class="link">→</div>
+    <details class="node m"><summary>合上材料讲</summary><div class="body">对着空气讲 1~2 分钟，<strong>同时录音</strong>。不要在心里默想——默想的流畅度和说出口差很远。</div></details>
+    <div class="link">→</div>
+    <details class="node t"><summary>展开对照</summary><div class="body">听完自己的录音，再看答案要点，标出漏掉的部分。</div></details>
+    <div class="link">→</div>
+    <details class="node d"><summary>回读那一节</summary><div class="body">哪一题卡壳，就回到对应那一份重读那一节。<strong>这一步才是真正补知识的地方。</strong></div></details>
+    <div class="link">→</div>
+    <details class="node s"><summary>写答题卡</summary><div class="body">把答顺的题压缩成一张 200 字以内的卡片：答案骨架 + 我的数字 + 追问链。</div></details>
+  </div>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：自查的价值不在"看答案"，而在<strong>主动回忆 + 找出漏洞 + 回去补</strong>。只看不讲的复习，到真要讲的时候什么都想不起来。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>你的动作</span>
+  <span><i style="background:var(--c-model)"></i>讲 / 表达</span>
+  <span><i style="background:var(--c-tool)"></i>对照检查</span>
+  <span><i style="background:var(--c-store)"></i>产出</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 状态</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 口述模板：五段式</h2>
+
+<p>绝大多数技术题都能套这个结构，能套住 80% 的题：</p>
+
+<pre><code>【结论】    一句话给出核心判断（先给答案，别铺垫）
+【做法】    你项目里具体怎么做的（要有技术名词和流程）
+【数字】    量化的结果（数据量、延迟、命中率、成本降幅）
+【坑】      你踩过的一个真实的坑（这是可信度的来源）
+【权衡】    为什么这么选、代价是什么、边界在哪（这是分差的来源）</code></pre>
+
+<div class="warn">
+  <span class="tag">三档话术的区别</span>
+  <ul>
+    <li><strong>60 分</strong>：只说得出【结论】——"因为要分工，每个 Agent 负责一个职能。"</li>
+    <li><strong>80 分</strong>：能说【结论 + 做法 + 数字 + 坑】——"我们拆了三个 Agent，拆之前上下文混着调研笔记，越到后面想法越飘……"</li>
+    <li><strong>100 分</strong>：还能说【权衡】——"但拆不是免费的，通信成本和状态一致性都是代价，所以只在子任务需要不同上下文或可并行时才拆。"</li>
+  </ul>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 自查题 · RAG 部分（10 题）</h2>
+<p><strong>每题先自己讲 1~2 分钟并录音，讲完再展开。</strong></p>
+
+<details class="ask">
+  <summary>① RAG 解决哪三个问题？它和微调怎么分工？</summary>
+  <p><strong>三个问题</strong>：模型不知道（私有知识）、模型记不住（知识过时）、模型会瞎编（幻觉）。第三个在严肃场景里最关键，因为 RAG 天然带出处、可溯源。</p>
+  <p><strong>分工</strong>：RAG 教它"说什么"（知识），微调教它"怎么说"（格式、风格、术语习惯）。两者不冲突、可叠加。常见误区是拿微调灌知识——更新要重训、还照样会编。</p>
+</details>
+
+<details class="ask">
+  <summary>② chunk 切太大和太小各会出什么问题？</summary>
+  <p><strong>太大</strong>：向量语义被稀释（关键信息占比小、相似度算不准、召不回）；侥幸召回了也是噪声干扰生成；浪费上下文和成本。</p>
+  <p><strong>太小</strong>：指代关系断裂（"左边那条"指哪条）；条件丢失（"初次入职"的"初次"被切走）；需要召回更多片段才能还原原意。</p>
+  <p><strong>判断标准</strong>：切出来的每一段，单独拿出来读，意思是否完整。</p>
+</details>
+
+<details class="ask">
+  <summary>③ 稠密向量和稀疏向量各擅长什么？为什么需要混合检索？</summary>
+  <p><strong>稠密</strong>（embedding 模型）擅长<strong>语义相近</strong>：问"能打包吗"能召回写着"不提供外带打包服务"的段落。</p>
+  <p><strong>稀疏</strong>（BM25）擅长<strong>精确命中</strong>：产品型号、条款号、人名——这些词在语义空间里没有"相近"的概念。</p>
+  <p><strong>为什么混合</strong>：用户的提问两种成分都有。只做向量，型号搜不准；只做关键词，口语化提问搜不到。</p>
+</details>
+
+<details class="ask">
+  <summary>④ HNSW 和 IVF 的区别？线上想提升召回率调什么参数？</summary>
+  <p><strong>HNSW</strong>：多层图，像多层公路，从上层大步跳到下层精确定位。快、准，但<strong>吃内存</strong>（图结构要常驻）。</p>
+  <p><strong>IVF</strong>：先聚类分"班"，查询时只搜最近的几个班。省内存、建索引快，但可能漏召回。</p>
+  <p><strong>调参</strong>：HNSW 调 <code>efSearch</code>，IVF 调 <code>nprobe</code>。<strong>这两个都是运行时可调、不需要重建索引</strong>——这正是它们相对于 <code>M</code> / <code>efConstruction</code> / <code>nlist</code> 的关键优势。</p>
+</details>
+
+<details class="ask">
+  <summary>⑤ 混合检索为什么用 RRF，而不是把两路分数直接相加？</summary>
+  <p>因为两路分数<strong>量纲不同、不可比</strong>：BM25 通常在 0~20 这个量级，向量相似度是 0~1。直接相加，关键词分会单方面主导，融合就退化成"只看关键词"。</p>
+  <p>归一化能缓解，但对异常值敏感。RRF <strong>只看名次不看分数</strong>，天然可比、对异常值免疫、几乎不需要调参。</p>
+</details>
+
+<details class="ask">
+  <summary>⑥ 已经排序去重了，为什么还要 rerank？粗排和精排的本质区别是什么？</summary>
+  <p><strong>本质区别在技术</strong>：粗排是<strong>双塔</strong>——问题和文档分别编码、比向量距离，所以文档向量能离线预计算、快；精排是<strong>交叉编码</strong>——两者拼在一起送进模型，能逐词对齐，所以准，但每对都要现场推理。</p>
+  <p><strong>为什么需要</strong>：向量检索找的是"语义相似"，<strong>不等于"能回答问题"</strong>。两个段落都在讲餐厅，一个是"环境介绍"（相似的）、一个是"不提供外带打包"（用户要的），向量分不出来。</p>
+</details>
+
+<details class="ask">
+  <summary>⑦ 用户反馈"答得不准"，你按什么顺序排查？</summary>
+  <p>从上游到下游，不要乱试：</p>
+  <ol>
+    <li><strong>数据层</strong>：解析对了吗？切分合理吗？入库了吗？权限过滤掉了吗？</li>
+    <li><strong>检索层</strong>：正确片段在召回的那 50 条里出现了吗？</li>
+    <li><strong>精排层</strong>：精排把正确的排到后面去了吗？</li>
+    <li><strong>生成层</strong>：证据给对了还答错 → 提示词组装问题或模型能力问题。</li>
+  </ol>
+  <p><strong>最值钱的判断</strong>：如果召回的 50 条里根本没有正确答案，那怎么调提示词都没用。多数人的第一反应是改提示词——那是最下游的地方。</p>
+</details>
+
+<details class="ask">
+  <summary>⑧ 怎么向对方证明你们的召回是准的？</summary>
+  <p>四层证据：</p>
+  <ul>
+    <li><strong>评测集</strong>：人工标注几百个「问题 → 正确片段」对，这是黄金标准。</li>
+    <li><strong>指标</strong>：Recall@K（漏没漏）、MRR（排得靠不靠前）、命中率。</li>
+    <li><strong>人工抽检</strong>：定期抽样真实问答，严肃场景不能省。</li>
+    <li><strong>线上反馈</strong>：点踩率、追问率、引用点击率。</li>
+  </ul>
+  <p>政策文件场景加分项：按<strong>生效日期过滤</strong>（防止拿旧版回答新问题）+ <strong>引用可核对</strong>（每条结论能点回原文条款）。</p>
+</details>
+
+<details class="ask">
+  <summary>⑨ 为什么结构化输出常选 Markdown 而不是 JSON？</summary>
+  <p><strong>① 流式友好</strong>：JSON 没写完就是非法结构，前端没法边收边渲染；Markdown 可以边收边渲染，用户体感快。</p>
+  <p><strong>② 生成稳定</strong>：长 JSON 容易出错（少括号、多逗号），一出错整个结构就废了；Markdown 容错性好。</p>
+  <p><strong>③ 模型顺手</strong>：训练语料里 Markdown 极多，输出它格式漂移最少。</p>
+  <p><strong>什么时候用 JSON</strong>：需要严格结构时，用结构化输出约束让接口层保证格式，而不是让模型自由发挥写 JSON。</p>
+</details>
+
+<details class="ask">
+  <summary>⑩ 微调、RAG、私有化部署分别该在什么情况下用？</summary>
+  <ul>
+    <li><strong>RAG</strong>：知识类需求的首选——更新快、可溯源、成本低。</li>
+    <li><strong>微调</strong>：格式/风格/术语类需求；或把大模型能力蒸馏到小模型省钱。<strong>不要用它灌知识。</strong></li>
+    <li><strong>私有化</strong>：数据不能出内网（政府、金融、医疗），或者调用量大到自建更便宜。</li>
+  </ul>
+  <p>加分回答：模型<strong>分级路由</strong>——简单任务走小模型，复杂生成走大模型，整体成本能降一大截而效果几乎不损失。</p>
+</details>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 自查题 · Agent 部分（10 题）</h2>
+
+<details class="ask">
+  <summary>⑪ Agent 和 Workflow 的区别？什么时候不该用 Agent？</summary>
+  <p><strong>区别在路径由谁决定</strong>：Workflow 是人写死的流程图；Agent 是模型现场判断下一步。</p>
+  <p><strong>不该用 Agent 的场景</strong>：结果要求 100% 确定（转账、改权限）；延迟要求极严（多轮循环天然慢）；成本敏感（每轮带完整历史）；流程完全固定。</p>
+  <p>加分点：<strong>能用 Workflow 就别上 Agent</strong>，真实项目大多是混合——主流程固定，关键判断点放 Agent。</p>
+</details>
+
+<details class="ask">
+  <summary>⑫ 完整讲一遍 Agent 主循环，并说明怎么防止死循环。</summary>
+  <p><strong>主循环</strong>：组装上下文 → 模型决策（直接答 or 调工具）→ 解析调用 → 执行工具 → 结果回灌 → 回到第一步。</p>
+  <p><strong>刹车机制</strong>：轮次上限、<strong>token 预算</strong>（轮次限制挡不住"一轮塞十万 token"）、时间上限、重复调用检测、无进展检测、错误熔断、接近上限时升级给人。</p>
+  <p>加分点：到上限时不是硬报错，而是把<strong>已拿到的部分结果</strong>总结给用户并说明还差什么。</p>
+</details>
+
+<details class="ask">
+  <summary>⑬ Function Call、MCP、Skill 三者的区别？（必须一次说清）</summary>
+  <p><strong>Function Call 是模型的能力</strong>——告诉它有哪些函数、参数长什么样，它能输出规范的结构化调用请求，解决"<strong>能不能调</strong>"。</p>
+  <p><strong>MCP 是工具的接口标准</strong>——像 USB-C，把 M 个模型 × N 个工具的适配从 M×N 变成 M+N，解决"<strong>接起来太麻烦</strong>"。</p>
+  <p><strong>Skill 是做事的流程知识</strong>——像操作手册，打包提示词、脚本、参考资料，解决"<strong>知不知道该怎么做</strong>"。</p>
+  <p>补充：Skill 用<strong>渐进式披露</strong>（先给名字和一句话描述，需要时再加载详情），本质是<strong>对上下文的 RAG</strong>。</p>
+</details>
+
+<details class="ask">
+  <summary>⑭ 工具调用失败了怎么处理？举三种失败类型。</summary>
+  <p>按类型处理，不能只答"重试"：</p>
+  <ul>
+    <li><strong>参数写错</strong> → 把<strong>报错信息原样告诉模型</strong>让它自己改（最有效的一招）。</li>
+    <li><strong>工具自己坏了</strong>（超时/500/限流）→ 指数退避重试，并区分可重试与不可重试。</li>
+    <li><strong>工具选错</strong> → 优化工具<strong>描述</strong>（写清使用边界）、减少工具数量、给示例。</li>
+    <li><strong>查到是空的</strong> → 让模型换关键词或换工具再试。</li>
+    <li><strong>反复调同一个</strong> → 重复调用检测 + 轮次上限。</li>
+  </ul>
+  <p>兜底原则：重试 N 次不行就降级（返回部分结果 / 转人工），<strong>绝不让 Agent 烧钱空转</strong>。</p>
+</details>
+
+<details class="ask">
+  <summary>⑮ 多 Agent 解决的核心问题是什么？拆的代价是什么？</summary>
+  <p><strong>核心问题</strong>：上下文污染 + 角色冲突（自己评审自己不客观），顺带拿到并行能力。</p>
+  <p><strong>代价</strong>：信息在传递中丢失、状态一致性、责任边界模糊（排查链路变长）、互相踢皮球、延迟和成本上升、调试难度大增。</p>
+  <p>核心判断：<strong>决定 Agent 上限的不是模型有多强，而是上下文有多干净。</strong></p>
+</details>
+
+<details class="ask">
+  <summary>⑯ 什么时候该拆多 Agent？什么时候不该拆？</summary>
+  <p><strong>该拆</strong>：子任务需要独立上下文；能并行；需要不同工具集或权限；需要独立评审；提示词里有互相冲突的指令。</p>
+  <p><strong>不该拆</strong>：上下文本来就一样；必须串行且强依赖全部细节；工具集重合；只是"想让架构好看"。</p>
+  <p>现实观察（说出来很务实）：<strong>两三个通常就够</strong>，那些七八个 Agent 互相讨论的架构多半演示好看、上线痛苦。</p>
+</details>
+
+<details class="ask">
+  <summary>⑰ 动态路由怎么实现？要注意什么？</summary>
+  <p><strong>实现</strong>：模型分类（把候选分支和适用条件写进提示词）→ 函数调用（把"选分支"做成函数）→ 规则 + 模型兜底（生产最实用）→ 向量相似度。</p>
+  <p><strong>三个坑</strong>：① <strong>必须有兜底分支</strong>，否则这一步失败整条链路就崩；② <strong>必须限制跳转次数</strong>，否则 Agent 之间互相踢皮球；③ <strong>路由日志要留全</strong>（模型判断理由 + 可选分支 + 上下文摘要），没有它动态路由没法调试。</p>
+</details>
+
+<details class="ask">
+  <summary>⑱ claude code 的核心循环是什么？它体现了哪些设计原则？</summary>
+  <p><strong>核心循环</strong>：主循环——模型判断该做什么 → 调用工具（读代码、搜代码、改代码、跑测试）→ 结果回灌上下文 → 进入下一轮，直到解决。本质就是 Agent 主循环，只是工具集换成了代码相关的。</p>
+  <p><strong>四条设计原则</strong>：① <strong>检索优于全量</strong>（先搜索定位，只带相关片段进上下文）；② <strong>工具结果要裁剪</strong>（读文件只读需要的行区间）；③ <strong>子任务隔离</strong>（探索类工作交给子 Agent，只回传结论）；④ <strong>提示词可缓存</strong>（稳定部分放最前面）。</p>
+  <p><strong>落点</strong>：所有设计都指向同一件事——<strong>管住每一个 session 的上下文</strong>。决定 Agent 表现的不是模型上限，而是上下文质量。</p>
+</details>
+
+<details class="ask">
+  <summary>⑲ Harness 是什么？为什么它比换模型还重要？</summary>
+  <p><strong>Harness</strong> = 把裸模型包装成能干活的系统所需要的整套东西：系统提示词、工具定义与执行、上下文管理、循环控制、错误处理、可观测性、权限沙箱、人机协作。</p>
+  <p><strong>为什么重要</strong>：同一个模型装在不同 Harness 里效果能差好几倍（同一个发动机装不同车架）；更关键的是<strong>模型半年才更新一次，Harness 你每天都能改</strong>——改它的投入产出比往往高于等更强的模型。</p>
+</details>
+
+<details class="ask">
+  <summary>⑳ 讲一个你设计过的 Agent（五段式）。</summary>
+  <p>没做过真实项目就自己搭一个，然后照下面的结构讲（完整示范见 <a href="08-agent-engineering.html">08</a> 第 6 节）：</p>
+  <ul>
+    <li><strong>结论</strong>：一句话说清职责边界（"检索 Agent，负责把口语问题变成精准查询，只读不写"）。</li>
+    <li><strong>做法</strong>：几步流程 + 工具集（工具越少越好说清）。</li>
+    <li><strong>数字</strong>：命中率、延迟、占比。</li>
+    <li><strong>坑</strong>：工具粒度的真实教训。</li>
+    <li><strong>权衡</strong>：拆细了灵活但轮次多，最后怎么折中的。</li>
+  </ul>
+</details>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 完整参考回答（3 份）</h2>
+
+<h3>示范一：简单介绍一下 RAG 的流程</h3>
+<div class="skeleton">
+  <p><strong>【结论】</strong>RAG 是检索增强生成，核心是先从外部知识库取相关信息，再让模型基于这些信息生成答案。它主要解决模型不知道私有知识、知识会过时、容易幻觉这三个问题。</p>
+  <p><strong>【做法】</strong>我们分两条链路。离线链路把文档解析、切分、向量化后入库，同时把原文和元数据存进 ES。在线链路拿到问题后先做查询改写，然后并行走两路召回——ES 做关键词、向量库做语义，用 RRF 融合成 Top 50，再用交叉编码器精排到 Top 5，组装进提示词让模型基于证据回答，并要求标注出处。</p>
+  <p><strong>【数字】</strong>知识库目前 XX 万段，单次问答检索加精排的 P95 是 X 秒；加了混合检索之后，专有名词类问题的命中率从 X% 提到 Y%。</p>
+  <p><strong>【坑】</strong>最开始只做了向量召回，结果用户搜产品型号和条款编号经常搜不到——向量擅长语义、不擅长精确匹配。加了关键词那一路才解决。</p>
+  <p><strong>【权衡】</strong>精排提升了准确率但增加了延迟，所以我把候选从 100 缩到 30，并对高频问题做了结果缓存，把延迟控制在可接受范围。</p>
+</div>
+
+<h3>示范二：Function Call、MCP、Skill 的区别</h3>
+<div class="skeleton">
+  <p><strong>【结论】</strong>三者解决的是不同层次的问题。</p>
+  <p><strong>【Function Call】</strong>是<strong>模型的能力</strong>——你告诉它有哪些函数、参数长什么样，它能输出一个规范的结构化调用请求。它解决"模型能不能调工具"，是模型自带的。</p>
+  <p><strong>【MCP】</strong>是<strong>工具的接口标准</strong>，可以理解成 USB-C。以前每个工具要对接每个 AI 客户端，M 个模型 × N 个工具就是 M×N 份适配代码；有了统一协议就变成 M+N。它解决"接起来太麻烦"。</p>
+  <p><strong>【Skill】</strong>是<strong>做事的流程知识</strong>，像一份操作手册，打包了提示词、脚本和参考资料。它解决"知不知道这类任务该怎么做"，而不只是"能调什么工具"。</p>
+  <p><strong>【补充】</strong>Skill 通常用<strong>渐进式披露</strong>——上下文里只放名字和一句话描述，模型觉得需要时再加载详情。这样挂几百个 Skill 也不会撑爆上下文，本质上是<strong>对上下文的 RAG</strong>。而一个 Skill 内部可以调用多个工具，模型是靠 Function Call 能力真正发起调用的。</p>
+</div>
+
+<h3>示范三：为什么需要多 Agent？（含 100 分档的权衡）</h3>
+<div class="skeleton">
+  <p><strong>【结论】</strong>多 Agent 主要解决两个问题：<strong>上下文污染</strong>和<strong>角色冲突</strong>，顺带拿到并行能力。</p>
+  <p><strong>【做法】</strong>我们拆了检索和评审两个 Agent。检索 Agent 的上下文里只有查询和结果，不会被后续写作过程污染；评审 Agent 拿到的只有"待评审对象 + 评审维度"，没有历史包袱，判断更客观。两个各配独立的工具集，主 Agent 只负责分派和汇总。</p>
+  <p><strong>【数字】</strong>拆分之后评审结论的一致性明显提升；检索和评审可以并行，总耗时下降约 X%。</p>
+  <p><strong>【坑】</strong>一开始让两个 Agent 共用一份对话历史，结果评审者被前面的讨论带偏，永远说"还能改进"。改成上下文隔离之后才有收敛。</p>
+  <p><strong>【权衡】</strong>但拆不是免费的：多 Agent 有<strong>通信成本</strong>和<strong>状态一致性成本</strong>——信息在传递中会丢失，责任边界会模糊，还会互相踢皮球。我的判断标准是——<strong>只有当子任务需要不同的上下文、或者可以并行时才拆</strong>，纯粹为了让架构"看起来更专业"而拆是负收益。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 步骤 1 验收清单</h2>
+
+<div class="analogy">
+  <span class="tag">全部打勾才算完成这一步</span>
+  <ul class="checklist">
+    <li><strong>能用大白话解释 00 里的核心概念</strong>——上下文、幻觉、工具调用、RAG 与 Agent 的区别</li>
+    <li><strong>白纸上画出 RAG 全链路图</strong>——离线（解析 → 切分 → 向量化 → 入库）和在线（改写 → 两路召回 → 融合 → 过滤 → 精排 → 生成）两条线都要有</li>
+    <li><strong>白纸上画出 Agent 主循环图</strong>——模型决定 → 工具执行 → 结果回灌 → 循环，并说出至少三种刹车机制</li>
+    <li><strong>3 分钟讲清 Function Call / MCP / Skill 的区别</strong>——并顺势带出"渐进式披露本质是对上下文的 RAG"</li>
+    <li><strong>说出「什么时候该拆多 Agent」的判断标准</strong>——以及拆的代价（通信成本、状态一致性）</li>
+    <li><strong>说出「召回里没有正确答案时该怎么排查」的结论</strong>——并强调"调提示词没用"</li>
+    <li><strong>说出「语义相似 ≠ 能回答问题」</strong>——并能解释双塔与交叉编码的本质区别</li>
+    <li><strong>说出 Harness 包含什么</strong>——以及"为什么改 Harness 比等新模型更划算"</li>
+    <li><strong>20 道自查题答上来至少 15 道</strong></li>
+    <li><strong>有一份自己的录音</strong>——录下自己讲的两道题，回听并记录卡壳的地方</li>
+  </ul>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 · 合上所有材料，用 3 分钟把整条线讲一遍</span>
+  <p>从"大模型只会说话"开始，一路讲到"Agent 会做事"。中间要经过哪几步？每一步解决什么问题？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>① 大模型只会说话</strong>：能对话、能写代码，但不知道你们的私有资料，不知道最新消息，不知道的时候还会编。</p>
+    <p><strong>② 加 RAG 让它"会查"</strong>：离线把文档解析、切分、向量化后入库；在线把问题改写后两路召回、融合、精排，再把证据塞进上下文让它照着答。解决了"不知道"和"会编"。</p>
+    <p><strong>③ 加工具和循环让它"会做"</strong>：工具让它能真的去搜、去算（注意是程序在动手，模型只负责说要干什么）；循环让它做完一步看结果、不够再来一轮。加上刹车机制防止它烧钱空转。</p>
+    <p><strong>④ 拆成多 Agent 解决上下文污染</strong>：每个 Agent 只看自己那摊，上下文更干净。代价是通信成本和状态一致性。</p>
+    <p><strong>⑤ 最后靠 Harness 把它做成能上线的系统</strong>：提示词、工具、上下文管理、刹车、错误处理、日志、权限——同一模型装在不同 Harness 里，效果差好几倍。</p>
+  </details>
+</div>
+
+<div class="skeleton">
+  <span class="tag">下一步做什么</span>
+  <p>步骤 1 达标后进入<strong>步骤 2：做系统（C + D 域）</strong>。那一步<strong>没有预先阅读材料</strong>——C 域（上下文治理、流式输出）和 D 域（后端数据）的知识只能在项目里长出来，先看也是白看。</p>
+  <p>动手之前回 <a href="../index.html#plan">学习计划全文</a> 看步骤 2 的「要实现的 ↔ 顺带答掉的题」对照表，把它当成需求清单来开发。</p>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="08-agent-engineering.html">← 上一篇：Agent 工程化与选型</a>
+  <a href="index.html">回到目录 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

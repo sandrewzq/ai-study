@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>步骤 1 · 打地基 — 学习资料目录</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 打地基（A + B 域，45 题）</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>步骤 1 · 打地基</h1>
+<p class="lead">
+  覆盖 <strong>A 域（LLM 与 RAG，22 题）</strong>和 <strong>B 域（Agent、多智能体与工具协议，23 题）</strong>。
+  按知识拆成 9 份，每份独立成立、可单独读完。
+</p>
+
+<div class="analogy">
+  <span class="tag">完成标志</span>
+  <ul class="checklist">
+    <li>白纸上能画出 RAG 全链路图（离线 + 在线两条线）</li>
+    <li>白纸上能画出 Agent 主循环图，并说出三种防死循环手段</li>
+    <li>能用 3 分钟讲清「什么时候该拆多 Agent」以及拆的代价</li>
+  </ul>
+</div>
+
+<div class="toc">
+  <div class="toc-title">每份材料的统一结构</div>
+  <strong>大白话</strong>（建立直觉）→ <strong>机制</strong>（怎么运转）→ <strong>讲解骨架</strong>（3 分钟口述版）→ <strong>追问预警</strong>（折叠，先自己想再看）→ <strong>原题对照</strong>
+</div>
+
+<h2>与学习计划的对照</h2>
+
+<p>这 9 份材料严格对应学习计划里<strong>步骤 1（A 域 + B 域，共 45 题）</strong>，不多不少：</p>
+
+<table>
+  <thead><tr><th style="width:6%">#</th><th style="width:24%">材料</th><th style="width:34%">在学习计划里的位置</th><th>对应题号</th></tr></thead>
+  <tbody>
+    <tr><td>00</td><td>先认识这几个词</td><td><strong>前置页</strong>（不属于任何域，是读数理化之前的地基）</td><td>不覆盖题目，只解释概念</td></tr>
+    <tr><td>01</td><td>RAG 是什么</td><td rowspan="5"><strong>A 域 · LLM 与 RAG</strong>（22 题｜步骤 1 的"打地基"）</td><td><span class="q">JR-5</span> <span class="q">TK-8</span> <span class="q">PY-5</span> <span class="q">YU-17</span></td></tr>
+    <tr><td>02</td><td>索引：切分与向量化</td><td><span class="q">PY-6</span> <span class="q">YF-4</span> <span class="q">YF-5</span> <span class="q">YF-6</span> <span class="q">YU-18</span></td></tr>
+    <tr><td>03</td><td>向量库与索引算法</td><td><span class="q">JR-7</span> <span class="q">JR-8</span> <span class="q">HQ-28</span></td></tr>
+    <tr><td>04</td><td>检索优化与重排</td><td><span class="q">HQ-27</span> <span class="q">HQ-29</span> <span class="q">HQ-30</span> <span class="q">HQ-31</span> <span class="q">JR-6</span> <span class="q">JR-10</span> <span class="q">YF-7</span></td></tr>
+    <tr><td>05</td><td>生成侧与模型选型</td><td><span class="q">PY-7</span> <span class="q">JR-9</span> <span class="q">YF-10</span></td></tr>
+    <tr><td>06</td><td>Agent 基础与工具协议</td><td rowspan="3"><strong>B 域 · Agent、多智能体与工具协议</strong>（23 题）</td><td><span class="q">ML-2</span> <span class="q">ML-3</span> <span class="q">ML-4</span> <span class="q">JR-4</span> <span class="q">JR-15</span> <span class="q">KJ-1</span> <span class="q">YF-11</span> <span class="q">XZ-2</span></td></tr>
+    <tr><td>07</td><td>多智能体</td><td><span class="q">ML-5</span>~<span class="q">ML-10</span> <span class="q">HQ-26</span></td></tr>
+    <tr><td>08</td><td>Agent 工程化与选型</td><td><span class="q">JR-2</span> <span class="q">JR-3</span> <span class="q">JR-13</span> <span class="q">HQ-25</span> <span class="q">HQ-36</span> <span class="q">PY-2</span> <span class="q">PY-3</span> <span class="q">YU-19</span></td></tr>
+    <tr><td>09</td><td>自查与参考回答</td><td>步骤 1 的验收</td><td>覆盖上面全部 45 题</td></tr>
+  </tbody>
+</table>
+
+<p>另外两处对应关系值得留意：</p>
+<ul>
+  <li><strong>04 和 07 分别对应计划第 5 节的追问树 5.1「RAG 检索链」和 5.2「多 Agent 链」</strong>——那两棵树是本步骤最重要的两条追问链。</li>
+  <li><strong>上下文压缩</strong>（<code>JR-11</code> <code>JR-12</code> <code>JR-14</code>）在学习计划里属于 <strong>C 域、步骤 2</strong>，因此<strong>不在本目录</strong>，等步骤 2 的材料一起讲。</li>
+</ul>
+
+<h2>材料清单</h2>
+
+<div class="warn">
+  <span class="tag">建议先读 00</span>
+  <p><strong>00 是前置页</strong>：把后面会反复出现的词（大模型、上下文、token、向量、RAG、工具调用、Agent…）先用大白话讲一遍，每个词配一个类比。<strong>没搭过 AI 应用的话，先花 10 分钟看它，后面会顺很多。</strong></p>
+</div>
+
+<div class="cards">
+
+  <a class="card" href="00-key-terms.html" style="border-color:var(--accent)">
+    <div class="num">00 · 前置</div>
+    <h3>先认识这几个词</h3>
+    <p>一张"会说 → 会查 → 会做"的总图，加 16 个概念的大白话解释（每个配类比）。读懂这一页，后面 9 页的门槛就没了。</p>
+    <div class="qbadges"><span class="q">读之前先看</span></div>
+  </a>
+
+  <a class="card" href="01-what-is-rag.html">
+    <div class="num">01</div>
+    <h3>RAG 是什么</h3>
+    <p>开卷考试的直觉、它到底解决哪三个问题、和微调/长上下文的分工、两张全景图。</p>
+    <div class="qbadges"><span class="q">JR-5</span><span class="q">TK-8</span><span class="q">PY-5</span><span class="q">YU-17</span></div>
+  </a>
+
+  <a class="card" href="02-chunking-and-embedding.html">
+    <div class="num">02</div>
+    <h3>索引：切分与向量化</h3>
+    <p>chunk 粒度怎么权衡、三种切分策略、元数据要带什么、PDF 的坑、ES 分词机制、人工审核为什么必要、稠密 vs 稀疏向量、BM25。</p>
+    <div class="qbadges"><span class="q">PY-6</span><span class="q">YF-4</span><span class="q">YF-5</span><span class="q">YF-6</span><span class="q">YU-18</span></div>
+  </a>
+
+  <a class="card" href="03-vector-store-and-index.html">
+    <div class="num">03</div>
+    <h3>向量库与索引算法</h3>
+    <p>为什么不能暴力检索、HNSW / IVF / 倒排索引的直觉与参数、向量库选型五问、数据量怎么估。</p>
+    <div class="qbadges"><span class="q">JR-7</span><span class="q">JR-8</span><span class="q">HQ-28</span></div>
+  </a>
+
+  <a class="card" href="04-retrieval-and-rerank.html">
+    <div class="num">04</div>
+    <h3>检索优化与重排</h3>
+    <p>查询改写/多查询/子查询/HyDE、混合检索与 RRF、为什么还要 rerank、加速检索的四层手段、效果排查顺序、怎么证明召回是准的。</p>
+    <div class="qbadges"><span class="q">HQ-27</span><span class="q">HQ-29</span><span class="q">HQ-30</span><span class="q">HQ-31</span><span class="q">JR-6</span><span class="q">JR-10</span><span class="q">YF-7</span></div>
+  </a>
+
+  <a class="card" href="05-generation-and-model-choice.html">
+    <div class="num">05</div>
+    <h3>生成侧与模型选型</h3>
+    <p>Prompt 怎么把证据喂进去、Markdown vs JSON 的取舍、流式输出下的结构化、幻觉与拒答、模型选型六维、微调/API/私有化怎么选。</p>
+    <div class="qbadges"><span class="q">PY-7</span><span class="q">JR-9</span><span class="q">YF-10</span></div>
+  </a>
+
+  <a class="card" href="06-agent-basics-and-tools.html">
+    <div class="num">06</div>
+    <h3>Agent 基础与工具协议</h3>
+    <p>Agent 与 Workflow 的边界、ReAct 主循环与刹车、工具设计的四条原则、Function Call / MCP / Skill / Tools 的区别、工具失败的五类处理、通用 Agent 的四层结构。</p>
+    <div class="qbadges"><span class="q">ML-2</span><span class="q">ML-3</span><span class="q">ML-4</span><span class="q">JR-15</span><span class="q">KJ-1</span><span class="q">YF-11</span><span class="q">XZ-2</span><span class="q">JR-4</span></div>
+  </a>
+
+  <a class="card" href="07-multi-agent.html">
+    <div class="num">07</div>
+    <h3>多智能体</h3>
+    <p>从单 Agent 的问题倒推为什么需要它、拆与不拆的判断标准、拆的代价、四种编排模式、动态路由的实现与坑、独立评审为何优于互相 review。</p>
+    <div class="qbadges"><span class="q">ML-5</span><span class="q">ML-6</span><span class="q">ML-7</span><span class="q">ML-8</span><span class="q">ML-9</span><span class="q">ML-10</span><span class="q">HQ-26</span></div>
+  </a>
+
+  <a class="card" href="08-agent-engineering.html">
+    <div class="num">08</div>
+    <h3>Agent 工程化与选型</h3>
+    <p>claude code 的核心循环与四条设计原则、Harness 是什么、LangChain 与 LangGraph 选型、通用能力模块抽象、意图识别与路由、一个完整 Agent 设计案例。</p>
+    <div class="qbadges"><span class="q">JR-2</span><span class="q">JR-3</span><span class="q">JR-13</span><span class="q">HQ-25</span><span class="q">HQ-36</span><span class="q">PY-2</span><span class="q">PY-3</span><span class="q">YU-19</span></div>
+  </a>
+
+  <a class="card" href="09-review-and-answers.html">
+    <div class="num">09</div>
+    <h3>自查与参考回答</h3>
+    <p>20 道自查题（答案折叠）、3 份完整参考回答、口述五段式模板、步骤 1 的验收清单。</p>
+    <div class="qbadges"><span class="q">全步骤 1</span></div>
+  </a>
+
+</div>
+
+<div class="warn">
+  <span class="tag">用法提醒</span>
+  <p>按 <strong>00 → 09</strong> 的顺序读，但<strong>不要只读</strong>：每读完一份，合上材料，对着<strong>目录页的完成标志</strong>自查一遍，讲不出来的回去重读那一节。</p>
+  <p>本目录<strong>只覆盖步骤 1</strong>。像「上下文压缩」这类属于步骤 2（C 域）的内容，这里刻意没有写——C 域和 D 域的知识要靠动手做系统才能长出来，提前看也是白看。</p>
+</div>
+
+<p style="font-size:13px;color:var(--muted);margin-top:32px">
+  材料的写法与排版规范见 <a href="../plan/spec.md" style="color:var(--muted)">学习资料/规范.md</a>（维护用）。
+</p>
+
+</main>
+</div>
+
+</body>
+</html>

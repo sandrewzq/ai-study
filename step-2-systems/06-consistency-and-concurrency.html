@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · 数据一致性与并发 — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 6/12 份 ｜ D 域 · 后端、数据与中间件</span>
+</header>
+
+<div class="layout">
+
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item cur" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>06 · 数据一致性与并发</h1>
+<p class="lead">
+  "两个人同时买最后一件库存会怎样"——这个问题背后是<strong>并发下的数据一致性</strong>。
+  它是 D 域最能区分水平的一块：只会背 ACID 的人答不出超卖怎么防，做过的人能画出时序图。
+</p>
+
+<div class="qbadges"><span class="q">HQ-23</span><span class="q">HQ-24</span><span class="q">YC-1</span><span class="q">PY-12</span><span class="q">PY-13</span><span class="q">PY-14</span><span class="q">PY-15</span><span class="q">PY-16</span><span class="q">PY-17</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页假设你知道数据库的"事务"是什么（一组要么全成功、要么全失败的操作）。不知道的话先看第 1 节。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，理解超卖是怎么发生的。</div>
+  <div><b>第二遍（20 分钟）</b>读四种解法对比表 + 秒杀设计。</div>
+  <div><b>第三遍</b>做末尾的动手清单。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>秒杀活动：<strong>100 件商品</strong>。活动结束后一统计，<strong>卖出去 137 件</strong>。</p>
+
+<p>代码逻辑看起来完全正确：</p>
+
+<pre><code>1. 查库存：SELECT stock FROM goods WHERE id = 1;   -- 假设查到 1
+2. 判断：if (stock &gt; 0) { ... }                    -- 1 &gt; 0，通过
+3. 扣减：UPDATE goods SET stock = stock - 1 WHERE id = 1;</code></pre>
+
+<p>单个人执行这套逻辑没问题。<strong>问题是很多人同时在执行。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 超卖是怎么发生的</p>
+  <h3>两个请求都读到了"库存 1"</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 240" role="img" aria-label="并发扣减导致超卖的时序示意">
+    <defs>
+      <marker id="a06" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <text x="10" y="78" style="font-weight:600">请求 A</text>
+    <rect fill="var(--c-risk-bg)" stroke="var(--c-risk)" x="90" y="52" width="150" height="44" rx="8"></rect>
+    <text x="165" y="79" text-anchor="middle" fill="var(--c-risk)">读到库存 = 1</text>
+    <rect class="box-d" x="270" y="52" width="140" height="44" rx="8"></rect>
+    <text x="340" y="79" text-anchor="middle">判断 1 &gt; 0 ✓</text>
+    <rect class="box-d" x="440" y="52" width="140" height="44" rx="8"></rect>
+    <text x="510" y="79" text-anchor="middle">扣减到 0</text>
+    <rect class="box-d" x="610" y="52" width="150" height="44" rx="8"></rect>
+    <text x="685" y="79" text-anchor="middle">写回 0</text>
+
+    <text x="10" y="168" style="font-weight:600">请求 B</text>
+    <rect fill="var(--c-risk-bg)" stroke="var(--c-risk)" x="90" y="142" width="150" height="44" rx="8"></rect>
+    <text x="165" y="169" text-anchor="middle" fill="var(--c-risk)">读到库存 = 1</text>
+    <rect class="box-d" x="270" y="142" width="140" height="44" rx="8"></rect>
+    <text x="340" y="169" text-anchor="middle">判断 1 &gt; 0 ✓</text>
+    <rect class="box-d" x="440" y="142" width="140" height="44" rx="8"></rect>
+    <text x="510" y="169" text-anchor="middle">扣减到 0</text>
+    <rect class="box-d" x="610" y="142" width="150" height="44" rx="8"></rect>
+    <text x="685" y="169" text-anchor="middle">写回 0</text>
+
+    <line class="ar" x1="240" y1="74" x2="266" y2="74" marker-end="url(#a06)"></line>
+    <line class="ar" x1="410" y1="74" x2="436" y2="74" marker-end="url(#a06)"></line>
+    <line class="ar" x1="580" y1="74" x2="606" y2="74" marker-end="url(#a06)"></line>
+    <line class="ar" x1="240" y1="164" x2="266" y2="164" marker-end="url(#a06)"></line>
+    <line class="ar" x1="410" y1="164" x2="436" y2="164" marker-end="url(#a06)"></line>
+    <line class="ar" x1="580" y1="164" x2="606" y2="164" marker-end="url(#a06)"></line>
+
+    <text x="10" y="222" fill="var(--c-risk)">两个请求都读到 1、判断都通过 → 同一件库存卖出去两次</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：问题出在"<strong>读</strong>"和"<strong>写</strong>"之间有空隙。两个请求都在这个空隙里读到了同一个值，然后各自认为自己可以扣。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">这类问题的通用名字叫"<strong>竞态条件</strong>"。解决思路只有一条：<strong>让"读—判断—写"这三步不能被别的请求插进来</strong>，或者让判断和扣减合并成一步原子操作。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-risk)"></i>冲突点</span>
+  <span><i style="background:var(--c-data)"></i>正常步骤</span>
+  <span><i style="background:var(--c-model)"></i>索引 / 计算</span>
+  <span><i style="background:var(--c-store)"></i>正确结果</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 事务：先把概念说清</h2>
+
+<p><code>HQ-23</code> 问"什么是数据库事务"，答案是 <strong>ACID</strong> 四个特性。但只背四个字母没用，要能说出<strong>它解决什么问题</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:12%">特性</th><th style="width:30%">什么意思</th><th>不满足会怎样</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A 原子性</strong></td>
+      <td>事务里的操作<strong>要么全成功、要么全失败</strong></td>
+      <td>转账扣了钱但没加钱，钱凭空消失</td>
+    </tr>
+    <tr>
+      <td><strong>C 一致性</strong></td>
+      <td>事务前后，数据的<strong>约束关系不被破坏</strong></td>
+      <td>转账后总金额对不上</td>
+    </tr>
+    <tr>
+      <td><strong>I 隔离性</strong></td>
+      <td>并发事务之间<strong>互不干扰</strong>，像串行执行一样</td>
+      <td>两个人同时买最后一件 → 超卖</td>
+    </tr>
+    <tr>
+      <td><strong>D 持久性</strong></td>
+      <td>提交后的数据<strong>不会因为宕机丢失</strong></td>
+      <td>用户付了钱，重启后订单没了</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>怎么判断一个场景"必须用事务"（<code>HQ-24</code>）</strong>——看两个条件，同时满足就该用：</p>
+
+<div class="skeleton">
+  <span class="tag">判断标准</span>
+  <ol>
+    <li><strong>一次业务操作要写多张表</strong>（或同一张表的多行），且这些写入要么都成功、要么都别生效。</li>
+    <li><strong>中间失败会导致数据对不上</strong>（钱少了、库存扣了但订单没生成）。</li>
+  </ol>
+  <p><strong>例子</strong>：下单 = 扣库存 + 建订单 + 减余额。这三步必须在一个事务里，任何一步失败都要回滚。<br>
+  <strong>反例</strong>：只是往日志表插一条记录，失败了也无所谓——不需要事务。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 并发扣减的四种解法</h2>
+
+<p>这是 D 域的核心。按<strong>从简单到复杂</strong>排，回答时说清各自的代价：</p>
+
+<table>
+  <thead><tr><th style="width:16%">方案</th><th style="width:32%">怎么做</th><th style="width:26%">优点</th><th>代价</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>① 悲观锁</strong></td>
+      <td><code>SELECT ... FOR UPDATE</code> 把这一行锁住，别人得等</td>
+      <td>实现简单，绝对安全</td>
+      <td><strong>并发差</strong>：所有请求排队，秒杀场景直接被打爆；容易死锁</td>
+    </tr>
+    <tr>
+      <td><strong>② 乐观锁</strong><br><span style="color:var(--muted);font-size:13.5px">推荐</span></td>
+      <td>不加锁，<strong>把判断写进更新语句</strong>：<br><code>UPDATE goods SET stock=stock-1 WHERE id=1 AND stock&gt;0</code>；<br>看影响行数是不是 1，是 0 就说明没抢到</td>
+      <td><strong>不用加锁</strong>，靠数据库的行锁保证原子性，并发好得多</td>
+      <td>失败要重试或直接告诉用户"已售罄"；高冲突时重试多</td>
+    </tr>
+    <tr>
+      <td><strong>③ Redis + Lua</strong></td>
+      <td>库存预热到 Redis，用 <strong>Lua 脚本</strong>做"判断 + 扣减"（Redis 单线程执行，天然原子）；扣成功再异步落库</td>
+      <td><strong>性能最高</strong>，能扛住秒杀流量</td>
+      <td>多了一套组件；要处理 Redis 和数据库的一致性问题（见第 4 节）</td>
+    </tr>
+    <tr>
+      <td><strong>④ 队列串行化</strong></td>
+      <td>请求先入队，消费者<strong>单线程</strong>逐个处理扣减</td>
+      <td>彻底没有并发冲突，逻辑最简单</td>
+      <td>有延迟；队列本身要保证不丢（见下一篇）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">讲的时候怎么选（这段话很加分）</span>
+  <p>"日常的低并发场景用<strong>乐观锁</strong>就够了——把条件写进 UPDATE 语句，不用加锁，简单又安全。</p>
+  <p>秒杀这种瞬时高并发才需要<strong>Redis 预扣减 + Lua</strong>，因为数据库扛不住那么大的写入量。但引入 Redis 之后就多了一致性问题，要用消息队列把扣减结果异步同步到数据库，并做对账兜底。</p>
+  <p><strong>核心判断依据是并发量级</strong>，不是哪个方案更高级。"</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 秒杀系统怎么设计</h2>
+
+<p><code>PY-12</code> 是道大题，按<strong>漏斗</strong>的思路答——每一层都挡掉大部分流量：</p>
+
+<pre><code>用户请求（可能几十万 QPS）
+   ↓ ① 前端：按钮置灰、验证码、答题，挡住脚本和重复点击
+   ↓ ② 网关：限流（按用户/按 IP），超出的直接拒绝
+   ↓ ③ 缓存：库存判断走 Redis，不碰数据库
+   ↓ ④ 队列：抢到的请求入队，异步下单（削峰）
+   ↓ ⑤ 数据库：只处理队列里有限量的请求
+最终只有真正抢到的那 100 个请求打到数据库</code></pre>
+
+<table>
+  <thead><tr><th style="width:20%">环节</th><th>关键点</th></tr></thead>
+  <tbody>
+    <tr><td><strong>限流</strong></td><td>按用户维度限（一个用户只能抢一次）、按 IP 限、全局限。超出的直接返回"已抢完"，不要让它进到后面</td></tr>
+    <tr><td><strong>削峰</strong></td><td>把瞬时的高并发<strong>变成队列里的平缓消费</strong>。这也是 <code>PY-20</code> 问的"支付为什么用异步队列"的同一个思路</td></tr>
+    <tr><td><strong>库存判断前置</strong></td><td>先在 Redis 里判断和扣减（原子），通过了才继续。<strong>避免大量无效请求打到数据库</strong></td></tr>
+    <tr><td><strong>超卖防护</strong></td><td>Redis 扣减用 Lua 保证原子；数据库扣减用乐观锁（<code>WHERE stock &gt;= 1</code>）作为<strong>最后一道防线</strong></td></tr>
+    <tr><td><strong>幂等</strong></td><td>同一个用户重复提交要只算一次——用唯一索引或分布式锁（见 <code>PY-15</code>）</td></tr>
+    <tr><td><strong>对账兜底</strong></td><td>活动结束后核对 Redis 和数据库的库存，不一致要能修</td></tr>
+  </tbody>
+</table>
+
+<h3>Redis 分布式锁（<code>PY-15</code>）</h3>
+
+<table>
+  <thead><tr><th style="width:26%">要点</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>加锁</strong></td><td><code>SET lock_key 唯一值 NX PX 30000</code>——<strong>NX 保证只有一个人能设成功，PX 设过期时间防止死锁</strong></td></tr>
+    <tr><td><strong>为什么要"唯一值"</strong></td><td>解锁时要确认"这把锁是我加的"。否则可能删掉别人的锁（比如自己超时了，锁被下一个人拿到，你才回来删）</td></tr>
+    <tr><td><strong>解锁要用 Lua</strong></td><td>"判断是不是自己的锁 + 删除"两步必须原子，否则中间可能被别人插进来</td></tr>
+    <tr><td><strong>为什么不用 Lua 做扣减</strong></td><td>锁的粒度大（锁整个操作），Lua 脚本能把"判断 + 扣减"做成一个原子操作，<strong>性能更好</strong>。能用 Lua 就不用锁</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 缓存和数据库的一致性</h2>
+
+<p><code>YC-1</code>。核心问题是：<strong>数据改了，缓存怎么办？</strong></p>
+
+<table>
+  <thead><tr><th style="width:26%">策略</th><th style="width:34%">怎么做</th><th>问题</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>先更新库，再删缓存</strong><br><span style="color:var(--muted);font-size:13.5px">推荐</span></td>
+      <td>改数据库 → 删掉缓存（下次读时自然回源重建）</td>
+      <td>理论上仍有极短的窗口不一致（并发读正好在删之前），但概率极低</td>
+    </tr>
+    <tr>
+      <td><strong>先删缓存，再更新库</strong></td>
+      <td>先让缓存失效，再改库</td>
+      <td><strong>更容易出问题</strong>：删完缓存、还没改完库，另一个请求读进来把<strong>旧值</strong>又写回缓存了</td>
+    </tr>
+    <tr>
+      <td><strong>更新库 + 更新缓存</strong></td>
+      <td>两边都写</td>
+      <td>两次写入之间会被读到中间态；如果缓存值需要复杂计算，还浪费算力</td>
+    </tr>
+    <tr>
+      <td><strong>延迟双删</strong></td>
+      <td>删缓存 → 改库 → 隔一小段时间<strong>再删一次</strong></td>
+      <td>能覆盖上面那个窗口，但引入"延迟"这个不确定因素</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">讲解落点</span>
+  <p>"我们用的是<strong>先更新数据库、再删缓存</strong>。因为删除比更新安全——就算删失败了，最坏也就是下次读回源，不会留下错数据。</p>
+  <p>而且要接受一个前提：<strong>缓存和数据库的强一致是做不到的</strong>，除非加分布式锁（代价太大）。所以工程上的目标是<strong>最终一致</strong>，再配合过期时间兜底——就算某次没删成功，缓存也会在 TTL 到期后自动失效。"</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 追问：不用 Redis，只用 MySQL 怎么保证安全</h2>
+
+<p><code>PY-17</code>。这题考的是<strong>你能不能在最简单的条件下降级解决问题</strong>，而不是只会堆组件。</p>
+
+<table>
+  <thead><tr><th style="width:24%">手段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>乐观锁扣减</strong></td>
+      <td><code>UPDATE ... SET stock = stock - 1 WHERE id = ? AND stock &gt;= 1</code>，靠数据库的行锁保证原子性。<strong>这是最核心的一招</strong></td>
+    </tr>
+    <tr>
+      <td><strong>唯一索引幂等</strong></td>
+      <td>订单表对 <code>(user_id, activity_id)</code> 建唯一索引，一个人重复提交直接报冲突，天然去重</td>
+    </tr>
+    <tr>
+      <td><strong>事务包裹</strong></td>
+      <td>扣库存 + 建订单放一个事务，失败一起回滚</td>
+    </tr>
+    <tr>
+      <td><strong>限制入口流量</strong></td>
+      <td>网关层限流，让数据库的并发在它扛得住的范围内</td>
+    </tr>
+    <tr>
+      <td><strong>接受性能上限</strong></td>
+      <td>诚实地说：<strong>纯 MySQL 方案能保证正确性，但扛不住太高的并发</strong>。如果业务量真的很大，就必须引入缓存或队列</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">这题真正考什么</span>
+  <p>不是"没有 Redis 我会不会做"，而是<strong>"你能不能在受限条件下说清边界"</strong>。</p>
+  <p>好的回答会包括："用乐观锁 + 唯一索引可以保证不出错，但在几千 QPS 以上数据库会先成为瓶颈。所以这个方案适合中小流量；如果是秒杀量级，还是得上缓存层。"——<strong>既给了方案，也说了方案的上限。</strong></p>
+</div>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s6">6. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「高并发下怎么避免超卖」</span>
+  <p><strong>【结论】</strong>超卖的本质是"读—判断—写"之间有空隙，两个请求都读到了同一个值。所以思路是<strong>让判断和扣减变成一步原子操作</strong>。</p>
+  <p><strong>【方案】</strong>按并发量级选：日常场景用<strong>乐观锁</strong>——把条件写进 UPDATE 语句（<code>WHERE stock &gt;= 1</code>），看影响行数判断是否成功，不用加锁；秒杀量级用 <strong>Redis + Lua</strong> 预扣减，因为数据库扛不住那么大的写入。</p>
+  <p><strong>【兜底】</strong>数据库层的乐观锁始终保留，作为最后一道防线；订单表加唯一索引做幂等，防止同一用户重复下单；活动结束后对账。</p>
+  <p><strong>【数字】</strong>改造前压测时 100 件会卖出 137 件；改成乐观锁后压测 5000 QPS 无超卖；引入 Redis 后单机 QPS 从 X 提到 Y。</p>
+  <p><strong>【权衡】</strong>乐观锁在高冲突场景下失败率高，要么重试要么直接提示售罄；Redis 方案性能好但多了一套组件，还要处理缓存和数据库的一致性，所以我们用队列异步落库并对账兜底。</p>
+</div>
+
+<details class="ask">
+  <summary>乐观锁和悲观锁到底怎么选？</summary>
+  <p>看<strong>冲突概率</strong>：</p>
+  <ul>
+    <li><strong>冲突少</strong>（读多写少、不同用户操作不同数据）→ <strong>乐观锁</strong>。加锁本身有开销，冲突少的时候锁纯属浪费。</li>
+    <li><strong>冲突多</strong>（同一个热点数据被频繁改）→ 乐观锁会不停失败重试，反而更慢，这时悲观锁或队列串行更合适。</li>
+  </ul>
+  <p>一句话：<strong>乐观锁假设"一般不会冲突"，悲观锁假设"一定会冲突"。</strong></p>
+</details>
+
+<details class="ask">
+  <summary>Redis 和数据库的数据不一致，业务上怎么兜底？</summary>
+  <ul>
+    <li><strong>过期时间</strong>：缓存设 TTL，就算某次没删成功，到点也会失效。</li>
+    <li><strong>延迟双删</strong>：写库前后各删一次，覆盖并发窗口。</li>
+    <li><strong>消息队列</strong>：把"删缓存"做成一个消息，失败可以重试。</li>
+    <li><strong>定时对账</strong>：定时比对关键数据（比如库存），发现不一致就修正并告警。</li>
+  </ul>
+  <p>核心认知：<strong>不要追求强一致，要追求"不一致能被发现并修复"。</strong></p>
+</details>
+
+<details class="ask">
+  <summary>什么是死锁？怎么避免？</summary>
+  <p>两个事务各自锁了一部分资源，又在等对方释放，谁也不让——就卡死了。</p>
+  <p><strong>避免手段</strong>：</p>
+  <ul>
+    <li><strong>固定加锁顺序</strong>：所有事务都按同样的顺序访问资源（比如都按主键升序），最有效。</li>
+    <li><strong>缩短事务</strong>：事务里别做网络调用、别处理大批数据。</li>
+    <li><strong>降低锁粒度</strong>：能用行锁就别用表锁。</li>
+    <li><strong>设超时</strong>：万一还是死锁，让数据库自动检测并回滚其中一个，应用层捕获后重试。</li>
+  </ul>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <ol>
+    <li><strong>写一个会超卖的脚本</strong>：拿一张测试表，开 100 个并发去扣同一行库存，用"先查再改"的写法跑一遍，<strong>确认真的超卖</strong>。（这是理解这个问题最快的方式）</li>
+    <li><strong>改成乐观锁再跑一遍</strong>：把判断写进 UPDATE 语句，同样的并发下确认不超卖。记录两次的结果差异。</li>
+    <li><strong>给你的项目加唯一索引幂等</strong>：比如任务表对 <code>(task_type, biz_id)</code> 建唯一索引，防止重复提交创建两个任务。这在 AI 应用里非常常用——用户连点两次就重复调用模型了。</li>
+    <li><strong>用 Redis + Lua 实现一次库存扣减</strong>：把"判断 + 扣减"写成一个 Lua 脚本，理解为什么它天然原子。</li>
+    <li><strong>给你的缓存加上 TTL 和删除时机</strong>：确认"先更新库、再删缓存"的顺序，并统计一下缓存命中率。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>超卖是怎么发生的？四种解法分别是什么，代价是什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>原因</strong>：两个请求都读到了"库存 1"，各自的判断都通过，于是同一件库存卖了两次。问题出在"读"和"写"之间的空隙。</p>
+    <p><strong>四种解法</strong>：① <strong>悲观锁</strong>（<code>FOR UPDATE</code>，安全但并发差）；② <strong>乐观锁</strong>（把 <code>stock &gt;= 1</code> 写进 UPDATE，不用加锁，推荐）；③ <strong>Redis + Lua</strong>（性能最高，但要处理一致性）；④ <strong>队列串行化</strong>（彻底无并发，但有延迟）。</p>
+    <p>选择依据是<strong>并发量级</strong>，不是哪个更高级。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>缓存和数据库怎么保持一致？为什么是"先更新库、再删缓存"而不是反过来？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>顺序是"先更新数据库，再删缓存"。</strong></p>
+    <p><strong>为什么不能反过来</strong>：如果先删缓存再改库，在"删完、还没改完"的空隙里，另一个请求读进来发现缓存没了，就去数据库读到<strong>旧值</strong>，然后把它写回了缓存——缓存里就留下了一个错误的旧值。</p>
+    <p><strong>更关键的前提</strong>：缓存和数据库的<strong>强一致做不到</strong>，工程目标是最终一致。所以还要配 TTL 兜底、对账修正。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="05-index-and-slow-query.html">← 上一篇：索引与慢查询</a>
+  <a href="07-async-jobs-and-queue.html">下一篇：异步任务与队列 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

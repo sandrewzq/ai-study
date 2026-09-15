@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · 索引：切分与向量化 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 2/9 份 ｜ A 域 · LLM 与 RAG</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item cur" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>02 · 索引：切分与向量化</h1>
+<p class="lead">
+  这一页讲那件"用户看不见、但决定一切"的事：<strong>把文档变成能被检索的东西</strong>。
+  这一步做得糙，后面检索和生成再优化也救不回来——<strong>垃圾进，垃圾出</strong>。
+</p>
+
+<div class="qbadges"><span class="q">PY-6</span><span class="q">YF-4</span><span class="q">YF-5</span><span class="q">YF-6</span><span class="q">YU-18</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页会用到「向量」「切分」「召回」这些词。看着眼生的话，先看 <a href="00-key-terms.html">00 · 先认识这几个词</a> 的第二组。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句。</div>
+  <div><b>第二遍（15 分钟）</b>读正文和反例。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你手上有一份 <strong>80 页的《员工手册》PDF</strong>，要把它变成可检索的知识库。</p>
+
+<p>能不能整本存进去？不行——检索是按"段"匹配的，整本一个单位，等于什么都没匹配上。所以要加工：</p>
+
+<div class="pipeline">
+  <details class="node d"><summary>解析</summary><div class="body">从 PDF 里把文字、表格、图片提取出来。这一步的坑最多，见第 4 节。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>切分</summary><div class="body">切成一段一段的 chunk，每段意思要完整。切法决定检索上限，见第 1~2 节。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>向量化</summary><div class="body">每段算成一个向量，让机器能"按意思找"。见第 6 节。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>入库</summary><div class="body">向量存档，原文和元数据也一起存（要用来做引用和过滤）。见第 3 节。</div></details>
+</div>
+
+<p><strong>这张图在说什么</strong>：这四步是"用户看不见的那一半"。用户只看到最后问答很快，但答得准不准，几乎全由这里决定。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这一页最反直觉的一点</p>
+  <h3>切得太大，关键信息会被"稀释"</h3>
+
+  <p>《员工手册》里有一条：<strong>"员工餐厅不提供外带打包服务"</strong>。假设员工问：<em>「餐厅能打包吗？」</em></p>
+
+  <div class="dilute">
+    <div class="row">
+      <p class="cap">切得太大（一段 800 字，里面还混着考勤、报销、门禁的内容）</p>
+      <div class="bar"><span class="seg" style="width:6%"></span></div>
+      <p class="memo">那一句话只占整段的 <b class="warn">6%</b>。整段算出来的向量，反映的其实是"考勤报销门禁"这些内容——员工问"打包"，<strong>根本匹配不上</strong>。</p>
+    </div>
+    <div class="row">
+      <p class="cap">切得合适（一段 150 字，就讲餐厅规则）</p>
+      <div class="bar"><span class="seg" style="width:62%"></span></div>
+      <p class="memo">同一句话占了 <b>62%</b>，向量能准确表达它——员工一问就能召回这一段。</p>
+    </div>
+  </div>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：向量是"整段的平均意思"。<strong>关键句在一段里占比越小，它就越容易被淹没。</strong>这就是切分粒度的核心矛盾。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 计算</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 处理</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 粒度：切太大和切太小，各出什么问题</h2>
+
+<table>
+  <thead><tr><th style="width:16%">切太大</th><th>后果</th><th style="width:30%">具体的坑</th></tr></thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><strong>800 字一段</strong></td>
+      <td>向量语义被稀释，<strong>召不回来</strong></td>
+      <td>上面主图那个"餐厅打包"的例子</td>
+    </tr>
+    <tr>
+      <td>侥幸召回了，也<strong>干扰模型</strong></td>
+      <td>一段里一半内容跟问题无关，模型容易被带偏</td>
+    </tr>
+    <tr>
+      <td>浪费上下文和成本</td>
+      <td>无关内容白占 token，还挤掉别的有用内容</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead><tr><th style="width:16%">切太小</th><th>后果</th><th style="width:30%">具体的坑</th></tr></thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><strong>一句话一段</strong></td>
+      <td>指代关系断裂</td>
+      <td>手册里写"请选择<strong>左边那条</strong>通道"——左边哪条？上一段被切走了</td>
+    </tr>
+    <tr>
+      <td>条件丢失</td>
+      <td>"<strong>初次</strong>入职的员工需提交体检报告"——"初次"这个前提被切丢了，变成所有人都要交</td>
+    </tr>
+    <tr>
+      <td>要召回更多段才能还原原意</td>
+      <td>检索开销变大，还容易召回不齐</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">判断标准就一条</span>
+  <p><strong>随便抽一段出来单独读，意思完整吗？</strong></p>
+  <p>读得懂就是合适的粒度；读不懂说明切坏了——要么切太碎，要么把别的主题混进来了。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 怎么切：三种策略</h2>
+
+<table>
+  <thead><tr><th style="width:16%">策略</th><th style="width:32%">怎么做</th><th style="width:22%">适合</th><th>缺点</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>按长度硬切</strong></td>
+      <td>每 500 字切一刀，相邻两段留一点重叠</td>
+      <td>快速起步、格式乱的文本</td>
+      <td>句子会被<strong>拦腰切断</strong>，语义容易碎</td>
+    </tr>
+    <tr>
+      <td><strong>按结构切</strong></td>
+      <td>按标题层级、段落、列表项切</td>
+      <td>结构规范的文档：手册、政策文件、文档站</td>
+      <td>文档本身没结构就用不了</td>
+    </tr>
+    <tr>
+      <td><strong>按语义切</strong></td>
+      <td>算相邻句子的向量相似度，在"意思跳变"的地方断开</td>
+      <td>长文、论文</td>
+      <td>慢、贵；切出来的长度不可控</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">实战组合（照这个答）</span>
+  <p><strong>结构优先 → 结构内太长再按长度切 → 相邻块留 10~20% 重叠 → 每块头部拼上章节路径。</strong></p>
+  <p>最后一步容易被忽略但很有效：给每段拼上它所属的章节，比如 <code>第三章 财务制度 &gt; 3.2 差旅报销</code>。这样即使这一小段本身没提"报销"两个字，检索时也能匹配上。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 切完还要带上"身份证"：元数据</h2>
+
+<p>很多人只存了文字和向量，结果后面做引用、做过滤、做权限时全部返工。<strong>每一段都要带上这些字段</strong>：</p>
+
+<table>
+  <thead><tr><th style="width:26%">字段</th><th>后面用来干什么</th></tr></thead>
+  <tbody>
+    <tr><td><code>doc_id</code> / <code>chunk_id</code></td><td>溯源、去重、文档更新时定位旧内容</td></tr>
+    <tr><td>来源 / 标题</td><td>答案里显示"出自哪份文件"</td></tr>
+    <tr><td>章节路径</td><td>拼进 chunk 头部，提升检索质量</td></tr>
+    <tr><td>页码 / 位置</td><td>引用能精确点到第几页</td></tr>
+    <tr><td><strong>生效日期 / 版本</strong></td><td><strong>政策类文档必备</strong>：防止拿 2019 年的文件回答 2025 年的问题</td></tr>
+    <tr><td><strong>部门 / 权限标签</strong></td><td>多租户隔离。<strong>必须在检索时就过滤掉</strong>，不能"先检索再让模型别看"</td></tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">权限这件事有个红线</span>
+  <p>没有权限的内容<strong>绝不能进上下文</strong>。因为一旦进去了，就已经是数据泄露了——而且模型完全可能把它说出来。所以过滤必须在检索之前或之内完成。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. PDF 为什么最麻烦</h2>
+
+<p>关键认知：<strong>PDF 里没有"段落"这个概念，只有一堆带坐标的文字块。</strong>所谓段落、表格、分栏，全靠解析器去猜。</p>
+
+<table>
+  <thead><tr><th style="width:34%">坑</th><th>会发生什么</th></tr></thead>
+  <tbody>
+    <tr><td><strong>双栏排版被读串行</strong></td><td>左栏第一行接上右栏第一行，句子完全错乱</td></tr>
+    <tr><td><strong>表格被拆散</strong></td><td>跨页表格、合并单元格读出来是一堆错位的文字</td></tr>
+    <tr><td><strong>页眉页脚混进正文</strong></td><td>每页重复的页眉污染每一段</td></tr>
+    <tr><td><strong>扫描件没有文字层</strong></td><td>必须先做 OCR，识别错字直接影响检索</td></tr>
+    <tr><td><strong>公式变乱码</strong></td><td>普通解析器读不出公式结构</td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead><tr><th style="width:30%">工具</th><th>适用场景</th></tr></thead>
+  <tbody>
+    <tr><td><code>PyMuPDF</code> / <code>pdfplumber</code></td><td>版式简单、以文字为主，轻量快速</td></tr>
+    <tr><td><code>Unstructured</code> / <code>Marker</code> / <code>MinerU</code></td><td>版式复杂、要保住表格和公式，能输出 Markdown 结构</td></tr>
+    <tr><td>云解析服务</td><td>表格/公式精度要求高，且允许数据出内网</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一个能加分的设计</span>
+  <p>解析时<strong>保留结构标记</strong>（标题层级、表格、列表），不要一上来就拍平成纯文本。结构化的 Markdown 让后面的切分和章节路径提取都简单得多。</p>
+  <p>这也是为什么很多团队会<strong>优先喂 Markdown / LaTeX 原文，而不是 PDF</strong>——能拿到源文件就别走 PDF。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 中文怎么切词（ES 分词）</h2>
+
+<p>关键词检索（ES）靠的是"把句子切成词，建一张词到文档的索引表"。<strong>切得好不好，直接决定搜不搜得到。</strong></p>
+
+<table>
+  <thead><tr><th style="width:22%">分词器</th><th style="width:30%">"中华人民共和国" 会被切成</th><th>效果</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>standard</code></td>
+      <td>中 / 华 / 人 / 民 / 共 / 和 / 国</td>
+      <td>中文被切成<strong>单字</strong>，几乎不可用</td>
+    </tr>
+    <tr>
+      <td><code>ik_smart</code></td>
+      <td>中华人民共和国</td>
+      <td>粗粒度：<strong>召回少、噪声小</strong></td>
+    </tr>
+    <tr>
+      <td><code>ik_max_word</code></td>
+      <td>中华人民共和国 / 中华 / 人民 / 共和国 ……</td>
+      <td>细粒度：<strong>召回多、噪声大</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">标准做法：索引粗、查询细</span>
+  <p><strong>建索引的时候用 <code>ik_max_word</code>（尽量多切），用户查询的时候用 <code>ik_smart</code>（尽量准）。</strong></p>
+  <p>索引阶段多切，保证各种问法都能命中；查询阶段少切，避免把用户的问题切碎之后匹配到一堆无关内容。</p>
+  <p>另外两件常被忽略的事：<strong>自定义词典</strong>（把产品型号、内部缩写灌进去，防止被切碎）和<strong>同义词表</strong>（"社保" ↔ "社会保险"）。</p>
+</div>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6">6. 稠密 vs 稀疏：为什么两种都要</h2>
+
+<p>"找相似内容"有两种思路，<strong>它们擅长的事情完全不一样</strong>：</p>
+
+<svg class="svgfig" viewBox="0 0 800 250" role="img" aria-label="稠密向量与关键词检索各自擅长什么">
+  <defs>
+    <marker id="a02" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+    </marker>
+  </defs>
+
+  <text x="350" y="24" text-anchor="middle" style="font-weight:600">稠密向量：按意思找</text>
+  <text x="640" y="24" text-anchor="middle" style="font-weight:600">关键词：按词找</text>
+
+  <!-- 第 1 行 -->
+  <rect class="box-u" x="20" y="40" width="180" height="72" rx="9"></rect>
+  <text x="110" y="68" text-anchor="middle">员工问：</text>
+  <text x="110" y="90" text-anchor="middle" style="font-weight:600">"能打包吗"</text>
+
+  <rect class="box-s" x="220" y="40" width="260" height="72" rx="9"></rect>
+  <text x="350" y="68" text-anchor="middle">命中《餐厅规则》</text>
+  <text x="350" y="90" text-anchor="middle" class="lbl-muted">"不提供外带打包服务"</text>
+
+  <rect class="box-d" x="500" y="40" width="280" height="72" rx="9"></rect>
+  <text x="640" y="68" text-anchor="middle">搜不到</text>
+  <text x="640" y="90" text-anchor="middle" class="lbl-muted">原文里没有"打包"这两个字</text>
+
+  <!-- 第 2 行 -->
+  <rect class="box-u" x="20" y="150" width="180" height="72" rx="9"></rect>
+  <text x="110" y="178" text-anchor="middle">员工搜：</text>
+  <text x="110" y="200" text-anchor="middle" style="font-weight:600">"XR-2000A"</text>
+
+  <rect class="box-d" x="220" y="150" width="260" height="72" rx="9"></rect>
+  <text x="350" y="178" text-anchor="middle">搜不到</text>
+  <text x="350" y="200" text-anchor="middle" class="lbl-muted">型号没有"意思相近"的说法</text>
+
+  <rect class="box-s" x="500" y="150" width="280" height="72" rx="9"></rect>
+  <text x="640" y="178" text-anchor="middle">命中《设备清单》</text>
+  <text x="640" y="200" text-anchor="middle" class="lbl-muted">"型号：XR-2000A"</text>
+
+  <line class="ar" x1="204" y1="76" x2="216" y2="76" marker-end="url(#a02)"></line>
+  <line class="ar" x1="484" y1="76" x2="496" y2="76" marker-end="url(#a02)"></line>
+  <line class="ar" x1="204" y1="186" x2="216" y2="186" marker-end="url(#a02)"></line>
+  <line class="ar" x1="484" y1="186" x2="496" y2="186" marker-end="url(#a02)"></line>
+</svg>
+
+<p><strong>这张图在说什么</strong>：同一个知识库，<strong>两种检索各能覆盖对方漏掉的情况</strong>——所以生产系统通常两路都要走（这就是第 04 篇的"混合检索"）。</p>
+
+<h3>BM25 的三条直觉</h3>
+<p>关键词检索的打分公式叫 BM25。不用背公式，能说出这三条就够：</p>
+
+<table>
+  <thead><tr><th style="width:24%">机制</th><th>直觉</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>词越稀有越值钱</strong></td>
+      <td>"的""是"这种满篇都有的词没有区分度；专业术语只在少数文档里出现，命中它就说明很相关</td>
+    </tr>
+    <tr>
+      <td><strong>词频有上限</strong></td>
+      <td>一个词出现 100 次和 100 万次，得分不该差一万倍。否则一篇疯狂重复"苹果手机"的灌水贴会排到真实评测前面</td>
+    </tr>
+    <tr>
+      <td><strong>长文档要打折</strong></td>
+      <td>文档越长，天然越容易命中各种关键词。不打折的话长文档会系统性占优</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>embedding 模型怎么选</h3>
+
+<table>
+  <thead><tr><th style="width:30%">场景</th><th>选择思路</th></tr></thead>
+  <tbody>
+    <tr><td>中文为主、要开源可控</td><td><code>bge-m3</code> / <code>bge-large-zh</code> 系列；<code>bge-m3</code> 还能同时输出稠密和稀疏向量</td></tr>
+    <tr><td>走 API、省运维</td><td>主流闭源接口，效果稳，但要考虑数据合规和成本</td></tr>
+    <tr><td>中英混排 / 多语言</td><td>多语言版模型，或支持多语言的 <code>bge-m3</code></td></tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">选型时最容易被忽略的一点</span>
+  <p><strong>换 embedding 模型 = 全库重新向量化。</strong>几十万上百万条重跑一遍，既费钱又费时间，还要平滑切换（新旧索引并存、逐批迁移）。所以这是个<strong>一次定好、别中途换</strong>的决定——讲的时候主动提这一点，说明你想过工程成本。</p>
+  <p>另外：<strong>查询和文档必须用同一个模型</strong>，混用不同模型的向量算出来的距离没有意义。</p>
+</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7">7. 为什么必须有人工审核</h2>
+
+<p>对方问这个，其实在问<strong>你对数据质量的态度</strong>。要讲清一条因果链：</p>
+
+<p><strong>解析和切分必然会出错 → 错误会一路传到答案里 → 而模型会用同样自信的语气把错误说给用户。</strong></p>
+
+<table>
+  <thead><tr><th style="width:26%">环节</th><th>审什么</th></tr></thead>
+  <tbody>
+    <tr><td><strong>入库前审</strong></td><td>切分是否完整、表格公式是否读对、敏感内容是否要过滤、元数据是否齐全</td></tr>
+    <tr><td><strong>上线后抽检</strong></td><td>定期抽样真实问答，看召回内容对不对、答案引用得对不对</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">一句话回答</span>
+  <p>"不是不信任 AI，而是<strong>错误的成本太高</strong>——一段错的数据会被模型自信地复述给用户，而且用户很难察觉。所以入库前设一道闸，上线后做定期抽检。"</p>
+</div>
+
+<!-- ============ 8 ============ -->
+<h2 id="s8">8. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「文档是怎么切分、入库、审核的」</span>
+  <p><strong>【结论】</strong>切分的标准不是长度，而是<strong>语义是否完整</strong>——切太大，关键信息在整段里的占比被稀释，向量就表达不准、召不回来；切太小，前提条件和指代关系会断裂。</p>
+  <p><strong>【做法】</strong>我们是结构优先：先按文档标题层级切，某一节太长的再按句子边界二次切分，相邻块保留 15% 重叠。每个 chunk 头部会拼上章节路径，并带上来源、页码、生效日期、权限这些元数据。向量化之后，向量写进向量库，原文和元数据写进 ES。</p>
+  <p><strong>【数字】</strong>一共 XX 万份文档、切成 XX 万个 chunk，平均每块 X 百字，重叠 15%。</p>
+  <p><strong>【坑】</strong>最开始用固定长度硬切，结果规则类文本被拦腰截断——"在 X 情况下做 Y"被切成两半，模型只看到 Y，不知道怎么用。改成按结构切之后这类问题基本消失。</p>
+  <p><strong>【权衡】</strong>语义切分效果最好但慢且贵、长度不可控，所以只在长文档上局部使用，绝大部分场景用结构切分就够了。</p>
+</div>
+
+<details class="ask">
+  <summary>chunk 到底切多大？有没有标准值？</summary>
+  <p>没有通用标准值，但有判断依据：</p>
+  <ul>
+    <li><strong>看内容形态</strong>：问答对、规章制度适合小块（语义自洽）；叙述性长文适合大块。</li>
+    <li><strong>看检索粒度</strong>：要精确定位到条款就切小；要保留完整论证就切大。</li>
+    <li><strong>实用折中</strong>：用小 chunk 做检索，命中后把<strong>它所在的整段</strong>送给模型——兼顾准确率和完整性。</li>
+  </ul>
+  <p>最好直接说"我们线上用的是 X 字左右，这个值是 A/B 对比之后定的"，比背一个数字可信得多。</p>
+</details>
+
+<details class="ask">
+  <summary>ES 存原文、向量库存向量，两者怎么对应？</summary>
+  <p>用同一个 <code>chunk_id</code> 关联。混合检索时两路各自返回 <code>chunk_id</code> 和分数，融合后再按 id 取回原文和元数据。</p>
+  <p>实践上有两种简化：<strong>把向量直接存进 ES</strong>（ES 支持向量字段，一套系统搞定，运维最省事）；或者<strong>向量库也存原文</strong>（省一次查询，但要处理数据一致性）。</p>
+</details>
+
+<details class="ask">
+  <summary>知识库文档更新了怎么办？</summary>
+  <ul>
+    <li><strong>识别变更</strong>：用文件哈希或版本号判断哪些文档真的变了，别按修改时间瞎猜。</li>
+    <li><strong>先删后插</strong>：按 <code>doc_id</code> 删掉这个文档的所有旧 chunk 再插入新的——否则新旧内容同时在库里，答案会自相矛盾。</li>
+    <li><strong>注意旁路影响</strong>：被引用过的 chunk 删掉后历史答案的引用会失效，要么归档、要么标记"已失效"。</li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>为什么不只用一个模型同时出稠密和稀疏向量？</summary>
+  <p>可以，<code>bge-m3</code> 这类模型就同时输出两种向量，省一次推理。但有两点要注意：</p>
+  <ul>
+    <li>它的稀疏向量是"学出来的词权重"，和 BM25 那种纯统计的词权重不完全等价；型号、编号这类精确匹配场景，BM25 反而更稳。</li>
+    <li>如果已经在用 ES，直接用 ES 自带的 BM25 更省事，不需要额外存一份稀疏向量。</li>
+  </ul>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么 chunk 切太大会"召不回来"？切太小又会出什么问题？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>切太大</strong>：向量是整段的"平均意思"。关键句在一段里占比很小，整段向量反映的是别的内容，算相似度就算不准，于是召不回来。就算召回了，里面一半是无关内容，也会干扰模型。</p>
+    <p><strong>切太小</strong>：指代关系断裂（"左边那条"指哪条）、条件丢失（"初次入职"的"初次"被切走）、要召回更多段才能还原原意。</p>
+    <p>判断标准：抽一段单独读，意思完整吗？</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>稠密向量和关键词检索各擅长什么？为什么两个都要？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ul>
+      <li><strong>稠密向量</strong>擅长<strong>意思相近</strong>：问"能打包吗"，能找到写着"不提供外带打包服务"的段落。</li>
+      <li><strong>关键词（BM25）</strong>擅长<strong>词能对上</strong>：搜型号 <code>XR-2000A</code>、条款号、人名，这些词没有"意思相近"的说法，只能精确匹配。</li>
+      <li>反过来各自的短板正好是对方的长处，所以两路都要走，再融合结果。</li>
+    </ul>
+    <p>另一个必答点：<strong>换 embedding 模型等于全库重新向量化</strong>，所以选型要一次定好。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="01-what-is-rag.html">← 上一篇：RAG 是什么</a>
+  <a href="03-vector-store-and-index.html">下一篇：向量库与索引算法 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

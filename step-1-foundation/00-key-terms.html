@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · 先认识这几个词 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">前置页 · 建议先读这一页</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item cur" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>00 · 先认识这几个词</h1>
+<p class="lead">
+  后面 9 页会反复出现这些词。这一页把它们讲清楚：<strong>每个词一块，先说是啥、再说什么时候用得上、最后给个类比</strong>。
+  不用背，看不懂的时候回来查。
+</p>
+
+<!-- ============ 读法 ============ -->
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看每块的<strong>第一句话</strong>，跳过类比。先有个大概轮廓。</div>
+  <div><b>第二遍（20 分钟）</b>读完整块，包括类比和例子。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡，自己讲一遍。</div>
+</div>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 这一页和后面 9 页的骨架</p>
+  <h3>会说话 → 会查资料 → 会做事</h3>
+
+  <svg class="svgfig" viewBox="0 0 860 300" role="img" aria-label="大模型、RAG、Agent 三层能力递进图">
+    <defs>
+      <marker id="a00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-t" x="70" y="16" width="400" height="66" rx="10"></rect>
+    <text x="90" y="42" style="font-weight:600">③ 会做事 —— Agent</text>
+    <text x="90" y="64" class="lbl-muted">大模型 + 工具 + 循环</text>
+    <text x="500" y="40" class="lbl-muted">自己决定下一步做什么，能完成多步任务</text>
+    <text x="500" y="60" class="lbl-muted">例：调研竞品并写出一份报告</text>
+
+    <rect class="box-s" x="70" y="106" width="400" height="66" rx="10"></rect>
+    <text x="90" y="132" style="font-weight:600">② 会查资料 —— RAG</text>
+    <text x="90" y="154" class="lbl-muted">先去知识库里检索，再照着资料回答</text>
+    <text x="500" y="130" class="lbl-muted">解决两个问题：</text>
+    <text x="500" y="150" class="lbl-muted">① 它不知道你们公司的内部资料</text>
+    <text x="500" y="168" class="lbl-muted">② 它不知道的时候会"编"</text>
+
+    <rect class="box-m" x="70" y="196" width="400" height="66" rx="10"></rect>
+    <text x="90" y="222" style="font-weight:600">① 会说话 —— 大模型本身</text>
+    <text x="90" y="244" class="lbl-muted">能对话、能写代码、能总结</text>
+    <text x="500" y="220" class="lbl-muted">但它的知识停在训练那天，</text>
+    <text x="500" y="240" class="lbl-muted">而且不会主动说"我不知道"</text>
+
+    <line class="ar" x1="40" y1="266" x2="40" y2="24" marker-end="url(#a00)"></line>
+    <text x="18" y="150" class="lbl-muted" transform="rotate(-90 18 150)">能力一层层叠上去</text>
+  </svg>
+
+  <p style="margin:0 0 6px">
+    <strong>记住这个递进关系</strong>：大模型只会说 → 加上检索就"会查" → 再加上工具和循环就"会做"。
+  </p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 决策</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 执行</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 这一页怎么组织的 ============ -->
+<h2 id="how">这一页怎么组织的</h2>
+
+<p>所有词按<strong>"解决什么问题"</strong>分成 4 组，<strong>每组对应主图的一层</strong>（第四组是横跨三层的实现细节）：</p>
+
+<table>
+  <thead><tr><th style="width:10%">组</th><th style="width:34%">这一组解决什么问题</th><th style="width:26%">包含的词</th><th>对应主图</th></tr></thead>
+  <tbody>
+    <tr><td><strong>第一组</strong></td><td>认识大模型：它是什么、它的三个限制在哪</td><td>大模型、Prompt、上下文、上下文窗口、token、幻觉</td><td>第 ① 层（会说话）</td></tr>
+    <tr><td><strong>第二组</strong></td><td>让它知道你们的资料</td><td>向量、向量库、切分、召回与精排、RAG</td><td>第 ② 层（会查）</td></tr>
+    <tr><td><strong>第三组</strong></td><td>让它会做事</td><td>工具调用、Agent、多 Agent、MCP、Skill</td><td>第 ③ 层（会做）</td></tr>
+    <tr><td><strong>第四组</strong></td><td>工程实现时会碰到的词</td><td>流式输出、微调、框架、离线与在线</td><td>横跨三层</td></tr>
+  </tbody>
+</table>
+
+<p><strong>每块内容的顺序固定</strong>：先说"是什么"，再说"什么时候用得上 / 为什么重要"，最后给"类比"。类比是辅助，看不懂可以跳过，不影响后面的内容。</p>
+
+<p><strong>标了 <span class="star" style="font-size:12px;color:var(--c-tool);border:1px solid var(--c-tool);border-radius:999px;padding:0 8px">★ 高频</span> 的</strong>，是各类题目里出现频率最高的几个，建议优先记住；其余的遇到再回来查。</p>
+
+<div class="termindex">
+  <a href="#llm">大模型</a><a href="#prompt">Prompt</a><a href="#ctx">上下文</a><a href="#ctxwin">上下文窗口</a><a href="#token">token</a><a href="#hallu">幻觉</a>
+  <a href="#vec">向量</a><a href="#vdb">向量库</a><a href="#chunk">切分</a><a href="#retr">召回与精排</a><a href="#rag">RAG</a>
+  <a href="#tool">工具调用</a><a href="#agent">Agent</a><a href="#multi">多 Agent</a><a href="#mcp">MCP</a><a href="#skill">Skill</a>
+  <a href="#stream">流式输出</a><a href="#ft">微调</a><a href="#fw">框架</a><a href="#pipeline2">离线与在线</a>
+</div>
+
+<!-- ============ 第一组 ============ -->
+<div class="group-head">
+  <h2>第一组 · 认识大模型</h2>
+  <p>这组回答："模型到底是什么、它做不到什么"。搞懂它的三个限制（<strong>不知道你的资料、记不住新东西、会编</strong>），后面为什么要 RAG、为什么要 Agent 就顺理成章了。<span class="count">6 个词</span></p>
+</div>
+
+<div class="concept" id="llm">
+  <h3>大模型 <span class="en">LLM</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>能理解和生成文字的 AI，比如 Claude、GPT、Gemini。你平时用的"AI 助手"，背后就是它。</dd>
+  <dt>它的限制</dt><dd>它只"读过"训练时喂给它的资料。没喂过的（你们公司的内部文档）、太新的（昨天发生的事），它都不知道。而且它不会主动承认自己不知道。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>一个读过很多书、但从没进过你们公司、也不知道昨天新闻的人。他很会表达，但你问他没读过的事，他会顺口猜一个。</p>
+</div>
+</div>
+
+<div class="concept" id="prompt">
+  <h3>Prompt <span class="en">提示词</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>你发给大模型的那段文字。问题、指令、要求、示例，全都算。</dd>
+  <dt>什么时候用得上</dt><dd>每一次调用模型都在用它。同一个模型，提示词写得好不好，效果差很多。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>给上面那个人写的便条。"帮我看看这个"和"按这三条要求改这段代码，别动其他逻辑"，他给你的结果完全是两回事。</p>
+</div>
+</div>
+
+<div class="concept" id="ctx">
+  <h3>上下文 <span class="en">Context</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>模型这一次能看到的<strong>全部文字</strong>：你的问题 + 之前聊过的内容 + 检索到的资料 + 工具返回的结果，全都算在内。</dd>
+  <dt>为什么重要</dt><dd><strong>没放进去的东西，它一律看不见、也想不起来。</strong>所以"给它什么资料"直接决定了它答得好不好——这是整份材料里最重要的一条认知。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>摊在他面前的桌面。你只能通过桌面上摆的东西影响他——没摆上去的，对他等于不存在。</p>
+</div>
+</div>
+
+<div class="concept" id="ctxwin">
+  <h3>上下文窗口 <span class="en">Context Window</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>这张桌面最多能摊多少东西，是<strong>有上限</strong>的（不同模型上限不同）。</dd>
+  <dt>为什么重要</dt><dd>塞满了就得清理掉一些。这就是后面 Agent 为什么必须做"上下文管理"的根本原因。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>桌子大小是固定的。资料堆到放不下时，你要么先收走一些，要么就没法再摊新的上去。</p>
+</div>
+</div>
+
+<div class="concept" id="token">
+  <h3>token</h3>
+  <dl>
+  <dt>是什么</dt><dd>模型计算长度和费用的单位，大约等于一个词或半个汉字。</dd>
+  <dt>为什么重要</dt><dd>上下文越长 = token 越多 = <strong>越贵、越慢</strong>。所以"能少塞就少塞"不是在抠门，是在省钱。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>打车的计价里程。你塞进去的每一段文字都在计费。</p>
+</div>
+</div>
+
+<div class="concept" id="hallu">
+  <h3>幻觉 <span class="en">Hallucination</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>模型不知道答案时，<strong>不承认不知道，而是编一个听起来很合理的内容</strong>。</dd>
+  <dt>为什么重要</dt><dd>这是 AI 应用里最危险的失败模式——它不会说"我不清楚"，而是自信地给你一个错的答案，你很难察觉。</dd>
+  <dt>怎么治</dt><dd>给它资料照着答（就是下面的 RAG），并且要求它标注出处。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>一个特别好面子的人。你问他不知道的事，他不说"我不知道"，而是顺口编一个，语气还特别肯定。</p>
+</div>
+</div>
+
+<!-- ============ 第二组 ============ -->
+<div class="group-head">
+  <h2>第二组 · 让它知道你们的资料</h2>
+  <p>这组解决第一个限制：<strong>模型不知道你们公司的内部资料</strong>。核心思路一句话——<strong>提问时先把相关资料找出来，塞进它的上下文</strong>。<span class="count">5 个词</span></p>
+</div>
+
+<div class="concept" id="vec">
+  <h3>向量 <span class="en">Embedding / 嵌入</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>把一段文字变成一串数字（比如 1024 个小数）。关键性质：<strong>意思相近的文字，算出来的数字也相近。</strong></dd>
+  <dt>为什么重要</dt><dd>这样一来，"找相似内容"就变成了"算数字距离"，机器才能一秒从上百万段里找出相关的那几段。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>给每句话在一张超大的地图上标一个坐标。"报销怎么弄"和"差旅费用规定"会被标在很近的位置；"今天天气不错"则离得很远。找相关内容 = 找附近的点。</p>
+</div>
+</div>
+
+<div class="concept" id="vdb">
+  <h3>向量库</h3>
+  <dl>
+  <dt>是什么</dt><dd>专门存这些"坐标"、并能飞快找出离得最近的几个的数据库。</dd>
+  <dt>为什么重要</dt><dd>数据量上百万时，一个个比对太慢，靠它来加速。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>一张能瞬间回答"离我最近的 10 家店是哪几家"的地图。</p>
+</div>
+</div>
+
+<div class="concept" id="chunk">
+  <h3>切分 <span class="en">chunk</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>把长文档切成一段一段的小块，每块单独算向量。</dd>
+  <dt>为什么重要</dt><dd>粒度要合适：<strong>切太大</strong>，一块里什么都讲一点、什么都没讲清，算出来的向量也"糊"；<strong>切太小</strong>，句子被拦腰截断，意思不完整。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>把一本厚书拆成一张张卡片，以后按需抽卡片。检验标准很简单：随便抽一张出来单独读，能不能读懂？</p>
+</div>
+</div>
+
+<div class="concept" id="retr">
+  <h3>召回与精排 <span class="en">Retrieval / Rerank</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd><strong>召回</strong>＝先从海量内容里快速捞出几十条"可能相关"的候选；<strong>精排</strong>＝再从这几十条里精挑出最相关的三五条。</dd>
+  <dt>为什么分两步</dt><dd>先用快的方法保证"不漏"，再用慢但准的方法保证"精准"。一步到位做不到——要么太慢，要么不准。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>初筛。先按关键词筛出一批候选（求快求全），再逐份细看挑出最合适的（求准）。</p>
+</div>
+</div>
+
+<div class="concept" id="rag">
+  <h3>RAG <span class="en">检索增强生成</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>先去资料库里找出相关段落，再把这些段落塞给模型，让它<strong>照着资料回答</strong>。</dd>
+  <dt>解决什么</dt><dd>同时治两个毛病：模型不知道你的私有资料、以及它会编。答案是"有依据"的，还能标出出处。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>开卷考试。闭卷时它只能凭记忆答（会编）；开卷时先把资料摊在桌上，它照着答，还能标出"这句出自第 3 页"。</p>
+</div>
+</div>
+
+<!-- ============ 第三组 ============ -->
+<div class="group-head">
+  <h2>第三组 · 让它会做事</h2>
+  <p>这组解决另一个限制：<strong>模型只会说话，不会动手</strong>。办法是给它"工具"（能真的去搜、去算），再给它一个"循环"（做完看结果，不够再来一轮）。<span class="count">5 个词</span></p>
+</div>
+
+<div class="concept" id="tool">
+  <h3>工具调用 <span class="en">Function Call / Tool Use</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>模型输出一段结构化指令，说"我要查天气，城市=北京"；然后<strong>由程序真的去查</strong>，再把结果塞回给它。</dd>
+  <dt>最容易误解的一点</dt><dd><strong>模型自己不执行任何操作，它只会"说要干什么"。</strong>真正跑腿的是围绕它的程序——所以"给它配了哪些工具"，决定了它能做哪些事。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>模型是个只会动嘴的参谋，不会动手。他说"派个人去查一下库存"，真正跑腿的是别人。</p>
+</div>
+</div>
+
+<div class="concept" id="agent">
+  <h3>Agent <span class="en">智能体</span> <span class="star">★ 高频</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>大模型 + 工具 + 循环。它拿到一个目标后，<strong>自己判断下一步做什么</strong>，做完看结果，不够就再来一轮。</dd>
+  <dt>和 RAG 的区别</dt><dd>RAG 基本是"提问 → 检索 → 回答"一条直线；Agent 多了一个<strong>循环</strong>，能根据中间结果调整下一步——比如发现搜到的东西不行，它会换个词再搜。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>从"问答机"变成"实习生"。你问他问题，他只能回答；你让他做事，他会自己安排：先查资料、发现不够再查一轮、然后动笔写。</p>
+</div>
+</div>
+
+<div class="concept" id="multi">
+  <h3>多 Agent <span class="en">Multi-Agent</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>把一个大任务拆给几个各有分工的 Agent，比如一个负责查资料、一个负责写、一个负责审。</dd>
+  <dt>好处与代价</dt><dd>好处是每个人只管自己那摊，思路不会被别人的过程带乱；代价是要互相沟通，<strong>信息在传递过程中会丢</strong>。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>小组作业分工。分工明确效率高，但交接不清楚就容易互相甩锅。</p>
+</div>
+</div>
+
+<div class="concept" id="mcp">
+  <h3>MCP</h3>
+  <dl>
+  <dt>是什么</dt><dd>一套开放协议，把各种工具和数据源标准化，让任何支持它的 AI 客户端都能直接接上。</dd>
+  <dt>解决什么</dt><dd>以前每个工具都要为每个 AI 单独适配一遍，工作量是"工具数 × 模型数"；有了统一接口就变成"工具数 + 模型数"。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>USB-C 接口。以前每台设备都要配专属的线，现在一根线通用。</p>
+</div>
+</div>
+
+<div class="concept" id="skill">
+  <h3>Skill <span class="en">技能</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>一份打包好的"做事方法"：提示词 + 脚本 + 参考资料，需要时才加载。</dd>
+  <dt>解决什么</dt><dd>它教的是"这类活儿该按什么流程干"，而不只是"有哪些工具能用"。工具是手脚，Skill 是操作手册。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>老员工留下的《报销怎么走》《客户投诉怎么处理》。新人不用重新摸索，照着做就行。</p>
+</div>
+</div>
+
+<!-- ============ 第四组 ============ -->
+<div class="group-head">
+  <h2>第四组 · 工程实现时会碰到的词</h2>
+  <p>这组是横跨上三层的实现细节，<strong>第一遍不用深究</strong>，知道有这么回事即可，后面各页会展开。<span class="count">4 个词</span></p>
+</div>
+
+<div class="concept" id="stream">
+  <h3>流式输出 <span class="en">SSE / WebSocket</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>模型生成到一半，就把已经写好的部分先发给你，而不是等全部写完再一次性返回。</dd>
+  <dt>为什么重要</dt><dd>用户体感快很多——虽然总时长其实一样。你看到 AI 回答"一个字一个字往外蹦"，就是它。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>对方边想边说，而不是憋完一大段再开口。</p>
+</div>
+</div>
+
+<div class="concept" id="ft">
+  <h3>微调 <span class="en">Fine-tune</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>拿你们自己的数据再训练一下模型，改变它的说话方式或擅长的领域。</dd>
+  <dt>为什么重要</dt><dd>它适合教"<strong>怎么说</strong>"（输出格式、语气、术语习惯），<strong>不适合教"说什么"</strong>——知识更新应该用 RAG，因为微调一次很贵、还没法随时更新。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>送员工去专项培训。能改他的表达习惯，但改不了"他不知道公司昨天发了什么通知"这件事。</p>
+</div>
+</div>
+
+<div class="concept" id="fw">
+  <h3>框架 <span class="en">LangChain 等</span></h3>
+  <dl>
+  <dt>是什么</dt><dd>别人写好的工具箱，帮你把"调模型、连数据库、串流程"这些重复劳动封装起来。</dd>
+  <dt>要注意的</dt><dd>省事，但出问题时你得先搞懂它的结构才能修；而且版本更新快，容易踩不兼容。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>宜家的半成品家具。装起来快，但坏了要修的时候，你得先研究它怎么拼的。</p>
+</div>
+</div>
+
+<div class="concept" id="pipeline2">
+  <h3>离线与在线 <span class="en">两条链路</span></h3>
+  <dl>
+  <dt>是什么</dt><dd><strong>离线</strong>＝提前把文档处理好存进库（用户看不到这个过程）；<strong>在线</strong>＝用户提问时，现场检索和回答。</dd>
+  <dt>为什么这么分</dt><dd>两边的优化目标完全不同：离线可以慢慢做、做一次用很久；在线必须快，用户就在旁边等着。</dd>
+  </dl>
+  <div class="like"><b>类比</b><p>备菜和炒菜。备菜可以提前一上午慢慢切，炒菜必须几分钟内出锅。</p>
+</div>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 · 合上材料，用大白话讲一遍</span>
+  <p>为什么光有大模型还不够？RAG 解决了什么问题？Agent 又比 RAG 多了什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>光有大模型不够</strong>，因为它只知道训练时见过的东西——不知道你们公司的内部资料，也不知道最新消息；而且不知道的时候它会编（幻觉）。</p>
+    <p><strong>RAG 解决"知道"的问题</strong>：提问时先去知识库里捞出相关资料，放进上下文让它照着答。这样既能用上私有资料，答案也有出处、不容易乱编。</p>
+    <p><strong>Agent 多了"会做"</strong>：RAG 基本是"提问 → 检索 → 回答"一条直线；Agent 多了<strong>工具</strong>（能真的去搜网页、跑代码）和<strong>循环</strong>（做完一步看结果，不够就调整下一轮），所以能完成"调研并写报告"这种没法提前写死步骤的任务。</p>
+  </details>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这些词会在哪里出现</span>
+  <p><strong>01~05</strong> 讲第二组（RAG 这条线）；<strong>06~08</strong> 讲第三组（Agent 这条线）；<strong>09</strong> 是自查。第一组和第四组的词两边都会用到。</p>
+  <p>读的时候遇到不懂的词，回来查；还是不懂，就先跳过往下读——很多概念看到后面自然就通了。</p>
+</div>
+
+<hr>
+
+<div class="pager">
+  <span class="spacer"></span>
+  <a href="01-what-is-rag.html">开始第一篇：RAG 是什么 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

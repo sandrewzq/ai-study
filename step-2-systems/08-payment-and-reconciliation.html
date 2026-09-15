@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · 支付与对账 — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 8/12 份 ｜ D 域 · 后端、数据与中间件</span>
+</header>
+
+<div class="layout">
+
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item cur" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>08 · 支付与对账</h1>
+<p class="lead">
+  支付是<strong>最不能出错</strong>的一类业务：钱扣了但东西没给，用户会投诉甚至投诉到监管。
+  这一页讲清一件事——<strong>为什么"收到回调就发货"是错的</strong>。
+</p>
+
+<div class="qbadges"><span class="q">PY-18</span><span class="q">PY-19</span><span class="q">PY-22</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页默认你看过 <a href="07-async-jobs-and-queue.html">07 · 异步任务与队列</a>（队列可靠性）。支付和它是同一套思路，只是要求更严。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>看主图，理清支付链路有几步。</div>
+  <div><b>第二遍（12 分钟）</b>重点读第 3 节"不能只靠回调"。</div>
+  <div><b>第三遍</b>做末尾的动手清单。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>用户买了 100 积分的套餐，微信显示<strong>已支付成功</strong>。但用户回到 App 一看：<strong>积分没到账。</strong></p>
+
+<p>查日志发现：微信确实回调了，但那一刻你的服务正在发版重启，<strong>回调请求丢了</strong>。微信不会无限重试——重试几次失败后就不再发了。</p>
+
+<p>结果就是：<strong>钱收了，货没发。</strong>这是支付系统最典型的事故，也是 <code>PY-19</code> 那道题问的核心。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 一笔支付要经过八步</p>
+  <h3>第 6 步之后才是真正容易出事的地方</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 250" role="img" aria-label="支付完整链路：下单到发货的八个步骤">
+    <defs>
+      <marker id="a08" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-u" x="20" y="30" width="170" height="54" rx="9"></rect>
+    <text x="105" y="62" text-anchor="middle">① 用户下单</text>
+    <rect class="box-m" x="215" y="30" width="170" height="54" rx="9"></rect>
+    <text x="300" y="62" text-anchor="middle">② 建订单（待支付）</text>
+    <rect class="box-m" x="410" y="30" width="170" height="54" rx="9"></rect>
+    <text x="495" y="62" text-anchor="middle">③ 调微信下单接口</text>
+    <rect class="box-d" x="605" y="30" width="170" height="54" rx="9"></rect>
+    <text x="690" y="62" text-anchor="middle">④ 返回支付参数</text>
+
+    <line class="ar" x1="194" y1="57" x2="211" y2="57" marker-end="url(#a08)"></line>
+    <line class="ar" x1="389" y1="57" x2="406" y2="57" marker-end="url(#a08)"></line>
+    <line class="ar" x1="584" y1="57" x2="601" y2="57" marker-end="url(#a08)"></line>
+
+    <path class="ar" d="M 690 88 C 690 112 105 112 105 148" marker-end="url(#a08)"></path>
+    <text x="400" y="122" text-anchor="middle" class="lbl-muted">前端唤起微信，用户完成支付</text>
+
+    <rect class="box-u" x="20" y="150" width="170" height="54" rx="9"></rect>
+    <text x="105" y="182" text-anchor="middle">⑤ 用户付款成功</text>
+    <rect fill="var(--c-risk-bg)" stroke="var(--c-risk)" x="215" y="150" width="170" height="54" rx="9"></rect>
+    <text x="300" y="182" text-anchor="middle" fill="var(--c-risk)">⑥ 微信回调后端</text>
+    <rect class="box-t" x="410" y="150" width="170" height="54" rx="9"></rect>
+    <text x="495" y="182" text-anchor="middle">⑦ 验签 + 更新订单</text>
+    <rect class="box-s" x="605" y="150" width="170" height="54" rx="9"></rect>
+    <text x="690" y="182" text-anchor="middle">⑧ 发货 / 加积分</text>
+
+    <line class="ar" x1="194" y1="177" x2="211" y2="177" marker-end="url(#a08)"></line>
+    <line class="ar" x1="389" y1="177" x2="406" y2="177" marker-end="url(#a08)"></line>
+    <line class="ar" x1="584" y1="177" x2="601" y2="177" marker-end="url(#a08)"></line>
+
+    <text x="20" y="232" fill="var(--c-risk)">⑥ 是整条链路最脆弱的一环：回调会丢、会重复、也可能被人伪造</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：前五步都是"正常流程"，只要代码没错就没问题。<strong>真正的难点在第 ⑥ 步之后</strong>——回调是外部系统主动推给你的，你控制不了它什么时候来、来几次、是不是真的。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户侧</span>
+  <span><i style="background:var(--c-model)"></i>你的后端</span>
+  <span><i style="background:var(--c-tool)"></i>校验处理</span>
+  <span><i style="background:var(--c-store)"></i>发货</span>
+  <span><i style="background:var(--c-risk)"></i>风险环节</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 接入流程怎么设计</h2>
+
+<table>
+  <thead><tr><th style="width:20%">步骤</th><th>要点</th></tr></thead>
+  <tbody>
+    <tr><td><strong>① 建订单</strong></td><td>先在<strong>自己库里</strong>创建订单（状态 = 待支付），生成一个自己的订单号。不要等支付成功才建单——否则回调来了你都不知道对应哪笔业务</td></tr>
+    <tr><td><strong>② 调下单接口</strong></td><td>带着订单号、金额、回调地址去调支付渠道的"统一下单"接口，拿到支付凭证（微信叫 <code>prepay_id</code>）</td></tr>
+    <tr><td><strong>③ 前端唤起</strong></td><td>后端把支付参数签名后返回给前端，前端唤起微信/支付宝完成支付</td></tr>
+    <tr><td><strong>④ 等回调</strong></td><td>用户付完，渠道会<strong>异步回调</strong>你配置的地址，告诉你"这笔订单支付成功了"</td></tr>
+    <tr><td><strong>⑤ 发货</strong></td><td>确认支付成功后，才发虚拟商品 / 加积分 / 改订单状态</td></tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">为什么要有"自己的订单号"</span>
+  <p>两个作用：<strong>一是幂等的依据</strong>（回调里带着它，你能定位到唯一一笔订单）；<strong>二是对账的依据</strong>（每天拿它和渠道流水比对）。</p>
+  <p>另外要保存渠道返回的交易号，两个号都要存——排查问题时经常需要拿渠道号去渠道后台查。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 回调验签：怎么确认这是真的微信发的</h2>
+
+<p><code>PY-22</code>。回调地址是<strong>公网可访问</strong>的，任何人只要知道地址就能往里发请求，伪造一条"支付成功"。所以必须验签。</p>
+
+<div class="pipeline">
+  <details class="node m"><summary>① 拿到原始报文</summary><div class="body">回调请求里带着业务数据（订单号、金额、交易号）和<strong>签名</strong>。<strong>要用原始报文体验签</strong>，不能先反序列化再拼回去——顺序和格式一变签名就不对了。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>② 用密钥算签名</summary><div class="body">按渠道规定的算法（通常是 <code>SHA256</code> / <code>HMAC</code>）和<strong>你自己的商户密钥</strong>，对原始报文重新算一次签名。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>③ 比对</summary><div class="body">把算出来的签名和回调里带的对一下。<strong>不一致就直接拒绝</strong>，不要往下走。</div></details>
+  <div class="link">→</div>
+  <details class="node s"><summary>④ 再查一次订单</summary><div class="body">验签通过还不够。<strong>还要反向调渠道接口确认这笔订单真的支付成功了</strong>、金额也对得上——双重确认。</div></details>
+</div>
+
+<div class="warn">
+  <span class="tag">验签之外还要校验什么</span>
+  <ul>
+    <li><strong>金额</strong>：回调里的金额和你订单里的金额必须一致（防止"1 元订单回调成 100 元"这类篡改）。</li>
+    <li><strong>订单状态</strong>：如果这单已经是"已支付"，说明是<strong>重复回调</strong>，直接返回成功、不要重复发货。</li>
+    <li><strong>商户号</strong>：确认这笔回调是发给你的，不是发给别人的。</li>
+  </ul>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 保证到账：不能只靠回调</h2>
+
+<p>这是 <code>PY-19</code>，也是这一页最重要的一节。</p>
+
+<p>很多人以为"回调来了就加积分"就够了。<strong>不行</strong>——回调有三个不可靠的地方：</p>
+
+<table>
+  <thead><tr><th style="width:22%">风险</th><th style="width:34%">会发生什么</th><th>对策</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>回调会丢</strong></td>
+      <td>你的服务正好在重启、网络抖动、回调地址临时不可用 → 渠道重试几次后放弃</td>
+      <td><strong>主动查询补偿</strong>：定时任务去渠道查"待支付订单"的真实状态</td>
+    </tr>
+    <tr>
+      <td><strong>回调会重复</strong></td>
+      <td>渠道没收到你的响应（虽然你处理了），会再发一次 → 积分加两次</td>
+      <td><strong>幂等</strong>：订单状态机 + 唯一索引，已处理过的直接返回成功</td>
+    </tr>
+    <tr>
+      <td><strong>回调会乱序</strong></td>
+      <td>支付成功和退款回调几乎同时到 → 状态被覆盖</td>
+      <td><strong>状态机校验</strong>：只允许合法流转（待支付 → 已支付），非法流转直接忽略</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">正确的设计（三层）</span>
+  <p><strong>第一层 · 实时</strong>：回调验签 + 幂等 + 状态机，把绝大多数情况处理掉。</p>
+  <p><strong>第二层 · 补偿</strong>：<strong>定时任务主动去渠道查</strong>所有超过 N 分钟还在"待支付"的订单，发现渠道那边其实已支付，就补上。<strong>这是解决"回调丢了"的关键</strong>。</p>
+  <p><strong>第三层 · 对账</strong>：每天拉渠道的对账单，跟本地订单逐笔比对。多出来的（渠道有、本地没有）、少了的（本地有、渠道没有）、金额不一致的，全部进人工处理队列。</p>
+  <p><strong>一句话</strong>：<strong>永远不要假设"回调一定会到"。</strong></p>
+</div>
+
+<h3>发货为什么要异步</h3>
+
+<p>呼应 <code>PY-20</code>：回调处理里通常<strong>只做"更新订单状态"这一件事</strong>，然后发一条消息到队列，由消费者去发货。</p>
+
+<table>
+  <thead><tr><th style="width:26%">原因</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>回调必须快速响应</strong></td><td>渠道对回调的响应时间有要求（超时会重发）。发货可能慢（要调别的接口、要跑任务），不能卡在这里</td></tr>
+    <tr><td><strong>发货失败要能重试</strong></td><td>放在队列里可以自动重试；放在回调里就只能返回失败让渠道重发，粒度太粗</td></tr>
+    <tr><td><strong>解耦</strong></td><td>支付只负责"记下这笔钱到了"，发货是另一件事</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「如何保证用户支付后积分/虚拟商品一定到账」</span>
+  <p><strong>【结论】</strong>核心认知是：<strong>永远不要假设回调一定会到</strong>。回调会丢、会重复、也可能被伪造，所以要三层保障。</p>
+  <p><strong>【实时层】</strong>回调进来先<strong>验签</strong>（用原始报文 + 商户密钥重新算签名比对），再校验金额和商户号，然后<strong>反向调渠道接口二次确认</strong>这笔订单真的成功了。确认后更新订单状态，并通过队列异步发货。</p>
+  <p><strong>【幂等】</strong>订单走状态机，只允许"待支付 → 已支付"这种合法流转；重复回调直接返回成功、不重复发货。</p>
+  <p><strong>【补偿层】</strong>定时任务扫描超过 N 分钟还是"待支付"的订单，<strong>主动去渠道查真实状态</strong>，该补的补上——这是解决"回调丢了"的关键。</p>
+  <p><strong>【对账】</strong>每天拉渠道对账单和本地订单逐笔比对，不一致的进人工处理队列。</p>
+  <p><strong>【数字】</strong>加了主动查询之后，"已支付但未到账"的工单从每周 X 单降到基本为零。</p>
+</div>
+
+<details class="ask">
+  <summary>为什么要保存"自己的订单号"和"渠道交易号"两个？</summary>
+  <ul>
+    <li><strong>自己的订单号</strong>：业务侧的唯一标识，用来做幂等、对账、排查。回调里带着它，你能定位到唯一一笔业务。</li>
+    <li><strong>渠道交易号</strong>：渠道侧的标识。当用户投诉或者你要去渠道后台查这笔单时，用的是这个号。</li>
+  </ul>
+  <p>只存一个都会在某个环节卡住——比如想找渠道客服查单，你只有一个自己的订单号，对方查不到。</p>
+</details>
+
+<details class="ask">
+  <summary>回调验签为什么必须用"原始报文"？</summary>
+  <p>因为签名是对<strong>原始字节</strong>算的。如果你先把 JSON 反序列化成对象、再重新拼成字符串去验签，可能会：</p>
+  <ul>
+    <li>字段顺序变了</li>
+    <li>空格、换行、转义字符变了</li>
+    <li>数字精度变了（大整数被转成浮点）</li>
+  </ul>
+  <p>任何一个变化都会让签名对不上，<strong>导致真实回调被误判为伪造</strong>。所以框架层要在反序列化之前先拿到原始 body。</p>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <p>支付接口个人不太好申请，可以用<strong>沙箱环境</strong>或者<strong>模拟一个支付渠道</strong>来练这几件事：</p>
+  <ol>
+    <li><strong>写一个验签函数</strong>：自己造一个"渠道"，用 HMAC 对报文签名；你的回调接口负责验签。故意改一个字节，确认验签失败。</li>
+    <li><strong>做一次重复回调测试</strong>：同一笔订单的回调连发 3 次，确认订单状态只变了 1 次、积分只加了 1 次。<strong>这一条能跑通，讲的时候就是"我做过"。</strong></li>
+    <li><strong>模拟回调丢失</strong>：把回调接口临时关掉，然后跑你的补偿任务，看它能不能主动查出"其实已支付"并补上积分。</li>
+    <li><strong>画一张状态机</strong>：待支付 / 已支付 / 已发货 / 已退款，标出哪些流转是合法的。以后所有状态变更都先校验。</li>
+    <li><strong>做一次对账脚本</strong>：把"渠道流水"和"本地订单"两份数据比对，输出三类差异（只在一方存在的、金额不一致的）。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么"收到回调就发货"是错的？正确的做法分哪三层？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>因为回调不可靠</strong>：它会<strong>丢</strong>（你的服务重启、网络抖动，渠道重试几次就放弃了）、会<strong>重复</strong>（你没及时响应，它再发一次）、还可能被<strong>伪造</strong>（回调地址是公网可访问的）。</p>
+    <p><strong>三层保障</strong>：</p>
+    <ol>
+      <li><strong>实时层</strong>：验签 + 校验金额 + 反向查渠道二次确认 + 幂等（状态机）。</li>
+      <li><strong>补偿层</strong>：定时任务主动去渠道查"长时间待支付"的订单，发现已支付就补上——<strong>解决回调丢失的关键</strong>。</li>
+      <li><strong>对账层</strong>：每天和渠道流水逐笔比对，差异进人工处理。</li>
+    </ol>
+    <p>一句话：<strong>永远不要假设回调一定会到。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="07-async-jobs-and-queue.html">← 上一篇：异步任务与队列</a>
+  <a href="09-architecture-and-scale.html">下一篇：架构分层与高并发 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

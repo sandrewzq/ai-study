@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · 索引与慢查询 — 步骤 2 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 2 · 第 5/12 份 ｜ D 域 · 后端、数据与中间件</span>
+</header>
+
+<div class="layout">
+
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 2 · 做系统</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一步骤怎么学</span></a></li>
+    <li><a class="item" href="01-context-management.html"><span class="n">01</span><span>上下文治理</span></a></li>
+    <li><a class="item" href="02-sse-and-websocket.html"><span class="n">02</span><span>SSE 与 WebSocket</span></a></li>
+    <li><a class="item" href="03-streaming-details.html"><span class="n">03</span><span>流式的工程细节</span></a></li>
+    <li><a class="item" href="04-resume-and-task-state.html"><span class="n">04</span><span>断线续传与任务状态</span></a></li>
+    <li><a class="item cur" href="05-index-and-slow-query.html"><span class="n">05</span><span>索引与慢查询</span></a></li>
+    <li><a class="item" href="06-consistency-and-concurrency.html"><span class="n">06</span><span>数据一致性与并发</span></a></li>
+    <li><a class="item" href="07-async-jobs-and-queue.html"><span class="n">07</span><span>异步任务与队列</span></a></li>
+    <li><a class="item" href="08-payment-and-reconciliation.html"><span class="n">08</span><span>支付与对账</span></a></li>
+    <li><a class="item" href="09-architecture-and-scale.html"><span class="n">09</span><span>架构分层与高并发</span></a></li>
+    <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>05 · 索引与慢查询</h1>
+<p class="lead">
+  AI 应用最后都会落到数据库上：知识库元数据、会话记录、任务状态、用量统计。<strong>数据一多就慢，慢了就要查索引。</strong>
+  这一页是 D 域的地基，也是后端问得最实的一块。
+</p>
+
+<div class="qbadges"><span class="q">TK-9</span><span class="q">TK-10</span><span class="q">HQ-10</span><span class="q">HQ-11</span><span class="q">HQ-12</span><span class="q">HQ-13</span><span class="q">YF-15</span><span class="q">YF-17</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页假设你知道什么是「表」「字段」「查询」。不需要数据库基础，但要知道 SQL 大概长什么样。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，理解"最左匹配"。</div>
+  <div><b>第二遍（15 分钟）</b>读"排查顺序"那一节——这是最实用的部分。</div>
+  <div><b>第三遍</b>做末尾的动手清单，在你自己的库上跑一次 EXPLAIN。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你的知识库有 200 万条切片记录。上线三个月后，用户反馈"搜东西越来越慢"。</p>
+
+<p>查了一下：一条按 <code>doc_id</code> 查切片的语句，<strong>从 3 毫秒变成了 3 秒</strong>。</p>
+
+<p>你的第一反应可能是"加机器"。但真正的原因通常是：<strong>查询没走索引，数据库在逐行扫描 200 万条记录。</strong>加索引之后，同一条语句回到 3 毫秒——没有加任何硬件。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 最常被问的那道题</p>
+  <h3>联合索引的「最左匹配」：只能从最左边连续用起</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 250" role="img" aria-label="联合索引最左匹配示意">
+    <text x="20" y="37" class="lbl-muted">索引 (a, b, c)</text>
+    <rect class="box-m" x="190" y="16" width="140" height="32" rx="7"></rect>
+    <text x="260" y="37" text-anchor="middle" style="font-weight:600">a</text>
+    <rect class="box-m" x="330" y="16" width="140" height="32" rx="7"></rect>
+    <text x="400" y="37" text-anchor="middle" style="font-weight:600">b</text>
+    <rect class="box-m" x="470" y="16" width="140" height="32" rx="7"></rect>
+    <text x="540" y="37" text-anchor="middle" style="font-weight:600">c</text>
+
+    <text x="20" y="76" class="lbl-muted">a=1</text>
+    <rect class="box-s" x="190" y="58" width="140" height="26" rx="6"></rect>
+    <text x="345" y="76" class="lbl-muted">用上了 a</text>
+
+    <text x="20" y="116" class="lbl-muted">a=1 AND b=2</text>
+    <rect class="box-s" x="190" y="98" width="280" height="26" rx="6"></rect>
+    <text x="485" y="116" class="lbl-muted">用上了 a、b</text>
+
+    <text x="20" y="156" class="lbl-muted">a=1, b=2, c=3</text>
+    <rect class="box-s" x="190" y="138" width="420" height="26" rx="6"></rect>
+    <text x="625" y="156" class="lbl-muted">全都用上</text>
+
+    <text x="20" y="196" class="lbl-muted">a=1 AND c=3</text>
+    <rect class="box-s" x="190" y="178" width="140" height="26" rx="6"></rect>
+    <rect class="box-d" x="330" y="178" width="140" height="26" rx="6"></rect>
+    <rect x="470" y="178" width="140" height="26" rx="6" fill="none" stroke="var(--line-strong)" stroke-dasharray="4 3"></rect>
+    <text x="625" y="196" class="lbl-muted">只能用到 a（中间的 b 断了）</text>
+
+    <text x="20" y="236" class="lbl-muted">b=2</text>
+    <rect x="190" y="218" width="420" height="26" rx="6" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="625" y="236" fill="var(--c-risk)">完全用不上，全表扫描</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：联合索引像一本<strong>先按 a 排序、a 相同再按 b、再按 c</strong> 的电话簿。你要查"所有 b=2 的人"，就相当于在一本按姓氏排的电话簿里找"所有名字叫小明的人"——<strong>没法用排序，只能一页页翻。</strong></p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">这就是 <code>YF-17</code> 那道题的完整答案：<strong>必须从最左列开始、且连续，中间断了后面的就用不上。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>索引键</span>
+  <span><i style="background:var(--c-store)"></i>能用上</span>
+  <span><i style="background:var(--c-data)"></i>用不上</span>
+  <span><i style="background:var(--c-risk)"></i>全表扫描</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 索引为什么快：三条要知道的原理</h2>
+
+<table>
+  <thead><tr><th style="width:20%">概念</th><th>一句话解释</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>B+ 树</strong></td>
+      <td>索引是一棵<strong>排好序的多叉树</strong>。查一个值不用逐行找，从根往下走几层就定位到了——100 万行大约只要 3~4 次磁盘读取。这也是为什么索引列能做范围查询（<code>&gt;</code> <code>BETWEEN</code>）。</td>
+    </tr>
+    <tr>
+      <td><strong>回表</strong></td>
+      <td>索引里通常只存了索引列 + 主键。如果查询要的字段不在索引里，还得<strong>拿着主键回主表再查一次</strong>——这叫回表。<strong>回表是慢查询的常见原因。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>覆盖索引</strong></td>
+      <td>如果查询要的字段<strong>全都在索引里</strong>，就不用回表了。<br>例：索引 <code>(doc_id, chunk_id)</code> 能满足 <code>SELECT chunk_id WHERE doc_id=?</code>——不用回表，快很多。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">能加分的说法</span>
+  <p>"我们有个列表接口很慢，查下来是回表太多。后来把常用的几个字段加进联合索引做成<strong>覆盖索引</strong>，直接在索引里就取到了，延迟从 X 毫秒降到 Y 毫秒。"</p>
+  <p>能说出"回表"和"覆盖索引"，比只说"加索引"高一个档次。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 索引失效的常见情况</h2>
+
+<p>加索引不等于用得上。下面是实际会踩的坑：</p>
+
+<table>
+  <thead><tr><th style="width:30%">写法</th><th style="width:32%">为什么失效</th><th>怎么改</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>WHERE name LIKE '%张%'</code></td>
+      <td>前面带通配符，<strong>没法用排序定位起点</strong></td>
+      <td>改成 <code>LIKE '张%'</code>（前缀匹配可以用索引）；真要做全文模糊搜索，用 ES</td>
+    </tr>
+    <tr>
+      <td><code>WHERE YEAR(created_at) = 2026</code></td>
+      <td>对索引列<strong>做了函数运算</strong>，索引值跟表达式对不上</td>
+      <td>改成 <code>created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01'</code></td>
+    </tr>
+    <tr>
+      <td><code>WHERE status = 1</code>（status 只有 0/1）</td>
+      <td><strong>区分度太低</strong>。优化器一算：反正是要扫一半的表，不如直接全表扫</td>
+      <td>这种列单独加索引没意义，要和别的列组成联合索引</td>
+    </tr>
+    <tr>
+      <td><code>WHERE phone = 13800000000</code>（phone 是字符串）</td>
+      <td><strong>类型不匹配</strong>，数据库要做隐式转换</td>
+      <td>传对类型：<code>phone = '13800000000'</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 慢查询怎么排查：一套固定动作</h2>
+
+<p>对方爱问"你平时做过哪些 SQL 优化"（<code>HQ-12</code>）——<strong>他要的不是你背了哪些优化点，而是你有没有一套排查流程。</strong></p>
+
+<div class="tree">
+  <p class="q">① 先找到慢的是哪条 SQL</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">慢查询日志</span>打开慢查询日志，设一个阈值（比如 1 秒），它会自动记录所有超过阈值的语句</div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">监控面板</span>云数据库一般自带"慢 SQL 排行"，直接看 Top 10</div>
+  </div>
+
+  <p class="q">② 用 EXPLAIN 看它到底怎么执行的</p>
+  <div class="answers">
+    <div class="a no"><span class="yn">type = ALL</span>全表扫描，<strong>大概率没用上索引</strong></div>
+    <div class="a yes"><span class="yn">type = ref / range / const</span>用上索引了，看下一步</div>
+    <div class="a no"><span class="yn">rows 很大</span>预估要扫的行数太多，说明索引选择性差</div>
+    <div class="a no"><span class="yn">Extra 里有 filesort</span>排序没走索引，额外做了一次文件排序</div>
+  </div>
+
+  <p class="q">③ 对症下药</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">没走索引</span>改查询写法（见上一节），或者加/调整索引</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">回表太多</span>做覆盖索引，把要查的字段加进索引</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">数据量太大</span>加缓存、归档历史数据、或者考虑分表</div>
+  </div>
+</div>
+
+<div class="warn">
+  <span class="tag">一个常被忽略的前提</span>
+  <p>在动手加索引之前，先问一句：<strong>"这条查询真的需要每次都查数据库吗？"</strong></p>
+  <p>很多"慢查询"其实是<strong>不该查</strong>——热点数据加一层缓存，或者把结果缓存几秒，比优化 SQL 见效快得多。<strong>能说出这一层，说明你不是只会加索引。</strong></p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 大表的问题：百万级之后慢插入</h2>
+
+<p>这是 <code>TK-10</code>。数据过了百万之后，不只是查询慢，<strong>写入也会慢</strong>。原因和优化：</p>
+
+<table>
+  <thead><tr><th style="width:28%">现象</th><th style="width:34%">原因</th><th>优化</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>插入越来越慢</td>
+      <td>每插一条都要<strong>更新所有索引</strong>；索引越多越慢</td>
+      <td>批量插入（一条语句插多行）；去掉用不上的索引</td>
+    </tr>
+    <tr>
+      <td>批量导入特别慢</td>
+      <td>每批都在等磁盘刷盘</td>
+      <td>导入期间临时关掉自动提交、导入完再重建索引</td>
+    </tr>
+    <tr>
+      <td>表越来越大，查询也慢</td>
+      <td>单表几千万行之后，索引层数变多、缓存命中率下降</td>
+      <td><strong>归档</strong>：把历史数据挪到另一张表 / 另一套库；实在不行再分表</td>
+    </tr>
+    <tr>
+      <td>删除历史数据也很慢</td>
+      <td>大事务 + 大量索引更新</td>
+      <td>分批删（每次几千行），别一条 <code>DELETE</code> 删几百万</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">顺序很重要</span>
+  <p>优化的优先级是：<strong>改查询 → 加索引 → 加缓存 → 归档 → 分表</strong>。</p>
+  <p><strong>分表是最后手段</strong>——它带来跨表查询、分布式事务、扩容等一堆新问题。上来就说"分库分表"是新手最容易犯的错。</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 实战题：MySQL IO 爆红怎么排查</h2>
+
+<p>这是 <code>TK-9</code>，题目给了一个很具体的场景：</p>
+
+<div class="analogy">
+  <span class="tag">题目场景</span>
+  <p>三张表关联查询，每小时同步一次，<strong>从一个库查、往另一个库插</strong>，插入时报错，同时 <strong>MySQL 的 IO 爆高</strong>。</p>
+</div>
+
+<p>这种题的正确答法是<strong>先问清楚、再给排查路径</strong>，而不是直接猜答案：</p>
+
+<div class="tree">
+  <p class="q">① 先确认：IO 是"读爆"还是"写爆"？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">看监控</span>读 IOPS 高 → 大概率在扫表；写 IOPS 高 → 在写大量数据或刷日志</div>
+  </div>
+
+  <p class="q">② 如果是读爆：为什么在扫表？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">查询没走索引</span>三表关联最容易出现：关联字段没索引 → 每行都去扫一遍被关联的表（<strong>嵌套循环的放大效应</strong>）</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">没有增量条件</span>"每小时同步一次"如果每次都全量查，数据涨了 IO 自然涨 → 应该按更新时间增量拉</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">一次拉太多</span>一次性查出几十万行 → 应该分页 / 分批</div>
+  </div>
+
+  <p class="q">③ 如果是写爆：为什么写这么多？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">逐条插入</span>几十万条一条条插 → 改成批量插入</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">大事务</span>一个事务里插几十万行，回滚日志和锁都撑不住 → 拆成小批次提交</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">索引太多</span>目标表索引多，每条插入都要更新所有索引 → 同步期间可以先禁用非唯一索引，导完再建</div>
+  </div>
+
+  <p class="q">④ 插入报错怎么定位？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">唯一键冲突</span>重复同步导致主键/唯一索引冲突 → 改成 <code>INSERT ... ON DUPLICATE KEY UPDATE</code>（幂等写入）</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">字段超长 / 类型不符</span>源库和目标库表结构不一致 → 对比 schema</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">锁等待超时</span>目标表被别的事务占着 → 看 <code>SHOW PROCESSLIST</code> 找阻塞源</div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>"我会先确认是读爆还是写爆，这决定了排查方向完全不同。然后从<strong>最可能的一条</strong>开始验证——三表关联没索引是最常见的，因为嵌套循环会把开销放大好几倍。"</p>
+  <p><strong>先分类、再定向验证</strong>——这个思路比背一堆可能原因有用得多。</p>
+</div>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6">6. 剩下几道零散的题</h2>
+
+<table>
+  <thead><tr><th style="width:24%">题</th><th>答案要点</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>MySQL 5.6 和 8.0 有什么区别（<code>YF-15</code>）</strong></td>
+      <td>8.0 的主要变化：<strong>默认字符集改成 utf8mb4</strong>（5.6 默认 latin1 / 5.7 是 utf8，存 emoji 会出问题）；<strong>窗口函数</strong>和 CTE（复杂统计不用写一堆子查询了）；<strong>JSON 字段</strong>支持更好；<strong>去掉了查询缓存</strong>（因为命中率低还容易成为瓶颈）；索引支持<strong>降序索引</strong>和隐藏索引。</td>
+    </tr>
+    <tr>
+      <td><strong>抓 ORM 生成的 SQL（<code>HQ-10</code>）</strong></td>
+      <td>ORM 把 SQL 藏起来了，慢查询排查第一步是<strong>把它打印出来</strong>：开 ORM 的 SQL 日志开关；用数据库的慢查询日志反查（更快，因为不依赖应用日志）；或者用 APM 工具看调用链。<br><strong>经典坑</strong>：ORM 的"懒加载"会生成 <strong>N+1 查询</strong>——循环里每条记录都单独查一次关联表。要用预加载一次性查出来。</td>
+    </tr>
+    <tr>
+      <td><strong>PostgreSQL 物化视图（<code>HQ-11</code>）</strong></td>
+      <td>物化视图 = <strong>把查询结果真的存成一张表</strong>，而不是每次实时算。适合"统计口径复杂、但不需要实时"的场景（报表、看板）。<br>代价是要手动刷新（或定时刷新），数据有延迟。<strong>和普通视图的区别</strong>：普通视图只是存了 SQL，每次查都重新执行；物化视图存的是结果，查得快但要刷新。</td>
+    </tr>
+    <tr>
+      <td><strong>分库分表 / 读写分离（<code>HQ-13</code>）</strong></td>
+      <td>被问到就说清<strong>什么时候才需要</strong>：单表过了几千万行、并且归档和索引都优化过了，才考虑分表。读写分离则是<strong>读多写少</strong>时把读流量分到从库，但要接受<strong>主从延迟</strong>（刚写的数据可能读不到），所以"写完立刻读"的场景要走主库。</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 讲解骨架 ============ -->
+<h2 id="s7">7. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「日常做过哪些 MySQL 慢查询 / 索引 / SQL 优化」</span>
+  <p><strong>【结论】</strong>我有一套固定流程：<strong>先定位是哪条 SQL，再用 EXPLAIN 看它怎么执行的，最后对症下药。</strong>不会凭感觉加索引。</p>
+  <p><strong>【定位】</strong>开慢查询日志 + 看数据库自带的慢 SQL 排行，先拿到 Top 几的语句。</p>
+  <p><strong>【分析】</strong>用 EXPLAIN 看三件事：<code>type</code> 是不是 <code>ALL</code>（全表扫描）、<code>rows</code> 预估行数、<code>Extra</code> 有没有 <code>filesort</code>。</p>
+  <p><strong>【优化】</strong>按优先级来：先改查询写法（避免函数运算、前导通配符、类型不匹配），再考虑加索引或做覆盖索引减少回表，然后加缓存，最后才是归档和分表。</p>
+  <p><strong>【数字】</strong>最有代表性的一次：XX 接口的查询从 3 秒降到 30 毫秒，原因是关联字段没索引导致嵌套循环放大；加索引后 EXPLAIN 的 type 从 ALL 变成 ref。</p>
+  <p><strong>【权衡】</strong>索引不是越多越好——每个索引都会拖慢写入。所以我们定期梳理，把用不上的索引删掉。分表是最后手段，因为它会带来跨表查询和扩容的新问题。</p>
+</div>
+
+<details class="ask">
+  <summary>为什么不建议用 UUID 做主键？</summary>
+  <p>核心原因是<strong>插入性能</strong>：</p>
+  <ul>
+    <li><strong>自增主键</strong>：新数据总在索引末尾，是顺序写入，页分裂少。</li>
+    <li><strong>UUID</strong>：随机分布，新数据插在中间，会频繁触发<strong>页分裂和数据移动</strong>，写入变慢、索引变大。</li>
+  </ul>
+  <p>如果业务上必须用全局唯一 ID，可以用<strong>有序的 UUID</strong>（比如时间戳前缀的 UUID v7）或者雪花算法，兼顾唯一性和有序性。</p>
+</details>
+
+<details class="ask">
+  <summary>EXPLAIN 里哪个字段最重要？</summary>
+  <p><strong><code>type</code></strong> 最直观。从好到坏的常见取值：</p>
+  <p><code>const</code>（主键/唯一索引等值查）&gt; <code>eq_ref</code>（关联查询用主键）&gt; <code>ref</code>（普通索引等值查）&gt; <code>range</code>（范围查）&gt; <code>index</code>（扫整个索引）&gt; <strong><code>ALL</code>（全表扫描，要警惕）</strong>。</p>
+  <p>但别只看 type：<code>rows</code> 大不大、<code>Extra</code> 有没有 <code>Using filesort</code> / <code>Using temporary</code> 同样重要。</p>
+</details>
+
+<details class="ask">
+  <summary>索引是不是越多越好？</summary>
+  <p>不是。<strong>索引是用写入性能换查询性能。</strong></p>
+  <ul>
+    <li>每个索引都占空间。</li>
+    <li>每次写入（增删改）都要更新<strong>所有</strong>相关索引，索引越多写越慢。</li>
+    <li>索引太多，优化器选择也会变慢，甚至选错索引。</li>
+  </ul>
+  <p>实践：优先做<strong>联合索引</strong>覆盖多个查询（注意最左匹配），定期清理从没被用到的索引。</p>
+</details>
+
+<!-- ============ 动手清单 ============ -->
+<div class="handson">
+  <span class="tag">动手清单 · 这些知识怎么在你项目里落地</span>
+  <ol>
+    <li><strong>给你的知识库表加索引并实测</strong>：造 100 万条切片记录，先不加索引跑一次按 <code>doc_id</code> 查的语句，记下耗时；加索引再跑一次，对比。<strong>这个前后数字讲的时候非常有用。</strong></li>
+    <li><strong>跑一次 EXPLAIN</strong>：对着上面那条查询执行 <code>EXPLAIN</code>，看 <code>type</code> 从 <code>ALL</code> 变成什么。截图存下来当答题卡素材。</li>
+    <li><strong>故意写一个索引失效的查询</strong>：比如 <code>WHERE DATE(created_at) = '2026-09-14'</code>，看 EXPLAIN 的 type，再改成范围查询对比。</li>
+    <li><strong>做一次批量插入对比</strong>：逐条插入 1 万行 vs 一条语句批量插入，记录耗时差异。</li>
+    <li><strong>开一次慢查询日志</strong>：把阈值设成 0.1 秒，跑一会你的应用，看看有哪些语句被抓出来。</li>
+  </ol>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>联合索引 (a, b, c) 上，下面几个查询哪些能用上索引？为什么？<br><code>a=1</code> / <code>a=1 AND b=2</code> / <code>b=2</code> / <code>a=1 AND c=3</code></p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ul>
+      <li><code>a=1</code> ✅ 用上 a</li>
+      <li><code>a=1 AND b=2</code> ✅ 用上 a、b</li>
+      <li><code>b=2</code> ❌ <strong>完全用不上</strong>——跳过了最左列 a，索引是"先按 a 排序"的，只查 b 没法定位</li>
+      <li><code>a=1 AND c=3</code> ⚠️ 只能用上 a——<strong>中间的 b 断了，c 就用不上</strong></li>
+    </ul>
+    <p>一句话：<strong>从最左列开始，连续才能用；断了一列，后面的全失效。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>发现一条查询很慢，你的排查步骤是什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>先确认它该不该查数据库</strong>——热点数据能不能加缓存。</li>
+      <li><strong>定位</strong>：慢查询日志 / 慢 SQL 排行，拿到具体的语句。</li>
+      <li><strong>EXPLAIN</strong>：看 <code>type</code>（是不是 ALL）、<code>rows</code>（预估行数）、<code>Extra</code>（有没有 filesort）。</li>
+      <li><strong>对症</strong>：没走索引就改写法或加索引；回表多就做覆盖索引；数据量太大就归档或分表。</li>
+    </ol>
+    <p>优化优先级：<strong>改查询 → 加索引 → 加缓存 → 归档 → 分表</strong>。分表是最后手段。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="04-resume-and-task-state.html">← 上一篇：断线续传与任务状态</a>
+  <a href="06-consistency-and-concurrency.html">下一篇：数据一致性与并发 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

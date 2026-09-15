@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · 多智能体 — 步骤 1 学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">步骤 1 · 第 7/9 份 ｜ B 域 · Agent、多智能体与工具协议 ｜ 对应计划 §5 追问树 5.2</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">步骤 1 · 打地基</div>
+  <ul>
+    <li><a class="item" href="00-key-terms.html"><span class="n">00</span><span>先认识这几个词</span></a></li>
+    <li><a class="item" href="01-what-is-rag.html"><span class="n">01</span><span>RAG 是什么</span></a></li>
+    <li><a class="item" href="02-chunking-and-embedding.html"><span class="n">02</span><span>索引：切分与向量化</span></a></li>
+    <li><a class="item" href="03-vector-store-and-index.html"><span class="n">03</span><span>向量库与索引算法</span></a></li>
+    <li><a class="item" href="04-retrieval-and-rerank.html"><span class="n">04</span><span>检索优化与重排</span></a></li>
+    <li><a class="item" href="05-generation-and-model-choice.html"><span class="n">05</span><span>生成侧与模型选型</span></a></li>
+    <li><a class="item" href="06-agent-basics-and-tools.html"><span class="n">06</span><span>Agent 基础与工具协议</span></a></li>
+    <li><a class="item cur" href="07-multi-agent.html"><span class="n">07</span><span>多智能体</span></a></li>
+    <li><a class="item" href="08-agent-engineering.html"><span class="n">08</span><span>Agent 工程化与选型</span></a></li>
+    <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>07 · 多智能体</h1>
+<p class="lead">
+  上一篇讲的 Agent 是"一个 Agent 干所有事"。这一页讲：<strong>什么时候该把一个 Agent 拆成几个</strong>，
+  以及<strong>拆的代价是什么</strong>。后半问才是分水岭——只会说好处的人，一追问就露馅。
+</p>
+
+<div class="qbadges"><span class="q">ML-5</span><span class="q">ML-6</span><span class="q">ML-7</span><span class="q">ML-8</span><span class="q">ML-9</span><span class="q">ML-10</span><span class="q">HQ-26</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页默认你看过 <a href="06-agent-basics-and-tools.html">06 · Agent 基础与工具协议</a>（Agent 主循环）和 <a href="00-key-terms.html">00 · 先认识这几个词</a>（概念解释）。没看的话先看那两份。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图和加粗句。</div>
+  <div><b>第二遍（15 分钟）</b>读正文，重点看第 2、3 节（代价和判断标准）。</div>
+  <div><b>第三遍（5 分钟）</b>做页尾回忆卡。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>你做了一个 Agent，让它"调研一个竞品并写份分析报告"。它能干，但干得越来越糊：</p>
+
+<ul>
+  <li>跑到第 15 轮，它还在改第一版的结论——因为<strong>第一版的错误假设还在上下文里</strong>，它被自己带偏了</li>
+  <li>让它"评审自己刚写的东西"，它几乎永远说"还不错，可以再补充一点"</li>
+  <li>检索、分析、写作三种活混在一个提示词里，写出来的东西既要发散又要收敛，<strong>自己跟自己打架</strong></li>
+</ul>
+
+<p>这些毛病的共同点是：<strong>所有东西都堆在同一个上下文里。</strong>多智能体的核心思路就是——<strong>把上下文隔离开</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 多 Agent 解决的核心问题</p>
+  <h3>不是"分工"，是"让每个 Agent 的上下文干净"</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 300" role="img" aria-label="单 Agent 与多 Agent 的上下文对比">
+    <!-- 左：单 Agent -->
+    <text x="20" y="24" style="font-weight:600">单 Agent：一个上下文装下所有东西</text>
+    <rect x="20" y="38" width="340" height="180" rx="10" fill="none" stroke="var(--c-risk)" stroke-width="1.5"></rect>
+
+    <rect class="box-d" x="36" y="52" width="308" height="34" rx="6"></rect>
+    <text x="48" y="74" class="lbl-muted">检索回来的原始网页（几千字）</text>
+
+    <rect class="box-d" x="36" y="94" width="308" height="34" rx="6"></rect>
+    <text x="48" y="116" class="lbl-muted">前几轮失败的尝试和报错</text>
+
+    <rect class="box-d" x="36" y="136" width="308" height="34" rx="6"></rect>
+    <text x="48" y="158" class="lbl-muted">它自己之前说过、后来被推翻的结论</text>
+
+    <rect class="box-u" x="36" y="178" width="308" height="30" rx="6"></rect>
+    <text x="48" y="199" class="lbl-muted">当前任务目标（只占一小条）</text>
+
+    <text x="20" y="244" class="lbl-muted">结果：目标被淹没，它被自己的历史带着走，</text>
+    <text x="20" y="263" class="lbl-muted">而且评审自己的东西时天然偏向"没问题"</text>
+
+    <line x1="392" y1="14" x2="392" y2="278" class="ln" stroke-dasharray="4 4"></line>
+
+    <!-- 右：多 Agent -->
+    <text x="412" y="24" style="font-weight:600">多 Agent：每个上下文只装自己那摊</text>
+
+    <rect x="412" y="38" width="368" height="54" rx="9" class="box-s"></rect>
+    <text x="428" y="60" style="font-weight:600">检索 Agent</text>
+    <text x="428" y="80" class="lbl-muted">只有查询和搜索结果 → 只回传"结论 + 出处"</text>
+
+    <rect x="412" y="100" width="368" height="54" rx="9" class="box-t"></rect>
+    <text x="428" y="122" style="font-weight:600">写作 Agent</text>
+    <text x="428" y="142" class="lbl-muted">只有干净的资料和任务目标 → 不被失败尝试干扰</text>
+
+    <rect x="412" y="162" width="368" height="54" rx="9" class="box-m"></rect>
+    <text x="428" y="184" style="font-weight:600">评审 Agent</text>
+    <text x="428" y="204" class="lbl-muted">只拿到"待评审内容 + 评审维度"，没有历史包袱</text>
+
+    <text x="412" y="244" class="lbl-muted">结果：每个 Agent 都只看自己该看的，判断更稳；</text>
+    <text x="412" y="263" class="lbl-muted">代价是它们之间要通信，信息在传递中会丢</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：左边那种"一个大上下文装所有东西"的 Agent，跑到后面会被自己的历史绑架；右边把上下文拆开，每个 Agent 的判断都更干净。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">一句话记住：<strong>决定 Agent 表现上限的，不是模型有多强，而是上下文有多干净。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 判断</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 执行</span>
+  <span><i style="background:var(--c-store)"></i>产出 / 存储</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 限制</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 从"单 Agent 哪里不行"倒推动机</h2>
+
+<p>背定义没用，<strong>从问题倒推</strong>才是对方想听的：</p>
+
+<table>
+  <thead><tr><th style="width:28%">单 Agent 的问题</th><th>多 Agent 怎么解决</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>上下文越来越脏</strong><br><span style="color:var(--muted);font-size:13.5px">最核心的动机</span></td>
+      <td><strong>上下文隔离</strong>：每个 Agent 只看自己该看的，不被别的环节的过程污染</td>
+    </tr>
+    <tr>
+      <td><strong>自己评审自己不客观</strong></td>
+      <td>评审 Agent 拿到的是"待评内容 + 评审标准"，没有"这是我刚写的"这层包袱</td>
+    </tr>
+    <tr>
+      <td><strong>提示词里两套指令打架</strong></td>
+      <td>一个提示词里同时要求"发散想 10 个方案"和"严格评审"，模型会左右为难。拆开后各自专门优化</td>
+    </tr>
+    <tr>
+      <td><strong>串行太慢</strong></td>
+      <td>互不依赖的子任务（检索、分析）<strong>可以并行跑</strong>，总耗时取决于最慢的那个</td>
+    </tr>
+    <tr>
+      <td><strong>工具集太杂</strong></td>
+      <td>一个 Agent 配 20 个工具会挑花眼。按角色分配工具集，选择空间小了，选错的概率也降了</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">「多 Agent 主要解决什么问题」的标准答案</span>
+  <p><strong>主要解决"上下文污染"和"角色冲突"两个问题</strong>，顺带拿到并行能力和交叉验证。</p>
+  <p>这两点为什么最关键：Agent 的能力上限<strong>不取决于模型有多强，而取决于上下文有多干净</strong>。一个上下文里混着调研笔记、历史失败方案、"我之前已经决定用 A 方案"的 Agent，越到后面提出的想法越飘——因为它在被自己的历史绑架。</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 拆的代价：不是免费的</h2>
+
+<p><strong>这一节是分水岭。</strong>只会说好处的人在背课文，能说清代价的人做过系统。</p>
+
+<table>
+  <thead><tr><th style="width:24%">代价</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>信息会在传递中丢失</strong></td>
+      <td>Agent 之间传的是自然语言。A 想说的和 B 理解的可能不是一回事——<strong>这是最容易出事的一条</strong></td>
+    </tr>
+    <tr>
+      <td><strong>状态一致性</strong></td>
+      <td>多个 Agent 并行干活，各自的中间状态要同步和合并，冲突怎么解决是个真问题</td>
+    </tr>
+    <tr>
+      <td><strong>责任边界模糊</strong></td>
+      <td>结果错了，是检索没找到、分析算错了、还是汇总理解错了？<strong>排查链路一下子变长</strong></td>
+    </tr>
+    <tr>
+      <td><strong>互相踢皮球</strong></td>
+      <td>Agent 之间互相转交任务，谁都不收尾。必须设明确的终止条件和轮次上限</td>
+    </tr>
+    <tr>
+      <td><strong>延迟和成本上升</strong></td>
+      <td>每个 Agent 都是一次独立的模型调用，通信本身也要消耗 token</td>
+    </tr>
+    <tr>
+      <td><strong>调试难度</strong></td>
+      <td>单 Agent 是一条日志线，多 Agent 是一张网。<strong>可观测性做不好就没法调</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 判断标准：什么时候该拆</h2>
+
+<div class="tree">
+  <p class="q">① 这个子任务需要<strong>独立的上下文</strong>吗？（放一起会互相污染）</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">需要</span><strong>值得拆</strong> —— 这是拆多 Agent 最核心的理由</div>
+    <div class="a no"><span class="yn">不需要</span>看下一个问题</div>
+  </div>
+
+  <p class="q">② 它能和别的子任务<strong>并行</strong>跑吗？</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">能</span><strong>值得拆</strong> —— 拿到并行收益</div>
+    <div class="a no"><span class="yn">不能</span>看下一个问题</div>
+  </div>
+
+  <p class="q">③ 它需要<strong>不同的工具集 / 权限</strong>，或者需要<strong>独立评审</strong>吗？</p>
+  <div class="answers">
+    <div class="a yes"><span class="yn">需要</span><strong>值得拆</strong></div>
+    <div class="a no"><span class="yn">都不需要</span><strong>不要拆</strong> —— 拆了只增加通信成本，是负收益</div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">核心论点（背下来）</span>
+  <p>"拆不是免费的。多 Agent 有<strong>通信成本</strong>和<strong>状态一致性成本</strong>——信息在传递中会丢失，责任边界会模糊，还会互相踢皮球。</p>
+  <p>我的判断标准是：<strong>只有当子任务需要不同的上下文、或者可以并行时才拆。</strong>纯粹为了让架构'看起来专业'而拆，是负收益。"</p>
+</div>
+
+<div class="warn">
+  <span class="tag">一个很务实的补充</span>
+  <p>真实项目里<strong>两三个 Agent 通常就够</strong>（检索 / 执行 / 评审）。那些动辄七八个 Agent 互相讨论的架构，多数演示好看、上线很痛苦。</p>
+  <p>讲的时候这么说会显得很实在："我们现在只拆了两个——检索和评审，再往下拆的收益已经抵不过通信开销了。"</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 四种编排方式</h2>
+
+<table>
+  <thead><tr><th style="width:22%">模式</th><th style="width:34%">结构</th><th>适合</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>主管制</strong></td>
+      <td>一个主 Agent 负责拆任务、分派给下属、汇总结果</td>
+      <td><strong>最常见、最好调试</strong>：有明确的负责人，出问题能定位</td>
+    </tr>
+    <tr>
+      <td><strong>流水线</strong></td>
+      <td>A 的输出给 B，B 给 C（调研 → 分析 → 写作 → 评审）</td>
+      <td>步骤固定、依赖清晰。<strong>其实更接近 Workflow</strong></td>
+    </tr>
+    <tr>
+      <td><strong>辩论制</strong></td>
+      <td>多个 Agent 从不同角度给意见，再由一个裁决者综合</td>
+      <td>需要多视角判断。<strong>成本高，慎用</strong></td>
+    </tr>
+    <tr>
+      <td><strong>蜂群</strong></td>
+      <td>Agent 之间自由传递任务，没有中心调度</td>
+      <td>灵活但<strong>极难控制和调试</strong>，生产环境很少用</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>选型建议</strong>：从<strong>主管制</strong>开始。它结构最简单、最容易加日志、最容易定位问题。只有当主管自己明显成为瓶颈（比如它的上下文被撑爆了）才考虑更复杂的拓扑。</p>
+
+<h3>动态路由：让模型决定下一步走哪个分支</h3>
+
+<p><strong>静态路由</strong>是流程图写死的（先 A 再 B 再 C）；<strong>动态路由</strong>是让模型根据当前情况决定。</p>
+
+<table>
+  <thead><tr><th style="width:24%">实现方式</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>模型分类</strong><br><span style="color:var(--muted);font-size:13.5px">最常用</span></td><td>把候选分支和各自的适用条件写进提示词，让模型输出选哪个（以及理由）</td></tr>
+    <tr><td><strong>函数调用</strong></td><td>把"选择分支"做成一个函数，参数是分支名和理由，格式由接口层保证</td></tr>
+    <tr><td><strong>规则 + 模型兜底</strong></td><td>明确场景走规则（快、稳、便宜），模糊的才交给模型。<strong>生产环境最实用的组合</strong></td></tr>
+  </tbody>
+</table>
+
+<div class="tree">
+  <p class="q">动态路由必须注意的三个坑</p>
+  <div class="answers">
+    <div class="a no"><span class="yn">坑 1</span>没有兜底分支。模型选不出来、输出格式不对时走哪条路？<strong>没有兜底就等于这一步失败整条链路就崩</strong></div>
+    <div class="a no"><span class="yn">坑 2</span>不限制跳转次数。Agent 之间互相转交，很容易出现 A 转给 B、B 又转回 A 的死循环</div>
+    <div class="a no"><span class="yn">坑 3</span>路由日志没留全。线上出问题第一个要看的就是"<strong>为什么走了这个分支</strong>"，没日志根本没法调</div>
+  </div>
+</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 一个反直觉结论：互相 review 是伪需求</h2>
+
+<p>常见做法是"让两个模型互相 review、多轮 loop 改稿"，听起来很高级，实际上<strong>不产生收敛</strong>：</p>
+
+<div class="analogy">
+  <span class="tag">为什么互相 review 没用</span>
+  <p><strong>只要让两个模型互相审，它们永远能告诉你"还能怎么改进""还可以从哪个角度优化"。</strong></p>
+  <p>因为"挑出可以改进的地方"是几乎无成本的任务——任何文本都能找出十条改进建议。但<strong>这不等于变得更好了</strong>。多轮 loop 的结果往往是：改了十几版，每版都"有道理"，但没有一版真正收敛。</p>
+  <p>更糟的是，评审者看到了前面的讨论历史，会被带偏（又是上下文污染）。</p>
+</div>
+
+<h3>有效的做法是「独立评审 + 明确标准」</h3>
+
+<table>
+  <thead><tr><th style="width:26%">做法</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>上下文隔离</strong></td><td>评审者<strong>只拿到"待评审对象 + 评审维度"</strong>，不拿历史讨论、不拿其他候选方案</td></tr>
+    <tr><td><strong>明确评分维度</strong></td><td>不是问"这个好不好"，而是问"新颖度够不够、技术上可行吗、跟现有方案的兼容性如何、实现复杂度可控吗"</td></tr>
+    <tr><td><strong>逐项独立评估</strong></td><td>每个候选<strong>单独评估</strong>，而不是把十个候选放一起让模型排名（那样会有顺序偏差和互相影响）</td></tr>
+    <tr><td><strong>产出结构化结论</strong></td><td>评分 + 判断理由 + 明确结论（通过 / 修改 / 否决），而不是一段含糊的评价</td></tr>
+    <tr><td><strong>限定轮次</strong></td><td>最多一轮修订。不追求"改到完美"，因为不存在完美，只存在"够用"</td></tr>
+  </tbody>
+</table>
+
+<h3>工程上怎么做到"只回传结论"</h3>
+
+<table>
+  <thead><tr><th style="width:26%">手段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>只回传结论，不回传过程</strong></td><td>子 Agent 干了 10 轮、读了 20 个文件，但给主 Agent 的只有一段结构化结论 + 出处。<strong>过程留在它自己的上下文里</strong></td></tr>
+    <tr><td><strong>各自独立的上下文</strong></td><td>不共享同一个对话历史，只有显式的"交接"才传递信息</td></tr>
+    <tr><td><strong>约定交接格式</strong></td><td>交接内容固定为：结论、证据、置信度、待解决问题。<strong>自由发挥的自然语言交接会丢信息</strong></td></tr>
+    <tr><td><strong>写操作收敛到主 Agent</strong></td><td>子 Agent 尽量只读，所有写操作由主 Agent 统一执行，避免冲突</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6">6. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「什么是多 Agent？为什么需要？什么场景该用？」（一条链，连着答）</span>
+  <p><strong>【结论】</strong>多 Agent 是把一个任务拆给多个有独立角色和上下文的 Agent。它主要解决两个问题：<strong>上下文污染</strong>和<strong>角色冲突</strong>，顺带拿到并行能力。</p>
+  <p><strong>【做法】</strong>我们拆了检索和评审两个 Agent。检索 Agent 的上下文里只有查询和结果，不会被后续写作过程污染；评审 Agent 拿到的只有"待评审对象 + 评审维度"，没有历史包袱，判断更客观。两个各配独立的工具集，主 Agent 只负责分派和汇总。</p>
+  <p><strong>【数字】</strong>拆分之后，评审结论的一致性明显提升（同一份内容多次评审的结果更稳定）；检索和评审可以并行，总耗时下降约 X%。</p>
+  <p><strong>【坑】</strong>一开始让两个 Agent 共用一份对话历史，结果评审者被前面的讨论带偏，永远说"还能改进"。改成上下文隔离之后才有收敛。</p>
+  <p><strong>【权衡】</strong>拆不是免费的——通信成本、状态一致性、排查难度都会上升。我的判断标准是：<strong>只有当子任务需要不同上下文、或者能并行时才拆</strong>。所以我们现在维持在两个，再拆的收益抵不过开销。</p>
+</div>
+
+<details class="ask">
+  <summary>单个 Agent 也能分配多个职能，为什么还要多 Agent？</summary>
+  <p>关键差别在<strong>上下文</strong>，不在职能数量。</p>
+  <p>单 Agent 即使提示词里写了"你要依次扮演检索员、分析员、评审员"，它跑的仍然是<strong>同一份上下文</strong>——检索阶段的笔记、分析阶段的失败尝试、它自己刚说过的结论，全都还在。到了评审环节，它是在评价<strong>自己刚写的东西</strong>，天然倾向于维护原有判断。</p>
+  <p>多 Agent 的本质是<strong>给每个角色一份干净的上下文</strong>。这才是拆分的真正价值。</p>
+</details>
+
+<details class="ask">
+  <summary>多 Agent 之间怎么通信？用什么格式？</summary>
+  <ul>
+    <li><strong>自然语言消息</strong>：最灵活，但容易丢信息。</li>
+    <li><strong>结构化对象</strong>（固定字段）：明确、可靠、可校验，<strong>推荐用于关键交接</strong>。</li>
+    <li><strong>共享状态 / 黑板模式</strong>：所有 Agent 读写同一份状态，灵活但并发冲突要额外处理。</li>
+  </ul>
+  <p>建议：<strong>关键交接用结构化格式，中间讨论可以用自然语言</strong>。另外每条交接都要带"来源 Agent"和"时间戳"，不然排查问题时对不上。</p>
+</details>
+
+<details class="ask">
+  <summary>多 Agent 系统的成本怎么控？</summary>
+  <ul>
+    <li><strong>限制 Agent 数量</strong>：每一个都是一次独立调用，能合就合。</li>
+    <li><strong>限制轮次</strong>：给每个 Agent 设自己的轮次上限。</li>
+    <li><strong>分级用模型</strong>：简单角色（检索、格式转换）用小模型。</li>
+    <li><strong>只回传结论</strong>：避免大段中间结果在 Agent 之间反复搬运——<strong>这是成本失控最常见的原因</strong>。</li>
+    <li><strong>统计每个 Agent 的 token 占比</strong>：先知道钱花在谁身上，再优化。</li>
+  </ul>
+</details>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>多 Agent 解决的核心问题是什么？拆的代价有哪些？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>核心问题</strong>：上下文污染 + 角色冲突（自己评审自己不客观），顺带拿到并行能力。</p>
+    <p><strong>代价</strong>：信息在传递中丢失、状态一致性、责任边界模糊（排查链路变长）、互相踢皮球、延迟和成本上升、调试难度大增。</p>
+    <p>一句话落点：<strong>决定 Agent 上限的不是模型有多强，而是上下文有多干净。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>什么时候该拆多 Agent？什么时候不该拆？动态路由要注意什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p><strong>该拆</strong>：子任务需要独立上下文 / 能并行 / 需要不同工具集权限 / 需要独立评审。</p>
+    <p><strong>不该拆</strong>：上下文本来就一样；必须串行且强依赖全部细节；工具集重合；只是"想让架构好看"。</p>
+    <p><strong>动态路由三坑</strong>：必须有兜底分支；必须限制跳转次数（否则 Agent 互相踢皮球）；路由日志要留全（否则没法排查）。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="06-agent-basics-and-tools.html">← 上一篇：Agent 基础与工具协议</a>
+  <a href="08-agent-engineering.html">下一篇：Agent 工程化与选型 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>
