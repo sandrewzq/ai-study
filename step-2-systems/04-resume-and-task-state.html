@@ -177,9 +177,51 @@
 
 <p><strong>状态要设计成明确的状态机</strong>，别用一堆布尔值：</p>
 
-<pre><code>pending → running → succeeded
-                 ↘ failed
-                 ↘ cancelled</code></pre>
+<svg class="svgfig" viewBox="0 0 800 236" role="img" aria-label="任务状态机：四个状态与它们的转移">
+    <defs>
+      <marker id="arw-task" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-d" x="40" y="36" width="150" height="52" rx="8"></rect>
+    <text x="115" y="60" text-anchor="middle" font-size="12.5" style="font-weight:600">待处理</text>
+    <text x="115" y="78" text-anchor="middle" font-size="11" class="lbl-muted">pending</text>
+
+    <path class="ln" d="M190 62 H244" marker-end="url(#arw-task)"></path>
+
+    <rect class="box-m" x="250" y="36" width="150" height="52" rx="8"></rect>
+    <text x="325" y="60" text-anchor="middle" font-size="12.5" style="font-weight:600">进行中</text>
+    <text x="325" y="78" text-anchor="middle" font-size="11" class="lbl-muted">running</text>
+
+    <path class="ln" d="M400 62 H454" marker-end="url(#arw-task)"></path>
+    <text x="427" y="54" text-anchor="middle" font-size="11" class="lbl-muted">成功</text>
+
+    <rect class="box-s" x="460" y="36" width="170" height="52" rx="8"></rect>
+    <text x="545" y="60" text-anchor="middle" font-size="12.5" style="font-weight:600">已完成</text>
+    <text x="545" y="78" text-anchor="middle" font-size="11" class="lbl-muted">succeeded</text>
+
+    <path class="ar" d="M300 88 C 300 128 220 128 200 156" marker-end="url(#arw-task)" stroke-dasharray="5 4"></path>
+    <path class="ar" d="M350 88 C 350 128 430 128 450 156" marker-end="url(#arw-task)" stroke-dasharray="5 4"></path>
+
+    <rect x="100" y="160" width="180" height="50" rx="8" fill="var(--c-risk-bg)" stroke="var(--c-risk)"></rect>
+    <text x="190" y="182" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">失败</text>
+    <text x="190" y="199" text-anchor="middle" font-size="11" class="lbl-muted">failed</text>
+
+    <rect class="box-d" x="330" y="160" width="180" height="50" rx="8"></rect>
+    <text x="420" y="182" text-anchor="middle" font-size="12.5" style="font-weight:600">已取消</text>
+    <text x="420" y="199" text-anchor="middle" font-size="11" class="lbl-muted">cancelled</text>
+  </svg>
+
+  <p><strong>这张图在说什么</strong>：<strong>只有"成功"是一个终态之外的正常出口</strong>——失败和取消都是从"进行中"岔出去的旁路。设计状态机时重点就在这两个旁路：<strong>失败要能重试，取消要能清理资源</strong>，不能只画一条成功路径。</p>
+
+  <div class="legend">
+    <span>颜色含义：</span>
+    <span><i style="background:var(--c-data)"></i>未开始 / 已取消</span>
+    <span><i style="background:var(--c-model)"></i>进行中</span>
+    <span><i style="background:var(--c-store)"></i>成功终态</span>
+    <span><i style="background:var(--c-risk)"></i>失败旁路</span>
+  </div>
 
 <p>前端按状态渲染：<code>pending/running</code> 显示进度条、<code>succeeded</code> 显示结果、<code>failed</code> 显示错误和重试按钮、<code>cancelled</code> 显示已取消。<strong>每个状态都要有对应的界面，不能只做成功路径。</strong></p>
 
@@ -246,13 +288,15 @@
 
 <p>整体流程（<code>HQ-20</code>）：</p>
 
-<pre><code>后端识别出需要展示表单
-   ↓ 推送一个带类型的事件
-{ "type": "form", "id": "f1", "fields": [...] }
-   ↓ 前端按 type 分发
-渲染成表单组件（而不是当文字打出来）
-   ↓ 用户填完提交
-前端把数据回传，进入下一轮</code></pre>
+<div class="pipeline">
+    <details class="node"><summary>后端识别</summary><div class="body">判断出这一步需要用户填东西，而不是继续生成文字。</div></details>
+    <div class="link">→</div>
+    <details class="node"><summary>推送带类型的事件</summary><div class="body">推一个<strong>标明类型</strong>的事件，而不是纯文本：<br><code>{ "type": "form", "id": "f1", "fields": [...] }</code></div></details>
+    <div class="link">→</div>
+    <details class="node"><summary>前端按类型分发</summary><div class="body">看到 <code>form</code> 就渲染成表单组件，<strong>而不是当文字打出来</strong>。<code>id</code> 用于定位和增量更新。</div></details>
+    <div class="link">→</div>
+    <details class="node"><summary>回传进入下一轮</summary><div class="body">用户填完提交，前端把数据回传，后端接着往下走。</div></details>
+  </div>
 
 <p><strong>底层 API 的设计逻辑（<code>HQ-22</code>）</strong>，被问到时可以这么答：</p>
 

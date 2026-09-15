@@ -173,11 +173,13 @@
 
 <p>有些企业网络会封掉 WebSocket（甚至掐断长连接）。这时候要有<strong>降级方案</strong>：</p>
 
-<pre><code>优先 WebSocket / SSE
-   ↓ 连不上或连续失败 N 次
-降级为「轮询」：每隔几秒问一次"有新的吗"
-   ↓ 还是不行
-明确告诉用户：当前网络不支持实时更新，请稍后重试</code></pre>
+<div class="pipeline">
+    <details class="node"><summary>优先用长连接</summary><div class="body">WebSocket 或 SSE，实时性最好。能建就用它。</div></details>
+    <div class="link">→</div>
+    <details class="node"><summary>降级为轮询</summary><div class="body">连不上、或连续失败若干次之后，改成<strong>每隔几秒问一次"有新的吗"</strong>。实时性变差，但至少能用。</div></details>
+    <div class="link">→</div>
+    <details class="node"><summary>明确告知用户</summary><div class="body">轮询也不行时<strong>不要静默失败</strong>——直接说"当前网络不支持实时更新，请稍后重试"。</div></details>
+  </div>
 
 <h3>轮询频率怎么定（<code>SH-18</code>）</h3>
 

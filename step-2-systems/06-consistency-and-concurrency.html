@@ -214,13 +214,38 @@
 
 <p><code>PY-12</code> 是道大题，按<strong>漏斗</strong>的思路答——每一层都挡掉大部分流量：</p>
 
-<pre><code>用户请求（可能几十万 QPS）
-   ↓ ① 前端：按钮置灰、验证码、答题，挡住脚本和重复点击
-   ↓ ② 网关：限流（按用户/按 IP），超出的直接拒绝
-   ↓ ③ 缓存：库存判断走 Redis，不碰数据库
-   ↓ ④ 队列：抢到的请求入队，异步下单（削峰）
-   ↓ ⑤ 数据库：只处理队列里有限量的请求
-最终只有真正抢到的那 100 个请求打到数据库</code></pre>
+<svg class="svgfig" viewBox="0 0 800 292" role="img" aria-label="秒杀系统的五层漏斗：每一层挡掉大部分流量">
+    <rect class="box-u" x="50" y="14" width="700" height="34" rx="7"></rect>
+    <text x="400" y="36" text-anchor="middle" font-size="12.5" style="font-weight:600">用户请求 · 可能几十万 QPS</text>
+
+    <rect class="box-t" x="80" y="52" width="640" height="34" rx="7"></rect>
+    <text x="400" y="74" text-anchor="middle" font-size="12.5">① 前端 · 按钮置灰 / 验证码 / 答题，挡住脚本和重复点击</text>
+
+    <rect class="box-t" x="110" y="90" width="580" height="34" rx="7"></rect>
+    <text x="400" y="112" text-anchor="middle" font-size="12.5">② 网关 · 按用户 / 按 IP 限流，超出的直接拒绝</text>
+
+    <rect class="box-t" x="140" y="128" width="520" height="34" rx="7"></rect>
+    <text x="400" y="150" text-anchor="middle" font-size="12.5">③ 缓存 · 库存判断走 Redis，不碰数据库</text>
+
+    <rect class="box-t" x="170" y="166" width="460" height="34" rx="7"></rect>
+    <text x="400" y="188" text-anchor="middle" font-size="12.5">④ 队列 · 抢到的请求入队，异步下单（削峰）</text>
+
+    <rect class="box-t" x="200" y="204" width="400" height="34" rx="7"></rect>
+    <text x="400" y="226" text-anchor="middle" font-size="12.5">⑤ 数据库 · 只处理队列里有限量的请求</text>
+
+    <rect class="box-s" x="230" y="242" width="340" height="34" rx="7"></rect>
+    <text x="400" y="264" text-anchor="middle" font-size="12.5" style="font-weight:600">最终 ~100 个请求打到数据库</text>
+  </svg>
+
+  <p><strong>这张图在说什么</strong>：每一层都<strong>只让一小部分流量通过</strong>，所以真正打到数据库的请求从"几十万"变成"一百"。注意框的宽度只是表达"逐层收窄"这个趋势，<strong>不是精确比例</strong>。</p>
+  <p class="lbl-muted" style="margin-top:-6px;font-size:13.5px">答题时按这个顺序说，条理自然就出来了：<strong>前端挡掉脚本 → 网关限掉超量 → 缓存做库存判断 → 队列削峰 → 数据库只兜底</strong>。少任何一层，压力都会往后传。</p>
+
+  <div class="legend">
+    <span>颜色含义：</span>
+    <span><i style="background:var(--c-user)"></i>入口流量</span>
+    <span><i style="background:var(--c-tool)"></i>逐层拦截</span>
+    <span><i style="background:var(--c-store)"></i>最终落库</span>
+  </div>
 
 <table>
   <thead><tr><th style="width:20%">环节</th><th>关键点</th></tr></thead>

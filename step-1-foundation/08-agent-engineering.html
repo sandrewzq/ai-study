@@ -132,17 +132,53 @@
 
 <p><strong>核心循环</strong>就是 06 讲的 ReAct 循环，只是工具换成了代码相关的：</p>
 
-<pre><code>读代码 / 搜代码（工具调用）
-      ↓
-思考：问题在哪、下一步做什么
-      ↓
-改代码（工具调用）
-      ↓
-跑测试 / 看结果（工具调用）
-      ↓
-  结果符合预期？──否──→ 回到第一步
-      │
-      是 → 结束</code></pre>
+<svg class="svgfig" viewBox="0 0 800 258" role="img" aria-label="Agent 核心循环示意图">
+    <rect class="box-t" x="20" y="30" width="168" height="50" rx="8"></rect>
+    <text x="104" y="52" text-anchor="middle" font-size="12.5" style="font-weight:600">读代码 / 搜代码</text>
+    <text x="104" y="70" text-anchor="middle" font-size="11" class="lbl-muted">工具调用</text>
+
+    <text x="196" y="59" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-m" x="208" y="30" width="168" height="50" rx="8"></rect>
+    <text x="292" y="52" text-anchor="middle" font-size="12.5" style="font-weight:600">思考下一步</text>
+    <text x="292" y="70" text-anchor="middle" font-size="11" class="lbl-muted">模型判断</text>
+
+    <text x="384" y="59" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-t" x="396" y="30" width="168" height="50" rx="8"></rect>
+    <text x="480" y="52" text-anchor="middle" font-size="12.5" style="font-weight:600">改代码</text>
+    <text x="480" y="70" text-anchor="middle" font-size="11" class="lbl-muted">工具调用</text>
+
+    <text x="572" y="59" class="lbl-muted" font-size="14">→</text>
+
+    <rect class="box-t" x="584" y="30" width="196" height="50" rx="8"></rect>
+    <text x="682" y="52" text-anchor="middle" font-size="12.5" style="font-weight:600">跑测试 / 看结果</text>
+    <text x="682" y="70" text-anchor="middle" font-size="11" class="lbl-muted">工具调用</text>
+
+    <path class="ln" d="M682 80 V122"></path>
+
+    <rect class="box-d" x="520" y="122" width="260" height="50" rx="8"></rect>
+    <text x="650" y="152" text-anchor="middle" font-size="12.5" style="font-weight:600">结果符合预期？</text>
+
+    <path class="ar" d="M520 147 H104 V88" stroke-dasharray="5 4"></path>
+    <polygon points="104,80 98,91 110,91" fill="var(--muted)"></polygon>
+    <text x="290" y="140" text-anchor="middle" font-size="11.5" fill="var(--c-risk)">否 —— 带着新信息回到第一步</text>
+
+    <path class="ln" d="M650 172 V200"></path>
+    <rect class="box-s" x="540" y="200" width="220" height="46" rx="8"></rect>
+    <text x="650" y="228" text-anchor="middle" font-size="12.5" style="font-weight:600">是 → 这一轮任务结束</text>
+  </svg>
+
+  <p><strong>这张图在说什么</strong>：Agent 干活的节奏是<strong>「做一步 → 看结果 → 不对就再来一轮」</strong>。四个动作里三个是工具调用，<strong>只有"思考下一步"是模型在做</strong>——这也是它和普通脚本最本质的区别。</p>
+  <p class="lbl-muted" style="margin-top:-6px;font-size:13.5px">关键在那条回头的虚线：<strong>循环什么时候停，取决于"结果符不符合预期"这个判断</strong>，而不是跑完固定的步数。所以 agent 靠不靠谱，很大程度上取决于<strong>它怎么判断"这一步算不算成功"</strong>。</p>
+
+  <div class="legend">
+    <span>颜色含义：</span>
+    <span><i style="background:var(--c-tool)"></i>工具调用</span>
+    <span><i style="background:var(--c-model)"></i>模型判断</span>
+    <span><i style="background:var(--c-data)"></i>判断节点</span>
+    <span><i style="background:var(--c-store)"></i>结束</span>
+  </div>
 
 <p>真正有价值的是它围绕这个循环做的<strong>四条设计取舍</strong>——这些原则不依赖具体实现，自己写一个 agent loop 也能验证：</p>
 
@@ -293,12 +329,56 @@
 
 <p>用户的问题五花八门，不可能都走同一条路。所以需要<strong>先判断他想干什么，再决定送到哪里处理</strong>。</p>
 
-<pre><code>用户提问
-   ├─ ① 规则层（最快最便宜）：关键词命中、菜单选择、业务类型判断
-   ├─ ② 小模型分类（快）：专门训一个小模型做意图分类
-   └─ ③ 大模型判断（慢但准）：复杂、模糊的交给它
-        ↓
-   路由到：知识库问答 / 业务数据查询 / 闲聊 / 转人工</code></pre>
+<svg class="svgfig" viewBox="0 0 800 350" role="img" aria-label="意图识别的三层分流示意图">
+    <defs>
+      <marker id="arw-intent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <rect class="box-u" x="300" y="14" width="200" height="42" rx="8"></rect>
+    <text x="400" y="41" text-anchor="middle" font-size="12.5" style="font-weight:600">用户提问</text>
+
+    <path class="ln" d="M400 56 V74" marker-end="url(#arw-intent)"></path>
+
+    <rect class="box-m" x="40" y="76" width="720" height="54" rx="8"></rect>
+    <text x="60" y="100" font-size="12.5" style="font-weight:600">① 规则层</text>
+    <text x="60" y="118" font-size="11" class="lbl-muted">最快 · 零成本</text>
+    <text x="740" y="108" text-anchor="end" font-size="12" class="lbl-muted">关键词命中 · 菜单选择 · 业务类型判断</text>
+
+    <path class="ln" d="M400 130 V148" marker-end="url(#arw-intent)"></path>
+    <text x="412" y="144" font-size="11" fill="var(--c-risk)">没命中，往下一层</text>
+
+    <rect class="box-m" x="40" y="150" width="720" height="54" rx="8"></rect>
+    <text x="60" y="174" font-size="12.5" style="font-weight:600">② 小模型分类</text>
+    <text x="60" y="192" font-size="11" class="lbl-muted">快 · 成本低</text>
+    <text x="740" y="182" text-anchor="end" font-size="12" class="lbl-muted">专门训一个小模型做意图分类</text>
+
+    <path class="ln" d="M400 204 V222" marker-end="url(#arw-intent)"></path>
+    <text x="412" y="218" font-size="11" fill="var(--c-risk)">还是没把握，再往下一层</text>
+
+    <rect class="box-m" x="40" y="224" width="720" height="54" rx="8"></rect>
+    <text x="60" y="248" font-size="12.5" style="font-weight:600">③ 大模型判断</text>
+    <text x="60" y="266" font-size="11" class="lbl-muted">慢 · 但最准</text>
+    <text x="740" y="256" text-anchor="end" font-size="12" class="lbl-muted">复杂、模糊的交给它</text>
+
+    <path class="ln" d="M400 278 V294" marker-end="url(#arw-intent)"></path>
+
+    <rect class="box-t" x="40" y="296" width="720" height="46" rx="8"></rect>
+    <text x="60" y="324" font-size="12.5" style="font-weight:600">路由到</text>
+    <text x="740" y="324" text-anchor="end" font-size="12" class="lbl-muted">知识库问答 · 业务数据查询 · 闲聊 · 转人工</text>
+  </svg>
+
+  <p><strong>这张图在说什么</strong>：意图识别不是"一步判断准"，而是<strong>从便宜到贵逐层筛</strong>——先用规则挡掉大部分（零成本、可解释），剩下的交给小模型，只有复杂模糊的才动用大模型。</p>
+  <p class="lbl-muted" style="margin-top:-6px;font-size:13.5px">关键在每一层都要能说<strong>"我不确定"然后往下一层交</strong>。硬猜是最糟的处理：猜错了用户会遇到答非所问，体验比直接问"你是想问 X 还是 Y"差得多。</p>
+
+  <div class="legend">
+    <span>颜色含义：</span>
+    <span><i style="background:var(--c-user)"></i>用户</span>
+    <span><i style="background:var(--c-model)"></i>判断 / 决策</span>
+    <span><i style="background:var(--c-tool)"></i>路由执行</span>
+    <span><i style="background:var(--c-risk)"></i>往下一层的条件</span>
+  </div>
 
 <table>
   <thead><tr><th style="width:26%">方式</th><th style="width:34%">优点</th><th>缺点</th></tr></thead>

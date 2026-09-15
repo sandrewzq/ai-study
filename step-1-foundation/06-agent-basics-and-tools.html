@@ -134,6 +134,8 @@
     <text x="540" y="42" class="lbl-muted">够了</text>
   </svg>
 
+  <p style="margin:0 0 10px"><strong>这张图在说什么</strong>：模型每一轮只做一件事——<strong>判断"现在能不能答"</strong>。能就直接输出答案，不能就调工具、把结果追加回上下文，然后<strong>带着新信息重新判断一次</strong>。中间那个虚线框是<strong>刹车机制</strong>：轮次、token 预算、时间上限，防止它无限循环下去。</p>
+
   <p class="hero-cap" style="margin-top:6px">图里的每个名字对应什么：</p>
   <table>
     <thead><tr><th style="width:22%">图上的名字</th><th style="width:46%">实际指的是</th><th>常听到的叫法</th></tr></thead>
@@ -331,6 +333,9 @@
   <text x="470" y="301" class="lbl-muted">解决「能不能调」</text>
 </svg>
 
+<p><strong>这张图在说什么</strong>：这四个词经常被混着说，其实各自解决一个<strong>不同的问题</strong>——从上到下是「知不知道怎么做」（Skill）、「能不能做」（Tools）、「接起来顺不顺」（MCP）、「调得动调不动」（Function Call）。</p>
+<p class="lbl-muted" style="margin-top:-6px;font-size:13.5px">它们是<strong>四个不同的层面，不是四个互相替代的方案</strong>。一个成熟的 agent 这四样都得有——所以这道题的重点不是分个高低，而是说清<strong>各自补的是哪块短板</strong>。</p>
+
 <div class="skeleton">
   <span class="tag">口诀（必须一次说清）</span>
   <p><strong>Function Call 是模型的能力，MCP 是工具的接口标准，Skill 是做事的流程知识。</strong></p>
@@ -415,6 +420,9 @@
   <text x="56" y="226" style="font-weight:600">① 模型层</text>
   <text x="380" y="226" class="lbl-muted">思考 + 上下文管理 + 工具调用</text>
 </svg>
+
+<p><strong>这张图在说什么</strong>：通用 Agent 从下往上是<strong>模型层 → 能力层 → 编排层 → 交互层</strong>。越往下越靠近"模型行不行"，越往上越靠近"用户用不用得上"。</p>
+<p class="lbl-muted" style="margin-top:-6px;font-size:13.5px">外面看都是"什么都能干"，差距其实在<strong>中间两层</strong>——同样是接一个强模型，任务怎么拆、上下文怎么保持干净，这些工程细节才拉开距离。</p>
 
 <div class="skeleton">
   <span class="tag">回答时突出"难点在哪"</span>

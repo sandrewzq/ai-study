@@ -278,13 +278,22 @@
 
 <p><strong>上来就背优化手段会显得没做过。</strong>检索链路上有四段，慢的通常不是同一处：</p>
 
-<pre><code>查询优化（调模型，通常 200~800ms）  ← 常常是最大的瓶颈
-   ↓
-两路召回（向量 + 关键词，通常 10~100ms）
-   ↓
-精排（通常 100~500ms）
-   ↓
-生成（流式输出，首字通常 300ms~2s）</code></pre>
+<div class="pipeline">
+    <details class="node m"><summary>查询优化 · 200~800ms</summary><div class="body">调模型改写/扩展查询。<strong>常常是最大的瓶颈</strong>——纯等待，而且挡在检索前面。</div></details>
+    <div class="link">→</div>
+    <details class="node d"><summary>两路召回 · 10~100ms</summary><div class="body">向量 + 关键词并行召回。<strong>这段反而最快</strong>，因为走的是索引，不调模型。</div></details>
+    <div class="link">→</div>
+    <details class="node m"><summary>精排 · 100~500ms</summary><div class="body">交叉编码逐条打分。用精度换时间，所以要控制候选数量。</div></details>
+    <div class="link">→</div>
+    <details class="node s"><summary>生成 · 首字 300ms~2s</summary><div class="body">流式输出，边生成边推。<strong>用户感知到的等待主要是"首字时间"。</strong></div></details>
+  </div>
+
+  <div class="legend">
+    <span>颜色含义：</span>
+    <span><i style="background:var(--c-model)"></i>要调模型</span>
+    <span><i style="background:var(--c-data)"></i>走索引</span>
+    <span><i style="background:var(--c-store)"></i>产出</span>
+  </div>
 
 <table>
   <thead><tr><th style="width:18%">慢在哪</th><th>怎么优化</th></tr></thead>

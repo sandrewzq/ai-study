@@ -265,52 +265,85 @@
 <h2 id="plan-sec-19">5. 高频追问树（真正的分差在这里）</h2>
 <p>对方不会只问一层。每个主问题都要准备 2~3 层追问。以下 6 棵树覆盖了最高频的考察，也标注了它们属于哪个学习步骤。</p>
 <h3 id="plan-sec-20">5.1 RAG 检索链（A 域 · 步骤 1 打地基｜JR / HQ / PY / YF 四家都在追）</h3>
-<pre><code>RAG 整体流程是什么？
-  └─ 怎么加速检索？（索引类型 / 向量量化 / 缓存 / 并行召回）
-       └─ 召回不准怎么办？（查询改写 → 混合检索 ES+向量）
-            └─ 已经分组、排序、去重了，为什么还要 rerank？
-                 └─ 加了 rerank 延迟上升怎么办？（缩小 topK / 异步 / 缓存）
-                      └─ 怎么证明改完真的变好了？（评测集 + 命中率 / 人工抽检）</code></pre>
+<ol class="qchain">
+  <li><span class="q">RAG 整体流程是什么？</span></li>
+  <li><span class="q">怎么加速检索？</span>
+    <span class="hint">索引类型 / 向量量化 / 缓存 / 并行召回</span></li>
+  <li><span class="q">召回不准怎么办？</span>
+    <span class="hint">查询改写 → 混合检索 ES + 向量</span></li>
+  <li><span class="q">已经分组、排序、去重了，为什么还要 rerank？</span></li>
+  <li><span class="q">加了 rerank 延迟上升怎么办？</span>
+    <span class="hint">缩小 topK / 异步 / 缓存</span></li>
+  <li><span class="q">怎么证明改完真的变好了？</span>
+    <span class="hint">评测集 + 命中率 / 人工抽检</span></li>
+</ol>
 <p>配套题：<code>JR-5</code> <code>JR-6</code> <code>JR-10</code> <code>HQ-27</code> <code>HQ-29</code> <code>HQ-30</code> <code>HQ-31</code> <code>PY-5</code> <code>YF-6</code> <code>YF-7</code></p>
 <h3 id="plan-sec-21">5.2 多 Agent 链（B 域 · 步骤 1 打地基｜ML 连问 6 题，本质是一条链）</h3>
-<pre><code>什么是多 Agent？
-  └─ 为什么需要多 Agent？（上下文隔离 / 职责单一 / 可并行）
-       └─ 单 Agent 也能分配多个职能，为什么还要拆？
-            └─ 什么场景下才值得拆？（拆的代价：通信成本、状态一致性）
-                 └─ 多 Agent 怎么路由？（静态图 vs 动态路由，HQ-26）
-                      └─ 怎么防止多个 Agent 互相「踢皮球」或死循环？</code></pre>
+<ol class="qchain">
+  <li><span class="q">什么是多 Agent？</span></li>
+  <li><span class="q">为什么需要多 Agent？</span>
+    <span class="hint">上下文隔离 / 职责单一 / 可并行</span></li>
+  <li><span class="q">单 Agent 也能分配多个职能，为什么还要拆？</span></li>
+  <li><span class="q">什么场景下才值得拆？</span>
+    <span class="hint">拆的代价：通信成本、状态一致性</span></li>
+  <li><span class="q">多 Agent 怎么路由？</span>
+    <span class="hint">静态图 vs 动态路由（HQ-26）</span></li>
+  <li><span class="q">怎么防止多个 Agent 互相「踢皮球」或死循环？</span></li>
+</ol>
 <p>配套题：<code>ML-5</code>~<code>ML-10</code> <code>HQ-26</code> <code>YU-19</code></p>
 <h3 id="plan-sec-22">5.3 流式通信链（C 域 · 步骤 2 做系统｜5 家都问，细节题最杀人）</h3>
-<pre><code>SSE 和 WebSocket 有什么区别？各自适用场景？
-  └─ 你们都用了哪个？为什么？（单向推送 vs 双向）
-       └─ WebSocket 有没有做心跳保活？断了怎么重连？（指数退避？）
-            └─ 连不上怎么兜底？会降级成 HTTP 轮询吗？轮询频率怎么控？
-                 └─ SSE 断线续传怎么做？（用户关了窗口又打开 / 刷新页面）
-                      └─ 后端流式推、前端边收边渲染，怎么做状态同步？</code></pre>
+<ol class="qchain">
+  <li><span class="q">SSE 和 WebSocket 有什么区别？各自适用场景？</span></li>
+  <li><span class="q">你们都用了哪个？为什么？</span>
+    <span class="hint">单向推送 vs 双向</span></li>
+  <li><span class="q">WebSocket 有没有做心跳保活？断了怎么重连？</span>
+    <span class="hint">指数退避</span></li>
+  <li><span class="q">连不上怎么兜底？会降级成 HTTP 轮询吗？</span>
+    <span class="hint">轮询频率怎么控</span></li>
+  <li><span class="q">SSE 断线续传怎么做？</span>
+    <span class="hint">用户关了窗口又打开 / 刷新页面</span></li>
+  <li><span class="q">后端流式推、前端边收边渲染，怎么做状态同步？</span></li>
+</ol>
 <p>配套题：<code>FN-6</code> <code>YC-10</code> <code>HQ-18</code>~<code>HQ-22</code> <code>YF-20</code> <code>SH-10</code>~<code>SH-21</code></p>
 <h3 id="plan-sec-23">5.4 上下文治理链（C 域 · 步骤 2 做系统｜claude code 相关题都挂在这棵树上）</h3>
-<pre><code>你的上下文压缩策略是什么？
-  └─ 压缩后质量下降怎么办？（本质是大模型能力问题）
-       └─ 那怎么避免上下文被污染？（主线程干净 / 脏活丢 sub-agent）
-            └─ claude code 的上下文治理怎么做的？（分层 / 摘要 / 工具结果裁剪）
-                 └─ claude code 的核心循环是什么？（读-想-调工具-回灌）
-                      └─ 多轮循环怎么防止死循环和 token 爆炸？</code></pre>
+<ol class="qchain">
+  <li><span class="q">你的上下文压缩策略是什么？</span></li>
+  <li><span class="q">压缩后质量下降怎么办？</span>
+    <span class="hint">本质是大模型能力问题</span></li>
+  <li><span class="q">那怎么避免上下文被污染？</span>
+    <span class="hint">主线程干净 / 脏活丢 sub-agent</span></li>
+  <li><span class="q">claude code 的上下文治理怎么做的？</span>
+    <span class="hint">分层 / 摘要 / 工具结果裁剪</span></li>
+  <li><span class="q">claude code 的核心循环是什么？</span>
+    <span class="hint">读 → 想 → 调工具 → 回灌</span></li>
+  <li><span class="q">多轮循环怎么防止死循环和 token 爆炸？</span></li>
+</ol>
 <p>配套题：<code>JR-11</code> ~ <code>JR-15</code> <code>KJ-1</code> <code>HQ-36</code></p>
 <blockquote><p>补充阅读：你库里的《AI科研不完全指北》讲的正是这件事 —— 所有工作流设计最终都只在做一件事：管住每一个 session 的上下文。</p></blockquote>
 <h3 id="plan-sec-24">5.5 异步任务与可靠性链（D 域 · 步骤 2 做系统｜HQ / PY 两家的深水区）</h3>
-<pre><code>视频解析 / Embedding 这种长任务为什么用队列？
-  └─ 进程崩溃 / K8S 重启后任务会不会丢？
-       └─ 怎么保证不丢 + 一致性？（持久化 / ack / 重试）
-            └─ 重试导致重复执行、重复调用大模型怎么办？（幂等键去重）
-                 └─ 任务中途中断怎么断点续跑？
-                      └─ 前端怎么感知任务中断 / 运行状态？</code></pre>
+<ol class="qchain">
+  <li><span class="q">视频解析 / Embedding 这种长任务为什么用队列？</span></li>
+  <li><span class="q">进程崩溃 / K8S 重启后任务会不会丢？</span></li>
+  <li><span class="q">怎么保证不丢 + 一致性？</span>
+    <span class="hint">持久化 / ack / 重试</span></li>
+  <li><span class="q">重试导致重复执行、重复调用大模型怎么办？</span>
+    <span class="hint">幂等键去重</span></li>
+  <li><span class="q">任务中途中断怎么断点续跑？</span></li>
+  <li><span class="q">前端怎么感知任务中断 / 运行状态？</span></li>
+</ol>
 <p>配套题：<code>HQ-14</code>~<code>HQ-18</code> <code>PY-20</code>~<code>PY-22</code></p>
 <h3 id="plan-sec-25">5.6 成本优化链（F 域 · 步骤 3 量化｜ML 连问 6 题）</h3>
-<pre><code>你有没有考虑过怎么节约 AI 成本？
-  └─ 做了哪些优化方案？（缓存 / 模型分级 / prompt 瘦身 / 批处理）
-       └─ 为什么这样做有效？（成本构成拆解）
-            └─ 最终降了多少？（百分比 + 绝对值 + 统计口径）
-                 └─ 降本有没有牺牲效果？怎么监控？（质量回归）</code></pre>
+<ol class="qchain">
+  <li><span class="q">你有没有考虑过怎么节约 AI 成本？</span></li>
+  <li><span class="q">做了哪些优化方案？</span>
+    <span class="hint">缓存 / 模型分级 / prompt 瘦身 / 批处理</span></li>
+  <li><span class="q">为什么这样做有效？</span>
+    <span class="hint">成本构成拆解</span></li>
+  <li><span class="q">最终降了多少？</span>
+    <span class="hint">百分比 + 绝对值 + 统计口径</span></li>
+  <li><span class="q">降本有没有牺牲效果？怎么监控？</span>
+    <span class="hint">质量回归</span></li>
+</ol>
 <p>配套题：<code>ML-11</code>~<code>ML-16</code> <code>HJ-1</code> <code>HQ-16</code></p>
 <hr>
 <h2 id="plan-sec-26">6. 答题标准：60 / 80 / 100 分</h2>

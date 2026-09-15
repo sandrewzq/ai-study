@@ -324,6 +324,29 @@ blockquote {
 .dilute .memo b { color: var(--c-model); }
 .dilute .memo b.warn { color: var(--c-risk); }
 
+/* ---------- 追问链 ---------- */
+/* 一问套一问的线性追问序列。替代早期用 └─ 字符画的"树"：
+   字符画不能缩放、窄屏会横滚、颜色也不承载信息。
+   注意这些链其实每个节点只有一个追问，所以是链不是树。 */
+.qchain { list-style: none; margin: 20px 0; padding: 0; counter-reset: qc; }
+.qchain li {
+  position: relative; margin-left: 12px; padding: 10px 0 10px 40px;
+  border-left: 2px solid var(--line-strong);
+}
+.qchain li::before {
+  counter-increment: qc; content: counter(qc);
+  position: absolute; left: -13px; top: 11px;
+  box-sizing: border-box; width: 24px; height: 24px; line-height: 20px;
+  border-radius: 50%; border: 2px solid var(--line-strong);
+  background: var(--bg); color: var(--muted);
+  font-size: 11.5px; text-align: center;
+}
+.qchain li:first-child::before {
+  border-color: var(--c-model); color: var(--c-model); font-weight: 600;
+}
+.qchain .q { display: block; font-weight: 600; }
+.qchain .hint { display: block; color: var(--muted); font-size: 13px; font-weight: 400; margin-top: 3px; }
+
 /* ---------- 决策树 ---------- */
 .tree { margin: 20px 0; }
 .tree .q {
