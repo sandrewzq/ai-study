@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>样式样张 · 图示方案对比</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  .cmp { border: 1px solid var(--line); border-radius: 12px; padding: 4px 20px 18px; margin: 26px 0; }
+  .cmp > .cmp-head { display: flex; align-items: baseline; gap: 10px; margin: 16px 0 2px; }
+  .cmp .no { font-family: ui-monospace, monospace; font-size: 13px; color: var(--muted); }
+  .cmp h3 { margin: 0; font-size: 17px; }
+  .verdict { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .verdict b { color: var(--fg); }
+  .pick { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--c-store-bg); color: var(--c-store); border: 1px solid var(--c-store); }
+  .nopick { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--c-risk-bg); color: var(--c-risk); border: 1px solid var(--c-risk); }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../步骤1-打地基/index.html">← 目录</a>
+  <span class="crumb">样式样张 · 用来挑图示风格（不属于正式材料）</span>
+</header>
+
+<main class="wrap">
+
+<h1>样式样张：同一个内容，四种画法</h1>
+<p class="lead">
+  这一页用<strong>同一份内容（RAG 全链路）</strong>并列展示几种图示方案，方便你直接对比着挑。
+  选定之后，我会按这个风格把 9 份材料里的"假图"（ASCII）全部替换掉，并补上设计里列出的那些图。
+</p>
+
+<div class="legend">
+  <span>颜色编码「对象类型」：</span>
+  <span><i style="background:var(--c-user)"></i>用户</span>
+  <span><i style="background:var(--c-model)"></i>模型 / 决策</span>
+  <span><i style="background:var(--c-tool)"></i>工具 / 处理</span>
+  <span><i style="background:var(--c-store)"></i>存储 / 检索</span>
+  <span><i style="background:var(--c-data)"></i>数据 / 静态</span>
+  <span><i style="background:var(--c-risk)"></i>风险 / 反例</span>
+</div>
+
+<!-- ============ 0. 现状 ============ -->
+<div class="cmp">
+  <div class="cmp-head"><span class="no">00</span><h3>现状：ASCII 塞进 &lt;pre&gt;</h3><span class="nopick">问题所在</span></div>
+  <p class="verdict">就是你截图里的那种。本质仍然是<strong>文本</strong>：箭头是字符、没有层级、颜色不承载信息、缩放到窄屏会错位。</p>
+
+<pre><code>【离线阶段：把资料变成能查的知识库】
+  文档（PDF / Word / 网页 / 数据库）
+      ↓ 解析：提取文字、表格、图片
+      ↓ 切分 chunking
+      ↓ 向量化 embedding
+      ↓ 入库
+【在线阶段：用户提问 → 回答】
+  用户提问
+      ↓ 查询优化
+      ↓ 召回
+      ↓ 精排
+      ↓ 生成</code></pre>
+</div>
+
+<!-- ============ 1. 流式管道 ============ -->
+<div class="cmp">
+  <div class="cmp-head"><span class="no">01</span><h3>流式管道：CSS 卡片 + 可折叠说明</h3><span class="pick">推荐用于「过程」</span></div>
+  <p class="verdict">
+    零 JS、响应式、文字自动换行不糊。<strong>每个节点可以点开看解释</strong>——把"图"和"讲解"合成一个东西，不用来回翻。
+    节点宽度用 <code>flex:1 1 0</code> 均分，<strong>永远不会换行</strong>；窄屏（&lt;640px）自动转成竖排。
+  </p>
+
+  <div class="lane">
+    <p class="lane-title">离线阶段 · 把资料变成能查的知识库</p>
+    <div class="pipeline">
+      <details class="node d"><summary>文档</summary><div class="body">PDF / Word / 网页 / 数据库。这一步的常见坑：扫描件没有文字层，必须先 OCR。</div></details>
+      <div class="link">→</div>
+      <details class="node t"><summary>解析</summary><div class="body">提取文字、表格、图片。双栏排版容易被读串行，表格容易拆散。</div></details>
+      <div class="link">→</div>
+      <details class="node t"><summary>切分</summary><div class="body">按语义完整性切，不是按字数硬切。太大会稀释语义，太小会丢指代关系。</div></details>
+      <div class="link">→</div>
+      <details class="node m"><summary>向量化</summary><div class="body">每段变成向量。换 embedding 模型 = 全库重算，所以这是一次定好的决策。</div></details>
+      <div class="link">→</div>
+      <details class="node s"><summary>入库</summary><div class="body">向量库存向量，ES 存原文和元数据。元数据要带来源、页码、生效日期、权限。</div></details>
+    </div>
+  </div>
+
+  <div class="lane">
+    <p class="lane-title">在线阶段 · 用户提问 → 回答</p>
+    <div class="pipeline">
+      <details class="node u"><summary>提问</summary><div class="body">口语、短、可能带指代。多轮场景要先做指代消解。</div></details>
+      <div class="link">→</div>
+      <details class="node m"><summary>查询优化</summary><div class="body">改写 / 多查询 / 子查询 / HyDE。这是延迟的大头，通常要加缓存。</div></details>
+      <div class="link">→</div>
+      <details class="node s"><summary>召回</summary><div class="body">关键词和向量两路并行，各取 Top 50，用 RRF 融合。目标是不漏。</div></details>
+      <div class="link">→</div>
+      <details class="node m"><summary>精排</summary><div class="body">交叉编码器把 100 个候选压到 Top 5。语义相似 ≠ 能回答问题。</div></details>
+      <div class="link">→</div>
+      <details class="node m"><summary>生成</summary><div class="body">证据 + 引用要求 + 拒答约束一起进 Prompt。要允许它说"不知道"。</div></details>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 2. SVG 结构图 ============ -->
+<div class="cmp">
+  <div class="cmp-head"><span class="no">02</span><h3>结构图：内联 SVG</h3><span class="pick">推荐用于「对比 / 结构」</span></div>
+  <p class="verdict">
+    用 <code>viewBox</code> 自适应缩放，文字是真文字（<strong>可选中、可搜索、跟着深色模式换色</strong>）。
+    适合画"两种方案并排对比"这种 CSS 很难表达的东西。
+  </p>
+
+  <svg class="svgfig" viewBox="0 0 880 260" role="img" aria-label="双塔结构与交叉编码结构对比">
+    <defs>
+      <marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"></path>
+      </marker>
+    </defs>
+
+    <!-- 左：双塔 -->
+    <text x="10" y="24" style="font-weight:600">双塔（Bi-Encoder）· 用在召回</text>
+    <rect class="box-u" x="10" y="60" width="72" height="34" rx="8"></rect>
+    <text x="46" y="82" text-anchor="middle">问题</text>
+    <rect class="box-d" x="10" y="150" width="72" height="34" rx="8"></rect>
+    <text x="46" y="172" text-anchor="middle">文档</text>
+
+    <rect class="box-m" x="112" y="60" width="76" height="34" rx="8"></rect>
+    <text x="150" y="82" text-anchor="middle">Encoder</text>
+    <rect class="box-m" x="112" y="150" width="76" height="34" rx="8"></rect>
+    <text x="150" y="172" text-anchor="middle">Encoder</text>
+
+    <rect class="box-m" x="218" y="60" width="64" height="34" rx="8"></rect>
+    <text x="250" y="82" text-anchor="middle">向量 q</text>
+    <rect class="box-m" x="218" y="150" width="64" height="34" rx="8"></rect>
+    <text x="250" y="172" text-anchor="middle">向量 d</text>
+
+    <rect class="box-s" x="312" y="94" width="88" height="56" rx="8"></rect>
+    <text x="356" y="118" text-anchor="middle">余弦距离</text>
+    <text x="356" y="137" text-anchor="middle" class="lbl-muted">可预先计算</text>
+
+    <line class="ar" x1="84" y1="77" x2="108" y2="77" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="84" y1="167" x2="108" y2="167" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="190" y1="77" x2="214" y2="77" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="190" y1="167" x2="214" y2="167" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="284" y1="77" x2="308" y2="110" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="284" y1="167" x2="308" y2="135" marker-end="url(#ah1)"></line>
+    <text x="10" y="222" class="lbl-muted">问题与文档分别编码、互不可见 ⇒ 文档向量能离线算好 ⇒ 快，但精度一般</text>
+
+    <!-- 分隔线 -->
+    <line x1="440" y1="10" x2="440" y2="240" class="ln" stroke-dasharray="4 4"></line>
+
+    <!-- 右：交叉编码 -->
+    <text x="470" y="24" style="font-weight:600">交叉编码（Cross-Encoder）· 用在精排</text>
+    <rect class="box-u" x="470" y="60" width="72" height="34" rx="8"></rect>
+    <text x="506" y="82" text-anchor="middle">问题</text>
+    <rect class="box-d" x="470" y="150" width="72" height="34" rx="8"></rect>
+    <text x="506" y="172" text-anchor="middle">文档</text>
+
+    <rect class="box-t" x="572" y="98" width="70" height="50" rx="8"></rect>
+    <text x="607" y="129" text-anchor="middle">拼接</text>
+
+    <rect class="box-m" x="672" y="98" width="80" height="50" rx="8"></rect>
+    <text x="712" y="122" text-anchor="middle">Encoder</text>
+    <text x="712" y="139" text-anchor="middle" class="lbl-muted">联合注意力</text>
+
+    <rect class="box-s" x="782" y="98" width="86" height="50" rx="8"></rect>
+    <text x="825" y="122" text-anchor="middle">相关性</text>
+    <text x="825" y="139" text-anchor="middle" class="lbl-muted">精确分数</text>
+
+    <line class="ar" x1="544" y1="77" x2="568" y2="108" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="544" y1="167" x2="568" y2="138" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="644" y1="123" x2="668" y2="123" marker-end="url(#ah1)"></line>
+    <line class="ar" x1="754" y1="123" x2="778" y2="123" marker-end="url(#ah1)"></line>
+    <text x="470" y="222" class="lbl-muted">问题与文档拼在一起送进同一个模型 ⇒ 能逐词对齐 ⇒ 准，但每对都要现场算</text>
+  </svg>
+</div>
+
+<!-- ============ 3. 比例对比图 ============ -->
+<div class="cmp">
+  <div class="cmp-head"><span class="no">03</span><h3>比例对比：把"稀释"画出来</h3><span class="pick">推荐用于「反例」</span></div>
+  <p class="verdict">
+    讲"chunk 太大会稀释语义"用一段文字很抽象，用<strong>比例</strong>表示一眼就懂：关键句只占一小块，算出来的向量自然偏。
+  </p>
+
+  <div class="dilute">
+    <div class="row">
+      <p class="cap">chunk 太大（800 字）</p>
+      <div class="bar"><span class="seg" style="width:6%"></span></div>
+      <p class="memo">关键信息「饮料店不提供兔子血」只占 <b>6%</b>，整段向量反映的其实是"园区安全须知"，检索时匹配不准。</p>
+    </div>
+    <div class="row">
+      <p class="cap">chunk 适中（150 字）</p>
+      <div class="bar"><span class="seg" style="width:60%"></span></div>
+      <p class="memo">同一句话占了 <b>60%</b>，向量能准确表达它，用户问饮料店就能召回这一段。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 4. 决策树 ============ -->
+<div class="cmp">
+  <div class="cmp-head"><span class="no">04</span><h3>决策树：把判断题画成流程</h3><span class="pick">推荐用于「判断标准」</span></div>
+  <p class="verdict">
+    "什么时候该拆多 Agent"这类问题的答案本质是一串判断。画成树比列成表更容易记住，也更好复述。
+  </p>
+
+  <div class="tree">
+    <p class="q">① 子任务需要<strong>独立的上下文</strong>吗？（放一起会互相污染）</p>
+    <div class="answers">
+      <div class="a yes"><span class="yn">是</span>值得拆 —— 这是拆多 Agent 最核心的理由</div>
+      <div class="a no"><span class="yn">否</span>继续看 ②</div>
+    </div>
+
+    <p class="q">② 子任务之间能<strong>并行</strong>吗？</p>
+    <div class="answers">
+      <div class="a yes"><span class="yn">是</span>值得拆 —— 拿到并行收益</div>
+      <div class="a no"><span class="yn">否</span>继续看 ③</div>
+    </div>
+
+    <p class="q">③ 需要<strong>不同的工具集 / 权限</strong>，或者需要<strong>独立评审</strong>吗？</p>
+    <div class="answers">
+      <div class="a yes"><span class="yn">是</span>值得拆</div>
+      <div class="a no"><span class="yn">否</span><strong>不要拆</strong> —— 拆了只增加通信成本和状态一致性代价，是负收益</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 5. 回忆卡 ============ -->
+<div class="cmp">
+  <div class="cmp-head"><span class="no">05</span><h3>回忆卡：每页尾部内嵌主动回忆</h3><span class="pick">推荐每页都加</span></div>
+  <p class="verdict">
+    现在自查集中在第 09 份，太晚了。正确做法是<strong>每页读完立刻自查</strong>——主动回忆比重复阅读有效得多。
+  </p>
+
+  <div class="recall">
+    <span class="tag">合上材料，先自己讲一遍</span>
+    <p>为什么"语义相似"不等于"能回答问题"？粗排和精排分别用什么技术，为什么？</p>
+    <details>
+      <summary>想完了，展开对照要点</summary>
+      <p>向量检索找的是语义相近的段落，但它们未必能回答用户的具体问题——比如两个段落都在讲差旅，一个是报销标准（用户要的），一个是订票流程（相似的）。双塔把问题和文档分别编码，能预计算所以快；交叉编码把两者拼在一起，注意力能逐词对齐所以准，但每对都要现场推理。</p>
+    </details>
+  </div>
+</div>
+
+<hr>
+
+<h2>我的建议</h2>
+
+<table>
+  <thead><tr><th style="width:22%">图型</th><th style="width:30%">用在什么知识上</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>流式管道</strong>（01）</td><td>过程：RAG 链路、Agent 循环、PDF 解析</td><td>主力图型，节点可点开看解释</td></tr>
+    <tr><td><strong>内联 SVG</strong>（02）</td><td>对比与结构：双塔 vs 交叉编码、HNSW 分层、多 Agent 拓扑</td><td>精确控制，文字可搜索、适配深色模式</td></tr>
+    <tr><td><strong>比例对比</strong>（03）</td><td>反例：chunk 稀释、上下文污染、成本构成</td><td>用视觉比例代替形容词</td></tr>
+    <tr><td><strong>决策树</strong>（04）</td><td>判断标准：何时拆多 Agent、答不准怎么排查</td><td>把串行判断画成树，好记好复述</td></tr>
+    <tr><td><strong>回忆卡</strong>（05）</td><td>每页尾部</td><td>主动回忆，替代"全部堆到第 09 份"</td></tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">一个必须说明的限制</span>
+  <p>我这个会话里的<strong>读图工具是坏的</strong>（报 <code>cannot get property "fs" without inject</code>），所以我能写出这些图，但<strong>没法自己确认渲染效果</strong>。</p>
+  <p>因此设计上我刻意只用了"难以画错"的技术：SVG 全部走 <code>viewBox</code> 自适应、不用绝对定位叠层、不写死像素宽度、文字都放在流式布局里。但最终好不好看、有没有对齐问题，<strong>需要你打开这一页看一眼告诉我</strong>。</p>
+</div>
+
+</main>
+</body>
+</html>

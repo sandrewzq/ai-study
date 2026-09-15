@@ -1,15 +1,20 @@
 # macOS
 .DS_Store
 
-# 开发辅助（布局探针、链接校验、样式样张）——本地用，不进仓库
-_dev/
-
-# 第三方参考长文——版权归原作者，仅本地阅读，不公开发布
+# 本地工作材料——第三方参考长文（版权归原作者），以及需要本人填写的清单
 notes/
 assets/RAG全链路图.png
 
-# 学习计划与写法规范——项目内部文档，不上公开站点
-plan/
+# plan/*.md 的渲染副本：由 _dev/gen-plan-html.js 生成，没有页面链接到它们
+# （学习计划的正式载体是 index.html 里嵌的那一份）
+plan/roadmap.html
+plan/spec.html
+
+# 措辞黑名单：它列的就是不该公开的字眼，本身不进仓库
+_dev/local-words.txt
+
+# 一次性迁移脚本：已经跑完，本地留档
+_dev/oneoff/
 
 # 一次性迁移脚本的备份
 .backup/
