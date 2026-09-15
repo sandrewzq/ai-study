@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · 工具与模型选型 — AI 工作流学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">AI 工作流 · 第 2/4 份 ｜ H 域 · AI 工作流与个人效能</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">全程并行 · AI 工作流</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一域怎么准备</span></a></li>
+    <li><a class="item" href="01-my-workflow.html"><span class="n">01</span><span>你的 AI 工作流</span></a></li>
+    <li><a class="item cur" href="02-tools-and-models.html"><span class="n">02</span><span>工具与模型选型</span></a></li>
+    <li><a class="item" href="03-quality-and-review.html"><span class="n">03</span><span>质量与 review</span></a></li>
+    <li><a class="item" href="04-efficiency-and-prompts.html"><span class="n">04</span><span>效率与提示词</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>02 · 工具与模型选型</h1>
+<p class="lead">
+  这一组题问的是"你用什么、怎么选的"。<strong>最好答也最难装的一题是"你有没有做过对比"</strong>——
+  真对比过的人能说出差异的细节，没对比过的只能说"感觉差不多"。
+</p>
+
+<div class="qbadges"><span class="q">YU-3</span><span class="q">HJ-2</span><span class="q">HJ-3</span><span class="q">HJ-4</span><span class="q">PY-23</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页最好的准备方式是<strong>真的去做一次对比</strong>：拿同一个任务跑两个工具或两个模型，把差异记下来。不用很正式，一小时的功夫就够。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住"模型、工具、协议、扩展"四层。</div>
+  <div><b>第二遍（15 分钟）</b>读第 2 节——那是最容易被追问的一节。</div>
+  <div><b>第三遍</b>做页尾回忆卡，然后<strong>挑一个任务真跑一次对比</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「同一个模型放在不同工具里，效果有没有差别？」</strong></p>
+
+<div class="analogy">
+  <span class="tag">两种答法</span>
+  <p><em>「应该差不多吧，毕竟底层是同一个模型。」</em><br>
+  ——这个回答<strong>说明你没试过</strong>。而且逻辑上也站不住：同样的发动机，装在不同的车里表现差别很大。</p>
+  <p><em>「差别挺明显的。同一个模型，我用过的两个工具里，一个写出来的代码更贴项目风格——因为它能读整个仓库、能看到我已有的工具函数；另一个只看得到我贴给它的那一个文件，所以经常自己造一套。但前者也不是全面更好，它在简单任务上更啰嗦，因为它会先去翻一堆文件。」</em><br>
+  ——<strong>这个回答里有具体差异、有原因、还有代价。</strong></p>
+</div>
+
+<p>这道题（<code>HJ-4</code>）之所以能筛人，是因为<strong>只有真用过两个以上工具的人才答得出这种细节</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 把这堆东西分成四层就不乱了</p>
+  <h3>模型 → 工具 → 协议 → 扩展</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 348" role="img" aria-label="AI 开发工具的四层结构">
+    <rect class="box-m" x="40" y="26" width="400" height="60" rx="9"></rect>
+    <text x="60" y="50" font-size="12.5" style="font-weight:600">① 模型</text>
+    <text x="60" y="69" font-size="11" class="lbl-muted">真正"会思考"的那一层</text>
+    <text x="460" y="50" font-size="11.5" class="lbl-muted">决定能力上限：能不能理解复杂需求、</text>
+    <text x="460" y="69" font-size="11.5" class="lbl-muted">代码写得对不对、一次能处理多少内容</text>
+
+    <rect class="box-t" x="40" y="102" width="400" height="60" rx="9"></rect>
+    <text x="60" y="126" font-size="12.5" style="font-weight:600">② 工具（客户端）</text>
+    <text x="60" y="145" font-size="11" class="lbl-muted">你实际打开来用的那个界面</text>
+    <text x="460" y="126" font-size="11.5" class="lbl-muted">决定"能不能用上模型的能力"：</text>
+    <text x="460" y="145" font-size="11.5" class="lbl-muted">能不能读整个仓库、能不能执行命令、</text>
+    <text x="460" y="164" font-size="11.5" class="lbl-muted">上下文怎么管、什么时候自动压缩</text>
+
+    <rect class="box-d" x="40" y="178" width="400" height="60" rx="9"></rect>
+    <text x="60" y="202" font-size="12.5" style="font-weight:600">③ 协议</text>
+    <text x="60" y="221" font-size="11" class="lbl-muted">工具怎么接到外部能力上</text>
+    <text x="460" y="202" font-size="11.5" class="lbl-muted">决定"接外部东西顺不顺"：</text>
+    <text x="460" y="221" font-size="11.5" class="lbl-muted">像统一插座，接一次到处能用</text>
+
+    <rect class="box-s" x="40" y="254" width="400" height="60" rx="9"></rect>
+    <text x="60" y="278" font-size="12.5" style="font-weight:600">④ 扩展（技能 / 提示词包）</text>
+    <text x="60" y="297" font-size="11" class="lbl-muted">某个具体活该怎么干</text>
+    <text x="460" y="278" font-size="11.5" class="lbl-muted">决定"知不知道怎么做"：</text>
+    <text x="460" y="297" font-size="11.5" class="lbl-muted">把流程知识打包，用的时候装上</text>
+
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：这四个词经常被混着说，其实各管一段：<strong>模型决定上限，工具决定你能不能用上这个上限，协议解决"接东西麻烦"，扩展解决"知不知道怎么做"</strong>。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">想清楚这个分层，"同一个模型不同工具效果不同"就不难理解了——<strong>变的是第 ② 层</strong>：上下文怎么给、能不能看到整个项目、能不能自己跑起来验证。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-model)"></i>能力层</span>
+  <span><i style="background:var(--c-tool)"></i>使用层</span>
+  <span><i style="background:var(--c-data)"></i>连接层</span>
+  <span><i style="background:var(--c-store)"></i>知识层</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 日常用哪些、渠道和费用（<code>YU-3</code>）</h2>
+
+<p>这题问得很具体（渠道、费用、账号稳定性），<strong>目的就是核实你是不是真的在用</strong>。含糊其辞会被当成没用过。</p>
+
+<table>
+  <thead><tr><th style="width:22%">要答什么</th><th>怎么答</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>用哪些</strong></td>
+      <td>按用途说，别报一串名字。<strong>编程一个、对话一个、偶尔用一个专门的</strong>——大部分人其实就是这个配置。</td>
+    </tr>
+    <tr>
+      <td><strong>渠道</strong></td>
+      <td>公司统一采购的、自己订阅的、还是用免费额度。<strong>说清各占什么比例。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>费用</strong></td>
+      <td>不用报精确数字。说"公司报销"或者"每月几十块"这种量级就够。</td>
+    </tr>
+    <tr>
+      <td><strong>稳定性</strong></td>
+      <td><strong>这块最能体现真用过</strong>：有没有遇到限流、响应变慢、临时不可用。以及<strong>你怎么应对的</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">套出来的样子</span>
+  <p>「编程主要用两个——<strong>一个能读整个仓库、能跑命令的，日常干活用它；另一个偶尔用来做交叉验证</strong>，因为同一个问题两个工具给的答案有时候不一样，对比一下能发现盲点。对话类的用一个，主要做调研和写文档。</p>
+  <p><strong>渠道上，编程那个是公司统一采购的</strong>，对话类我自己订阅了一个，也有在用免费额度。</p>
+  <p><strong>稳定性上</strong>：高峰期偶尔会限流或者变慢，<strong>所以重活我一般放非高峰跑</strong>；另外关键任务我会备一个替代方案，主用的挂了能立刻切过去——<strong>这个是被坑过一次之后加的。</strong>」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「同一个模型不同工具，效果有差别吗」（<code>HJ-4</code>）</h2>
+
+<p>这是这一组<strong>最能拉开差距</strong>的一题。答好它的前提是：<strong>你真的拿同一个任务试过两个工具。</strong></p>
+
+<div class="tree">
+  <p class="q">❌ 「应该差不多，底层是同一个模型」</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-risk)">为什么不行</span>这句话<strong>既没试过、逻辑也不对</strong>。模型只是一层，上面还有上下文怎么给、能不能看到项目、能不能自己执行验证——<strong>这些差别比模型本身还大</strong>。</div>
+  </div>
+
+  <p class="q">⚠️ 「有点差别，但说不好哪个好」</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">为什么不够</span>诚实但没内容。而且"说不好"会让对方觉得你也没认真比较过。</div>
+  </div>
+
+  <p class="q">✅ 说清"差别在哪一层"，并且给出代价</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">差在上下文</span>"能读整个仓库的工具写出来的代码<strong>更贴项目已有的写法</strong>——它会复用我已有的工具函数；只看单个文件的工具经常自己造一套。"</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">差在验证能力</span>"能执行命令的工具会<strong>自己跑一遍再给我</strong>，给我的时候基本是过的；不能执行的工具只能给我代码，我得自己验。"</div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">差在节奏</span>"但能读仓库的那个<strong>在简单任务上更慢更啰嗦</strong>，因为它会先去翻一堆文件。所以小改动我反而用轻的那个。"</div>
+    <div class="a"><span class="yn" style="color:var(--c-tool)">结论落在选择上</span>"所以我的做法是<strong>按任务大小分</strong>：小改动用轻的，跨文件的重构用能看全局的。"</div>
+  </div>
+</div>
+
+<div class="warn">
+  <span class="tag">没做过对比怎么办</span>
+  <p>那就<strong>现在去做一次</strong>，不用很正式：</p>
+  <ul>
+    <li>挑一个你最近做过的真实任务（小一点的，比如"给某个接口加参数校验"）。</li>
+    <li>用两个工具各做一遍，<strong>记三件事</strong>：给的代码能不能直接用、要不要来回改、花了多少时间。</li>
+    <li>做完你会发现差异很明显，而且这些差异<strong>就是这道题的答案</strong>。</li>
+  </ul>
+  <p>如果实在来不及，<strong>诚实说"我只深度用过一个，没有系统对比过"</strong>，然后讲你选的这个工具<strong>为什么适合你的场景</strong>。这比编一个对比安全。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 国内外工具的差异（<code>HJ-3</code>、<code>HJ-2</code>）</h2>
+
+<p>这两题是一组：<strong>先问"有没有对比过"，再问"如果只能用国内的，有没有影响"</strong>。答的时候注意别踩两个坑。</p>
+
+<table>
+  <thead><tr><th style="width:22%">坑</th><th>为什么是坑</th><th>怎么答</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>一味贬低国内</strong></td>
+      <td>显得偏激，而且不真实——国内模型在很多中文场景上确实更好。</td>
+      <td>分开说：<strong>不同任务上各有优势</strong>，具体到你的用法。</td>
+    </tr>
+    <tr>
+      <td><strong>一味说"没差别"</strong></td>
+      <td>也不真实，而且回避了问题。对方问这个<strong>多半是因为他们真的有这个约束</strong>。</td>
+      <td>承认有差异，然后说<strong>差异是否影响你的工作</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">「如果只能用国内的工具，有影响吗」怎么答</span>
+  <p>这题的<strong>正确姿势是先问清约束范围</strong>，再给判断：</p>
+  <p>「我先确认一下限制的范围——<strong>是模型不能用，还是连工具、云服务都不能用</strong>？这两种情况影响不一样。</p>
+  <p>如果只是模型换掉，<strong>影响可控</strong>：我日常大部分任务是写代码、查资料、整理文档，这些国内模型完全够用，<strong>中文场景上甚至更好</strong>。真正会有感知的是<strong>特别复杂的推理任务</strong>，或者需要特定生态能力的场景。</p>
+  <p>如果连工具链也要换，那<strong>主要影响在效率上</strong>——不是做不了，是很多已经顺手的流程要重新摸一遍，前期会慢。<strong>所以我一般会在项目早期就把这个确认清楚</strong>，别做到一半才发现不能用自己的工具。」</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. MCP / Skill 怎么辅助开发（<code>PY-23</code>）</h2>
+
+<p>这题在<a href="../step-1-foundation/06-agent-basics-and-tools.html">步骤 1 的材料</a>里讲过概念，这里补的是<strong>"在你的日常开发里具体怎么用"</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:22%">用在哪</th><th>解决的问题</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>接内部系统</strong></td>
+      <td>让它能读你的需求管理系统、查接口文档、看日志平台。<strong>不用每次手动复制粘贴</strong>——这是最直接的收益。</td>
+    </tr>
+    <tr>
+      <td><strong>固化常用流程</strong></td>
+      <td>把"新建一个模块要改哪几个文件、按什么顺序"这类知识打包成技能。<strong>下次不用重新讲一遍</strong>。</td>
+    </tr>
+    <tr>
+      <td><strong>团队共享</strong></td>
+      <td>一个人的提示词和脚本沉淀下来，别人直接用。<strong>这是团队层面 AI 工作流最容易见效的地方。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>说清<strong>"什么时候不值得接"</strong>，比说接了哪些更有判断力：</p>
+  <p>「但我不会什么都接。<strong>判断标准是"这件事我会不会重复做"</strong>——只做一次的事情，手工复制粘贴就完了，接进来反而多一层维护成本。</p>
+  <p>而且<strong>接了之后要有人管</strong>：接口变了、权限变了我得知道。<strong>所以我们只把最常用的两三个接进来，其他还是手工。</strong>」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你怎么知道该选哪个模型？」</summary>
+  <p>这题在<strong>验证你的选择有没有依据</strong>。给一个可复述的判断框架：</p>
+  <ul>
+    <li><strong>先看任务类型</strong>：<strong>写代码</strong>看代码能力和上下文长度；<strong>写文档、做调研</strong>看语言表达和信息整合；<strong>结构化输出</strong>（要它返回固定格式）看指令遵循。</li>
+    <li><strong>再看约束</strong>：数据能不能出内网（这直接决定能不能用云端）、成本预算、响应速度要求。</li>
+    <li><strong>最后实测</strong>：用你自己的真实任务跑一遍，<strong>别只看榜单</strong>——榜单上的任务和你实际干的事往往不是一回事。</li>
+  </ul>
+  <p>收尾：「所以我的顺序是<strong>先用约束筛掉一批，再用真实任务实测，最后才看口碑</strong>。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「你们有没有专门的提示词工程师？」（<code>YF-8</code>）</summary>
+  <p>这题问的是<strong>分工</strong>，本身不难，但要答出判断：</p>
+  <ul>
+    <li><strong>大多数团队没有</strong>。直接说"没有专人负责，都是开发自己写"就够，<strong>不用觉得这是短板</strong>——这是常态。</li>
+    <li><strong>但可以补一句"谁负责什么"</strong>：「业务相关的提示词是写这块的人自己维护，<strong>因为它需要对业务的理解</strong>；通用的那些（代码审查、文档整理）会沉淀到共享目录，谁都能改。」</li>
+    <li><strong>如果产品也参与</strong>：说清分工——「产品写业务描述，<strong>开发负责把它转成模型能准确执行的指令</strong>。」这一句点出了"翻译"这个价值。</li>
+  </ul>
+</details>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「日常用哪些工具 / 有没有做过对比 / 只能用国内的有没有影响」</span>
+  <p><strong>【分层】</strong>我习惯把这堆东西分四层看：<strong>模型、工具、协议、扩展</strong>。<strong>模型决定能力上限，工具决定你能不能用上这个上限</strong>，协议解决接东西麻烦，扩展解决"知不知道怎么做"。分清这个，很多问题就不乱了。</p>
+  <p><strong>【日常用什么】</strong>编程主要两个——<strong>一个能读整个仓库、能执行命令的干日常活，另一个偶尔用来交叉验证</strong>，因为同一个问题两个工具给的答案有时不同，对比能发现盲点。对话类一个，做调研和写文档。<strong>渠道上编程那个是公司采购的，对话类我自己订了一个在用免费额度。</strong></p>
+  <p><strong>【稳定性】</strong>高峰期偶尔限流或者变慢，<strong>所以重活放非高峰跑，关键任务备一个替代方案能立刻切</strong>——这个是被坑过一次之后加的。</p>
+  <p><strong>【同模型不同工具】</strong>差别挺明显，<strong>差在工具那一层</strong>：能读整个仓库的写出来的代码<strong>更贴项目已有写法</strong>，会复用我已有的函数；只看单个文件的经常自己造一套。能执行命令的会<strong>自己跑一遍再给我</strong>。但能读仓库的那个<strong>在简单任务上更慢更啰嗦</strong>，会先去翻一堆文件——所以小改动我反而用轻的。<strong>结论是按任务大小分着用。</strong></p>
+  <p><strong>【国内外】</strong>我会先确认限制的范围——<strong>是模型不能用，还是连工具链都不能用</strong>。只换模型的话影响可控：日常写代码、查资料、整理文档国内模型完全够用，<strong>中文场景上甚至更好</strong>；有感知的是特别复杂的推理任务。<strong>要换工具链的话主要影响效率</strong>——不是做不了，是顺手的流程要重新摸，前期会慢。<strong>所以我一般在项目早期就确认清楚这个约束。</strong></p>
+  <p><strong>【MCP / 技能】</strong>我用它做两件事：<strong>接内部系统</strong>（读需求单、查接口文档、看日志，不用手动复制粘贴）和<strong>固化常用流程</strong>（比如新建模块要改哪几个文件）。<strong>团队共享是收益最大的</strong>——一个人沉淀下来别人直接用。</p>
+  <p><strong>【权衡】</strong>但我不会什么都接。<strong>判断标准是"这件事我会不会重复做"</strong>——只做一次的手工复制就完了，接进来多一层维护成本。而且<strong>接了要有人管</strong>，接口和权限变了得知道，所以我们只接最常用的两三个。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>「同一个模型放在不同工具里，效果一样吗？」——说出你的答法和依据。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>核心是<strong>指出"变的是哪一层"</strong>——模型没变，变的是工具那一层。具体差在三处：</p>
+    <ol>
+      <li><strong>上下文怎么给</strong>：能读整个仓库的，写出来的代码更贴项目已有写法，会复用你现有的函数；只能看单个文件的，经常自己造一套。</li>
+      <li><strong>能不能自己验证</strong>：能执行命令的会跑一遍再给你；不能执行的只能给代码，你自己验。</li>
+      <li><strong>节奏不一样</strong>：能读仓库的在简单任务上更慢更啰嗦，因为它要先翻一堆文件。</li>
+    </ol>
+    <p>然后<strong>把结论落到选择上</strong>：小改动用轻的，跨文件重构用能看全局的。<strong>有代价、有取舍，才说明你真比过。</strong></p>
+    <p>如果没比过，诚实说，然后讲你选的工具为什么适合你的场景——别编。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「如果只能用国内的工具，对你有没有影响？」——你怎么答？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>第一步<strong>不是回答，是问清范围</strong>：是模型不能用，还是连工具链也不能用？这两种影响差很远。</p>
+    <p>然后分情况：</p>
+    <ul>
+      <li><strong>只换模型</strong>：影响可控。日常写代码、查资料、整理文档完全够用，<strong>中文场景甚至更好</strong>；有感知的是特别复杂的推理任务。</li>
+      <li><strong>连工具链也要换</strong>：主要影响<strong>效率</strong>——不是做不了，是顺手的流程要重新摸，前期会慢。</li>
+    </ul>
+    <p>最后补一句体现习惯的话：「<strong>所以我一般在项目早期就把这个约束确认清楚</strong>，别做到一半才发现工具不能用。」</p>
+    <p>要避免的两个坑：一味贬低国内（偏激且不真实）、一味说没差别（回避问题，而且对方问这个多半是真的有这个约束）。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="01-my-workflow.html">← 上一篇：你的 AI 工作流</a>
+  <a href="03-quality-and-review.html">下一篇：质量与 review →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

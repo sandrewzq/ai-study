@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Docker 与 K8s — 工程化与运维学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">工程化与运维 · 第 1/2 份 ｜ I 域 · 工程化、运维与交付</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">按方向取舍 · 工程化与运维</div>
+  <ul>
+    <li><a class="item cur" href="01-docker-and-k8s.html"><span class="n">01</span><span>Docker 与 K8s</span></a></li>
+    <li><a class="item" href="02-linux-and-testing.html"><span class="n">02</span><span>日志排查与测试</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>01 · Docker 与 K8s</h1>
+<p class="lead">
+  这一域的五道题里四道和容器有关。<strong>好消息是：只要把几个"关系"说对，就不会扣分</strong>——
+  这一域考的是"够用"，而不是让你讲实现原理。
+</p>
+
+<div class="qbadges"><span class="q">KJ-5</span><span class="q">KJ-6</span><span class="q">KJ-7</span><span class="q">JR-16</span><span class="q">YF-13</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页<strong>不需要你搭过集群</strong>。但需要你知道"程序跑在服务器上"这件事大概是怎么回事。<strong>完全没接触过容器也没关系</strong>，这页从"它解决什么问题"讲起。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（5 分钟）</b>只看主图，把 Docker 和 K8s 的关系记住。</div>
+  <div><b>第二遍（12 分钟）</b>读第 2、3 节，那两节最容易被追问。</div>
+  <div><b>第三遍</b>做页尾回忆卡，然后<strong>说清你自己项目里做到了哪一步</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「Docker 和 K8s 是什么关系？」</strong></p>
+
+<div class="analogy">
+  <span class="tag">最常见的错误答法</span>
+  <p><em>「K8s 是 Docker 的升级版，现在都用 K8s 不用 Docker 了。」</em></p>
+  <p>这句话<strong>把两个不同层次的东西说成了替代关系</strong>——是本组题里最容易踩的坑，而且一说出口对方就知道你没用过。</p>
+</div>
+
+<p>正确的关系是：<strong>它们解决的是两个不同的问题。</strong>Docker 解决"这个应用怎么打包成一个能到处跑的东西"，K8s 解决"一堆这样的东西怎么在多台机器上管起来"。<strong>没有谁替代谁。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 它们不在一个层次上</p>
+  <h3>Docker 管"一个"，K8s 管"一堆"</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 344" role="img" aria-label="Docker 与 K8s 的分工">
+    <!-- 单机 -->
+    <rect class="box-t" x="20" y="34" width="330" height="150" rx="9"></rect>
+    <text x="185" y="58" text-anchor="middle" font-size="13" style="font-weight:600">Docker · 解决"怎么打包和运行"</text>
+
+    <rect class="box-t" x="42" y="74" width="286" height="30" rx="6"></rect>
+    <text x="185" y="94" text-anchor="middle" font-size="11.5">把应用 + 依赖 + 配置打成镜像</text>
+    <rect class="box-t" x="42" y="112" width="286" height="30" rx="6"></rect>
+    <text x="185" y="132" text-anchor="middle" font-size="11.5">在任意一台机器上跑起来，结果一样</text>
+    <text x="185" y="164" text-anchor="middle" font-size="11" class="lbl-muted">它管的是"单个容器"的生命周期</text>
+
+    <!-- 集群 -->
+    <rect class="box-m" x="370" y="34" width="410" height="150" rx="9"></rect>
+    <text x="575" y="58" text-anchor="middle" font-size="13" style="font-weight:600">K8s · 解决"一堆怎么管"</text>
+
+    <text x="392" y="84" font-size="11.5">哪台机器有空就放哪台（调度）</text>
+    <text x="392" y="106" font-size="11.5">挂了自动重启、不够了自动扩容</text>
+    <text x="392" y="128" font-size="11.5">服务之间怎么找到对方、流量怎么分</text>
+    <text x="392" y="150" font-size="11.5">配置和密钥怎么下发、怎么更新不中断</text>
+    <text x="575" y="174" text-anchor="middle" font-size="11" class="lbl-muted">它管的是"一群容器"的编排</text>
+
+    <!-- 关系 -->
+    <rect class="box-s" x="20" y="200" width="760" height="56" rx="9"></rect>
+    <text x="400" y="222" text-anchor="middle" font-size="12.5" style="font-weight:600">关系是"上下层"，不是"新旧版"</text>
+    <text x="400" y="243" text-anchor="middle" font-size="11.5" class="lbl-muted">K8s 调度的对象就是容器；没有容器这个标准单元，K8s 也无从下手</text>
+
+    <!-- 常见误解 -->
+    <rect x="20" y="270" width="760" height="62" rx="9" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="400" y="292" text-anchor="middle" font-size="12.5" fill="var(--c-risk)" style="font-weight:600">「现在都用 K8s 不用 Docker 了」为什么是错的</text>
+    <text x="400" y="314" text-anchor="middle" font-size="11.5" class="lbl-muted">K8s 只是换成用别的底层来跑容器（业界从 Docker 换成了通用的容器运行时），容器这个形态一直都在</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：<strong>Docker 管"一个"，K8s 管"一堆"</strong>，它们是上下层关系，不是新旧版本。答这道题的关键就是把这句关系说对。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">顺带说一句：业界确实有过"K8s 弃用 Docker"的新闻，但那说的是<strong>底层换成通用的容器运行时</strong>，不是"容器不用了"。<strong>能主动澄清这个误解，会显得你真的关注过。</strong></p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-tool)"></i>单机打包与运行</span>
+  <span><i style="background:var(--c-model)"></i>集群编排</span>
+  <span><i style="background:var(--c-store)"></i>两者关系</span>
+  <span><i style="background:var(--c-risk)"></i>常见误解</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 镜像和容器，还有挂载（<code>KJ-6</code>）</h2>
+
+<p>这题问三件事：<strong>镜像和容器的关系</strong>、<strong>怎么挂载</strong>、以及隐含的"数据怎么持久化"。</p>
+
+<table>
+  <thead><tr><th style="width:20%">概念</th><th style="width:34%">一句话说清</th><th>类比</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>镜像</strong></td>
+      <td>一个<strong>只读的模板</strong>，里面装着应用代码、依赖、运行时。它本身不会运行。</td>
+      <td>像一张<strong>光盘</strong>——内容固定，可以复制很多份。</td>
+    </tr>
+    <tr>
+      <td><strong>容器</strong></td>
+      <td>镜像<strong>运行起来的实例</strong>。同一个镜像可以起很多个容器，各自独立。</td>
+      <td>像把光盘<strong>放进播放器跑起来</strong>——同一张盘可以同时在很多台机器上放。</td>
+    </tr>
+    <tr>
+      <td><strong>容器的可写层</strong></td>
+      <td>容器里的改动<strong>写在镜像之上的一层</strong>，容器删掉这层就没了。</td>
+      <td>这解释了为什么<strong>容器一删，里面的数据就丢</strong>——那是本题的核心。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">「怎么挂载」怎么答</span>
+  <p>挂载（把宿主机的目录或文件映射到容器里）解决的是<strong>两件事</strong>：</p>
+  <ul>
+    <li><strong>数据要留住</strong>：数据库文件、上传的文件、日志——这些不能跟着容器一起消失。<strong>所以挂到外面去。</strong></li>
+    <li><strong>配置要能改</strong>：不想为了改一个配置项就重新做镜像，就把配置文件挂进去。</li>
+  </ul>
+  <p>答的时候补一句<strong>实际影响</strong>，比只讲概念有用：「这个在项目里的直接影响是——<strong>我们上线新版本时会重建容器，但数据不会丢，因为数据卷是独立于容器存在的。</strong>」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 多个服务之间怎么通信（<code>KJ-7</code>）</h2>
+
+<p>这题在集群里问，但答案要<strong>分层</strong>说——不同范围的通信用的东西不一样。</p>
+
+<div class="tree">
+  <p class="q">① 同一个容器组内部的几个容器</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-data)">走本机地址</span>同一组里的容器<strong>共享网络</strong>，互相访问就像同一台机器上的不同端口。</div>
+  </div>
+
+  <p class="q">② 集群内部，服务之间互相调用</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">靠服务名，不靠 IP</span>给一组容器配一个<strong>固定的访问名</strong>，请求会<strong>自动分给组里健康的实例</strong>。</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">为什么不能用 IP</span>容器挂掉重建之后<strong>IP 就变了</strong>。用 IP 调用等于每次重启都要改配置——这是最常见的坑。</div>
+  </div>
+
+  <p class="q">③ 从集群外访问进来</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">统一入口</span>对外暴露一个入口，按域名或路径把流量分到不同服务。<strong>证书、限流通常也放在这一层。</strong></div>
+  </div>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>说清<strong>"别用 IP 互调"这条实际约束</strong>，比背概念有用：</p>
+  <p>「我印象最深的一条是<strong>服务之间绝对不要写死 IP</strong>。因为容器重启之后 IP 会变，<strong>你本地测着好好的，一上线就有一半请求打不通</strong>。正确做法是用服务名——<strong>它背后是一组实例，而且会自动跳过不健康的那些。</strong>」</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 多租户怎么部署（<code>JR-16</code>）</h2>
+
+<p>这道题问得很具体（"一个租户一个 pod 吗"），<strong>但它没有唯一答案</strong>——正确答法是<strong>按隔离要求和成本分层说</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:22%">方案</th><th style="width:30%">怎么做</th><th>什么时候用 / 代价</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>共享集群，逻辑隔离</strong></td>
+      <td>所有租户跑在同一个集群里，用<strong>命名空间</strong>隔开；资源配额和权限按命名空间限制。</td>
+      <td><strong>成本最低、最常用。</strong>适合租户多、数据敏感度一般的场景。<strong>代价是隔离不算彻底</strong>，底层资源还是共享的。</td>
+    </tr>
+    <tr>
+      <td><strong>按租户分组隔离</strong></td>
+      <td>把租户分成几组，<strong>重要客户单独一组</strong>，普通客户共享一组。每组有独立的资源池。</td>
+      <td>折中方案。<strong>适合客户之间重要程度差异大的场景</strong>——把资源花在真正的重点客户上。</td>
+    </tr>
+    <tr>
+      <td><strong>一租户一集群</strong></td>
+      <td>每个租户一套独立集群。</td>
+      <td><strong>隔离最彻底，成本也最高。</strong>只有合规要求很严（比如数据必须物理隔离）时才这么做。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">「一个租户一个 pod 吗」——这个问法本身有个前提要澄清</span>
+  <p>"一个租户一个 pod"通常是<strong>不够的</strong>，因为一个租户往往需要多个服务（前端、后端、数据库连接等），<strong>一个 pod 装不下</strong>。</p>
+  <p>更准确的说法是：<strong>一个租户对应一组资源</strong>——可能是几个 pod 加配置加存储，共享集群但逻辑隔离。</p>
+  <p>答的时候把这一点指出来，会显得你想过实际部署，而不是背了个概念。</p>
+</div>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>把技术选择<strong>挂到业务约束上</strong>：</p>
+  <p>「所以我的判断顺序是：<strong>先看合规要求有多严</strong>——要求物理隔离就只能独立集群；<strong>再看租户数量和成本</strong>——几百个租户一集群根本不现实；<strong>最后看租户之间的重要程度差异</strong>，差异大就分组。技术上都能做，<strong>关键是别为了隔离而隔离</strong>。」</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 「日常用到什么程度」（<code>YF-13</code>）</h2>
+
+<p>这题是<strong>自我盘点</strong>，而且是这一域里最需要诚实的一题——<strong>说自己"很熟"，接下来就会被追问深水区。</strong></p>
+
+<table>
+  <thead><tr><th style="width:26%">层次</th><th>能做到什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>会写配置</strong></td>
+      <td>能写部署配置、服务配置、配置项和密钥的挂载；能看日志和事件排查为什么起不来。</td>
+    </tr>
+    <tr>
+      <td><strong>会用和排障</strong></td>
+      <td>能滚动更新、回滚、扩缩容；服务起不来时能顺着事件和日志定位到原因。</td>
+    </tr>
+    <tr>
+      <td><strong>会设计和运维</strong></td>
+      <td>能规划集群、做资源配额、设计多环境隔离和网络策略、调优调度。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">套出来的样子（按你的实际填）</span>
+  <p>「<strong>我在"会写配置和排障"这个层次。</strong>项目里的部署配置是我写的，服务起不来我能看事件和日志定位原因——<strong>这类问题我处理过几次</strong>。</p>
+  <p>但<strong>集群本身的规划和运维不是我做的</strong>，那是运维同事在管。<strong>所以资源配额怎么定、网络策略怎么设计这些，我只知道有这回事，没实际做过决定。</strong>」</p>
+  <p>这个答法<strong>既说清了能力，又主动划了边界</strong>——比含糊说"会用一点"安全得多。</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你说说 K8s 的架构？」</summary>
+  <p>这题<strong>明显是在往下探</strong>。如果你只到"会写配置"，<strong>别硬编</strong>——但也不是只能说"不知道"。</p>
+  <p>好的答法是<strong>说清你知道的那一层，并明确说出边界</strong>：</p>
+  <p>「我知道大概的分工：<strong>有一组组件负责做决策</strong>（决定该把服务放哪台机器、发现服务挂了要怎么处理），<strong>每台机器上还有一组组件负责执行</strong>（真正把容器跑起来、把状态报回去）。<strong>但具体每个组件叫什么、内部怎么交互，我没有深入看过</strong>——我平时接触的是用它的那一层。」</p>
+  <p>这个答法的好处：<strong>说对了框架（决策层 + 执行层），但明确承认没深入到组件级</strong>。<strong>比含糊其辞或者背一堆名词安全得多。</strong></p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「服务起不来，你怎么排查？」</summary>
+  <p>这题很实际，<strong>答得出细节就说明你真处理过</strong>。给一个固定顺序：</p>
+  <ol>
+    <li><strong>先看状态和事件</strong>：是不是在反复重启、还是一直起不来、还是根本没被调度上去。<strong>事件里通常直接写着原因</strong>（镜像拉不到、资源不够、配置缺了）。</li>
+    <li><strong>再看日志</strong>：分了"上一次挂掉之前的日志"和"当前的日志"——<strong>反复重启的情况一定要看前者</strong>，那是崩溃现场。</li>
+    <li><strong>然后进到容器里看</strong>：有时候是应用起来了但连不上数据库、或者配置读不到，<strong>这时候要看环境变量和网络能不能通</strong>。</li>
+    <li><strong>最后怀疑资源</strong>：内存不够被杀掉（表现是没有任何报错就重启）——<strong>这种情况日志里看不到异常，要看是不是被系统干掉的</strong>。</li>
+  </ol>
+  <p>最后一条特别能体现经验：「<strong>最坑的是内存不够被杀——它不报错，就是安静地重启，第一次遇到会完全找不到方向。</strong>」</p>
+</details>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「Docker 和 K8s 的关系 / 镜像和容器 / 服务怎么通信 / 多租户怎么部署」</span>
+  <p><strong>【关系】</strong><strong>它们不在一个层次，是上下层关系，不是新旧版本。</strong>Docker 解决"一个应用怎么打包成能到处跑的标准单元"，K8s 解决"一堆这样的单元怎么在多台机器上管起来"。<strong>K8s 调度的对象就是容器</strong>，没有容器这个标准单元，它也 orchestrate 不起来。</p>
+  <p><strong>【澄清一个误解】</strong>业界有过"K8s 弃用 Docker"的说法，那说的是<strong>底层换成通用的容器运行时</strong>，不是容器不用了。<strong>容器这个形态一直都在。</strong></p>
+  <p><strong>【镜像和容器】</strong>镜像是<strong>只读模板</strong>，容器是它<strong>运行起来的实例</strong>，改动的部分写在镜像之上的一层——<strong>所以容器一删，里面的数据就没了</strong>。这就引出挂载：把宿主机的目录映射进去，<strong>数据卷独立于容器存在，上线重建容器时数据不丢</strong>；配置文件也可以挂进去，改配置不用重做镜像。</p>
+  <p><strong>【服务通信】</strong>分三层：<strong>同一组容器内部走本机地址</strong>；<strong>集群内服务之间用服务名互相调用</strong>，不写死 IP（因为重启后 IP 会变，本地测着好好的上线就打不通），服务名背后是一组实例并会自动跳过不健康的；<strong>对外用统一入口</strong>，按域名或路径分流，证书和限流也放在这一层。</p>
+  <p><strong>【多租户】</strong>这题没有唯一答案，<strong>按隔离要求和成本分三档</strong>：共享集群用命名空间做逻辑隔离——<strong>成本最低最常用，但隔离不彻底</strong>；按租户分组、重要客户单独一组；一租户一集群——<strong>隔离最彻底也最贵</strong>，只在合规要求严的时候用。</p>
+  <p><strong>【一个要澄清的前提】</strong>"一个租户一个 pod"通常不够——<strong>一个租户往往要多个服务，一个 pod 装不下</strong>。准确说法是"一个租户对应一组资源"。</p>
+  <p><strong>【我的程度】</strong>我在<strong>会写配置和排障</strong>这一层：部署配置是我写的，服务起不来能顺着事件和日志定位。<strong>但集群规划和运维不是我做的</strong>——资源配额、网络策略这些我知道有这回事，没实际做过决定。</p>
+  <p><strong>【权衡】</strong>这一域的定位是<strong>"够用即可"</strong>。我不会去背组件级的细节，因为那对我的实际工作没有帮助；<strong>我更愿意把时间花在保证服务能正常部署和可排查上。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>用一个类比说清 Docker 和 K8s 的关系，并指出一个常见误解。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>类比可以有很多种，关键是把<strong>"一个 vs 一堆"</strong>这层关系表达出来。比如：</p>
+    <ul>
+      <li><strong>Docker 像是把家具做成标准尺寸的箱子</strong>，搬到哪都能用；<strong>K8s 像是物流调度中心</strong>，决定这些箱子放哪个仓库、坏了怎么补、怎么分配。</li>
+      <li>或者：<strong>Docker 是"怎么把一个东西装好"</strong>，<strong>K8s 是"一堆装好的东西怎么管"</strong>。</li>
+    </ul>
+    <p>然后指出那个误解：<strong>"现在都用 K8s 不用 Docker 了"是错的</strong>——它们是上下层，不是新旧版。业界那次"弃用"说的是<strong>底层换成通用容器运行时</strong>，容器本身一直都在。</p>
+    <p>如果还能补一句：「<strong>K8s 调度的对象就是容器</strong>，所以严格说不是"用不用 Docker"的问题，是"用什么来跑容器"的问题。」那这道题就答满了。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>服务起不来，你的排查顺序是什么？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>看状态和事件</strong>：反复重启？起不来？还是没被调度上去？<strong>事件里通常直接写着原因。</strong></li>
+      <li><strong>看日志</strong>：注意区分"上一次挂掉前的日志"和"当前的日志"——<strong>反复重启的要先看前者，那是崩溃现场。</strong></li>
+      <li><strong>进容器里看</strong>：应用起来了但连不上数据库、读不到配置，<strong>要查环境变量和网络连通性。</strong></li>
+      <li><strong>怀疑资源</strong>：<strong>内存不够被杀掉的表现是"不报错、安静重启"</strong>——这种情况日志里看不到异常，要看是不是被系统干掉的。</li>
+    </ol>
+    <p>最后那条是这道题里最值钱的一句——<strong>它是个"不看就找不到"的原因，说出来就证明你真踩过。</strong></p>
+    <p>如果没实际排查过，就诚实说"我遇到过的都是配置写错这类，看事件就定位到了；更复杂的情况没处理过"。<strong>比背一个排查流程安全。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="index.html">← 材料目录</a>
+  <a href="02-linux-and-testing.html">下一篇：日志排查与测试 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

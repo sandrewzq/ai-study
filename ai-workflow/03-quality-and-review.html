@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · 质量与 review — AI 工作流学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">AI 工作流 · 第 3/4 份 ｜ H 域 · AI 工作流与个人效能</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">全程并行 · AI 工作流</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一域怎么准备</span></a></li>
+    <li><a class="item" href="01-my-workflow.html"><span class="n">01</span><span>你的 AI 工作流</span></a></li>
+    <li><a class="item" href="02-tools-and-models.html"><span class="n">02</span><span>工具与模型选型</span></a></li>
+    <li><a class="item cur" href="03-quality-and-review.html"><span class="n">03</span><span>质量与 review</span></a></li>
+    <li><a class="item" href="04-efficiency-and-prompts.html"><span class="n">04</span><span>效率与提示词</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>03 · 质量与 review</h1>
+<p class="lead">
+  这一组题的潜台词是：<strong>「AI 写的代码你敢用吗？你怎么保证它不出事？」</strong>
+  答得好不好，取决于你有没有<strong>一套固定的验收动作</strong>——而不是"我会仔细看"。
+</p>
+
+<div class="qbadges"><span class="q">YC-8</span><span class="q">YC-9</span><span class="q">YU-7</span><span class="q">HJ-12</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页需要你有<strong>至少一次真实的翻车经历</strong>——它错在哪、你怎么发现的、后来加了什么约束。没有的话先去<a href="00-how-to-study.html">导读</a>看"记一周"那个动作。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住四道关卡的顺序。</div>
+  <div><b>第二遍（12 分钟）</b>读第 2 节，那是被追问最多的一节。</div>
+  <div><b>第三遍</b>做页尾回忆卡，<strong>把你自己的那道"翻车案例"完整讲一遍</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「AI 写的代码相对不可控，你们有 review 流程吗？」</strong></p>
+
+<div class="analogy">
+  <span class="tag">三种答法</span>
+  <p><em>「有的，我们会 review。」</em><br>——太笼统，而且对方会接着问"怎么 review"，你多半答不出细节。</p>
+  <p><em>「AI 写的我都会仔细看一遍。」</em><br>——<strong>"仔细看"不是流程，是一种态度。</strong>而且说这话的人往往做不到，因为 AI 一次可能给你两百行。</p>
+  <p><em>「走一样的流程，但有几个额外动作：一是它改过的文件我会重点看 diff，不看整体；二是它写的逻辑我会先问它"边界情况有哪些"，让它自己列，我挑；三是涉及数据变更的必须本地跑一遍再提交。另外我会看它的改动范围——如果它顺手改了无关的文件，我会退回去重做。」</em><br>——<strong>这个回答里每一句都是可执行的动作。</strong></p>
+</div>
+
+<p>这道题的判断标准很直接：<strong>你说的是"动作"还是"态度"。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 质量控制有四道关，顺序不能倒</p>
+  <h3>最好的控制是让它一开始就写对</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 336" role="img" aria-label="AI 代码质量的四道关卡">
+    <!-- 四关 -->
+    <rect class="box-s" x="20" y="34" width="176" height="88" rx="9"></rect>
+    <text x="108" y="56" text-anchor="middle" font-size="12.5" style="font-weight:600">① 写之前约束</text>
+    <text x="108" y="76" text-anchor="middle" font-size="11" class="lbl-muted">给它项目约定</text>
+    <text x="108" y="94" text-anchor="middle" font-size="11" class="lbl-muted">先定接口再填实现</text>
+    <text x="108" y="112" text-anchor="middle" font-size="11" fill="var(--c-store)">成本最低</text>
+
+    <rect class="box-m" x="212" y="34" width="176" height="88" rx="9"></rect>
+    <text x="300" y="56" text-anchor="middle" font-size="12.5" style="font-weight:600">② 写之后验证</text>
+    <text x="300" y="76" text-anchor="middle" font-size="11" class="lbl-muted">跑一遍 / 看 diff</text>
+    <text x="300" y="94" text-anchor="middle" font-size="11" class="lbl-muted">让它列边界情况</text>
+    <text x="300" y="112" text-anchor="middle" font-size="11" fill="var(--c-model)">每个改动都要</text>
+
+    <rect class="box-d" x="404" y="34" width="176" height="88" rx="9"></rect>
+    <text x="492" y="56" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 提交时复查</text>
+    <text x="492" y="76" text-anchor="middle" font-size="11" class="lbl-muted">走同样的 review</text>
+    <text x="492" y="94" text-anchor="middle" font-size="11" class="lbl-muted">不因为"是 AI 写的"放松</text>
+    <text x="492" y="112" text-anchor="middle" font-size="11" class="lbl-muted">改动范围要合理</text>
+
+    <rect class="box-t" x="596" y="34" width="184" height="88" rx="9"></rect>
+    <text x="688" y="56" text-anchor="middle" font-size="12.5" style="font-weight:600">④ 长期靠测试</text>
+    <text x="688" y="76" text-anchor="middle" font-size="11" class="lbl-muted">补上自动化测试</text>
+    <text x="688" y="94" text-anchor="middle" font-size="11" class="lbl-muted">让它以后不敢乱改</text>
+    <text x="688" y="112" text-anchor="middle" font-size="11" fill="var(--c-tool)">最省事的长期解</text>
+
+    <!-- 常见问题 -->
+    <text x="20" y="158" class="lbl-muted" font-size="13">AI 写的代码，最常见的三类问题</text>
+
+    <rect x="20" y="174" width="240" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="140" y="196" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">看着对，其实不对</text>
+    <text x="140" y="218" text-anchor="middle" font-size="11" class="lbl-muted">正常路径能过</text>
+    <text x="140" y="236" text-anchor="middle" font-size="11" class="lbl-muted">边界和异常没处理</text>
+
+    <rect x="278" y="174" width="240" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="398" y="196" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">自己造一套</text>
+    <text x="398" y="218" text-anchor="middle" font-size="11" class="lbl-muted">项目里已有工具函数</text>
+    <text x="398" y="236" text-anchor="middle" font-size="11" class="lbl-muted">它另写一个</text>
+
+    <rect x="536" y="174" width="244" height="76" rx="8" fill="none" stroke="var(--c-risk)" stroke-dasharray="5 4"></rect>
+    <text x="658" y="196" text-anchor="middle" font-size="12" fill="var(--c-risk)" style="font-weight:600">顺手动别的</text>
+    <text x="658" y="218" text-anchor="middle" font-size="11" class="lbl-muted">改 A 的时候</text>
+    <text x="658" y="236" text-anchor="middle" font-size="11" class="lbl-muted">把 B 也重构了</text>
+
+    <rect class="box-t" x="20" y="266" width="760" height="62" rx="8"></rect>
+    <text x="400" y="288" text-anchor="middle" font-size="12.5" style="font-weight:600">第 ① 关能挡掉后两类：给它项目约定，它就不会自己造；要求它只改指定文件，它就不会顺手重构</text>
+    <text x="400" y="310" text-anchor="middle" font-size="11.5" class="lbl-muted">第一类（看着对其实不对）只能靠第 ② ④ 关——跑起来验、让测试长期盯着</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：控制质量有四道关，但<strong>成本最低的是第一道——写之前就把约束给它</strong>。很多问题不是它写错了，是你没告诉它项目里已经有什么、规矩是什么。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">而最常见的那类问题——<strong>"正常路径能过、边界没处理"</strong>——前三关都拦不住，只能靠<strong>跑起来验证 + 让测试长期盯着</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-store)"></i>成本最低的一道</span>
+  <span><i style="background:var(--c-model)"></i>每次都做</span>
+  <span><i style="background:var(--c-data)"></i>流程层面</span>
+  <span><i style="background:var(--c-tool)"></i>长期解</span>
+  <span><i style="background:var(--c-risk)"></i>常见问题</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 「有没有 AI 编程规范」（<code>YC-8</code>）</h2>
+
+<p>这题和<a href="01-my-workflow.html">第 1 份</a>里"团队有没有工作流"是姊妹题。区别是它更聚焦<strong>约束</strong>：<strong>你怎么让 AI 按规矩写。</strong></p>
+
+<table>
+  <thead><tr><th style="width:24%">约束放在哪</th><th style="width:34%">具体做法</th><th>为什么有效</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>项目里的说明文件</strong></td>
+      <td>把技术栈、目录结构、命名习惯、常用工具函数写在一个文件里，<strong>每次开工先让它读</strong>。</td>
+      <td><strong>这是性价比最高的做法。</strong>写一次，之后每次都不用重复交代。</td>
+    </tr>
+    <tr>
+      <td><strong>提示词模板</strong></td>
+      <td>把常用的任务（新建接口、写测试、改 bug）做成固定模板，<strong>里面带上"不要做什么"</strong>。</td>
+      <td>负向约束往往比正向要求有效——<strong>"只改这个文件，不要动其他地方"能挡掉大量无关改动。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>自动化检查</strong></td>
+      <td>代码格式、类型检查、静态检查交给工具跑，<strong>不靠人眼</strong>。</td>
+      <td>这些检查对 AI 和人一视同仁，<strong>而且比人快、不会漏</strong>。</td>
+    </tr>
+    <tr>
+      <td><strong>明确禁区</strong></td>
+      <td>哪些不让 AI 碰：真实数据、密钥、核心的账务逻辑。</td>
+      <td>这些一旦出错代价大，且难以验证。<strong>划出来是底线。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>说清<strong>"规范不是写给 AI 看的，是写给自己的"</strong>：</p>
+  <p>「我理解这类规范的价值不在"约束 AI"，而在<strong>逼自己把项目里那些默认的规矩写清楚</strong>。写之前我从来没想过要说明"这个项目里时间格式统一用哪个函数"——<strong>因为我自己知道，不用写</strong>。但 AI 不知道，它会自己造一个。</p>
+  <p><strong>所以写这个文件的过程，其实是在盘点自己项目的隐性约定。</strong>」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「有没有 code review 流程」（<code>YC-9</code>）</h2>
+
+<p>这个问题背后有个隐含的判断：<strong>对方担心 AI 写的代码没人看就合进去了。</strong>所以答的核心是<strong>"AI 写的代码走不走同样严格的流程"</strong>。</p>
+
+<div class="tree">
+  <p class="q">① 流程上：走不走同样的 review？</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-store)">走同样的</span>"不会因为它是 AI 写的就放松——<strong>提交人还是要为这段代码负责</strong>。谁提交的谁解释。"</div>
+    <div class="a"><span class="yn" style="color:var(--c-risk)">不能放松</span>这是这道题的底线。<strong>如果说"AI 写的会额外看一眼就合了"，对方会立刻担心你们的线上质量。</strong></div>
+  </div>
+
+  <p class="q">② 具体看什么：三个和平时不一样的动作</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-model)">看改动范围</span>"AI 容易<strong>顺手改无关的文件</strong>。所以我会先看它动了哪些文件——超出范围的直接退回重做。"</div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">看有没有重复造轮子</span>"项目里已有的工具函数它可能不知道，会自己写一个。<strong>看到就让它改成复用。</strong>"</div>
+    <div class="a"><span class="yn" style="color:var(--c-model)">让它自己列边界</span>"我会问它'这段逻辑有哪些边界情况'，<strong>让它自己列一遍</strong>，我挑它漏掉的。比自己凭空想全。"</div>
+  </div>
+
+  <p class="q">③ 长期怎么办</p>
+  <div class="answers">
+    <div class="a"><span class="yn" style="color:var(--c-tool)">靠测试兜底</span>"人总会疲劳、会漏。<strong>所以关键路径必须有自动化测试</strong>——这是唯一能长期盯住的东西。"</div>
+  </div>
+</div>
+
+<div class="warn">
+  <span class="tag">准备一个真实的翻车案例</span>
+  <p>这道题一定会被追问"<strong>那你遇到过什么问题吗</strong>"。<strong>提前准备一个</strong>，而且要能说清四件事：</p>
+  <ul>
+    <li><strong>现象</strong>：出了什么问题，怎么发现的。</li>
+    <li><strong>原因</strong>：它为什么会写错。<strong>（通常是"你没告诉它某个上下文"，而不是"它太笨"）</strong></li>
+    <li><strong>怎么修</strong>：当时的处理。</li>
+    <li><strong>改了什么习惯</strong>：之后加了什么约束。<strong>这一段最值钱。</strong></li>
+  </ul>
+  <p>例：「有一次它给我的一段数据处理逻辑，<strong>正常情况都对，但输入为空时会崩</strong>。我是跑测试才发现的。<strong>原因是我没告诉它我们上游的字段可能为空。</strong>修完之后我加了个习惯：<strong>涉及外部数据的地方，我会在提示里明确说"这些字段可能为空/可能超长"，让它先处理异常。</strong>」</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「怎么减少出错、降低重复劳动」（<code>YU-7</code>）</h2>
+
+<p>这题问的是<strong>方法</strong>，而且一次问了两个方向（减少出错 + 降低重复劳动）。分开答，条理会很清楚。</p>
+
+<table>
+  <thead><tr><th style="width:20%">方向</th><th style="width:34%">具体动作</th><th>为什么有效</th></tr></thead>
+  <tbody>
+    <tr>
+      <td rowspan="3"><strong>减少出错</strong></td>
+      <td>把任务拆小，<strong>一次只让它做一件事</strong>。</td>
+      <td>一次给太多要求，它容易漏掉后面的。<strong>拆小之后每一步都能验证。</strong></td>
+    </tr>
+    <tr>
+      <td>给它<strong>可验证的目标</strong>："改到这几个测试通过"。</td>
+      <td>有明确的对错标准，它自己能迭代。<strong>比"帮我优化一下"这种模糊要求靠谱得多。</strong></td>
+    </tr>
+    <tr>
+      <td>把<strong>踩过的坑写进项目说明</strong>，让它每次都能看到。</td>
+      <td>同一个错误不会犯第二次。<strong>这是唯一能让"约束"生效的办法。</strong></td>
+    </tr>
+    <tr>
+      <td rowspan="2"><strong>降低重复劳动</strong></td>
+      <td>把<strong>重复出现的任务做成模板或脚本</strong>，而不是每次重新描述。</td>
+      <td>描述一次的成本远高于调一次脚本。</td>
+    </tr>
+    <tr>
+      <td>让<strong>它自己去找</strong>，而不是你复制粘贴上下文。</td>
+      <td>能读仓库、能查文档的工具，省下的正是"我来告诉你背景"这段最烦的活。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>指出<strong>"最有效的减少出错的办法，是不让它有出错的机会"</strong>：</p>
+  <p>「我用下来最有效的一条是<strong>给它可验证的目标</strong>。比如不说"帮我改一下这个函数"，而是说"改到这个测试用例通过，不要动其他测试"。<strong>这样它自己会迭代到对为止，我只需要最后看一眼。</strong></p>
+  <p>反过来，如果目标是模糊的，它就会给你一个"看起来对"的版本，<strong>而验证的成本全落在我身上</strong>——那还不如自己写。」</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. AI 能不能做界面测试（<code>HJ-12</code>）</h2>
+
+<p>这题问得很具体，<strong>答的时候要分清"能生成"和"能跑稳"</strong>——这是两回事。</p>
+
+<table>
+  <thead><tr><th style="width:26%">能力</th><th style="width:14%">能做到吗</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>写测试代码</strong></td>
+      <td style="color:var(--c-store)"><strong>能，而且很好用</strong></td>
+      <td>给定页面结构和要测的行为，它能写出自动化测试脚本。<strong>这是目前最成熟、收益最直接的用法。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>找元素、点击输入提交</strong></td>
+      <td style="color:var(--c-store)"><strong>能</strong></td>
+      <td>本质是写选择器和操作序列，属于它的强项。</td>
+    </tr>
+    <tr>
+      <td><strong>发现"看起来不对"的问题</strong></td>
+      <td style="color:var(--c-data)"><strong>部分能</strong></td>
+      <td>比如布局错位、元素重叠，可以靠截图对比做视觉回归。<strong>但误报多</strong>，需要人筛。</td>
+    </tr>
+    <tr>
+      <td><strong>判断"好不好用"</strong></td>
+      <td style="color:var(--c-risk)"><strong>不能</strong></td>
+      <td>交互是否顺畅、文案是否清楚、流程是否合理——<strong>这些没有客观标准，只能靠人。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>替代人做验收</strong></td>
+      <td style="color:var(--c-risk)"><strong>不能</strong></td>
+      <td>测试脚本能证明"点下去有反应"，<strong>但证明不了"这个反应是用户想要的"</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>给出一个<strong>实际的用法</strong>，比讨论"能不能"更有说服力：</p>
+  <p>「我的用法是<strong>让它补测试脚本，但用例清单我自己定</strong>。因为<strong>"要测哪些场景"是判断问题</strong>——它不知道哪个流程最常被用户走到、哪个改动最容易出问题。</p>
+  <p>具体做法：<strong>我先列出要覆盖的场景（正常提交、空输入、超长输入、重复提交），让它按这些写脚本</strong>。写完我跑一遍，有失败的就说明真有问题。<strong>这样它负责写，我负责想。</strong>」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你怎么知道它写的测试是不是真的测到了？」</summary>
+  <p>这是个<strong>很内行的问题</strong>，答好了很加分。核心是<strong>别只看测试通过</strong>：</p>
+  <ul>
+    <li><strong>故意改坏一下</strong>：「我会<strong>把被测试的那段逻辑手动改错一行，看测试会不会失败</strong>。如果还是通过，说明这个测试根本没测到东西。」</li>
+    <li><strong>看断言的内容</strong>：「很多自动生成的测试只断言"没报错"，<strong>那不叫测到</strong>。要断言具体的值或状态变化。」</li>
+    <li><strong>看覆盖率报告</strong>：「工具能给出哪些分支没被走到，<strong>我会照这个补</strong>。」</li>
+  </ul>
+  <p>第一条最有用——<strong>"手动改坏看它会不会挂"是验证测试有效性的通用手段</strong>，说出来显得你真跑过。</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「AI 写的代码你会全部读一遍吗？」</summary>
+  <p>这题<strong>在测你诚不诚实</strong>。别答"每行都读"——AI 一次给几百行，没人真做到，说了对方也不信。</p>
+  <p>好的答法是<strong>说清你的分配策略</strong>：</p>
+  <ul>
+    <li><strong>关键部分逐行读</strong>：涉及数据变更、权限、金额、对外接口的——<strong>这些必须读懂。</strong></li>
+    <li><strong>常规部分看结构</strong>：模板代码、格式转换这类，<strong>看思路对不对，细节靠测试兜</strong>。</li>
+    <li><strong>不读但要能兜住的部分</strong>：如果某块我确实没细看，<strong>那它必须有测试覆盖</strong>。没测试又没读，那块就是裸奔。</li>
+  </ul>
+  <p>收尾一句体现判断：「<strong>我的原则是——没读懂的地方，要么有测试，要么不让它上线。</strong>两个都没有就是赌运气。」</p>
+</details>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「有没有 AI 编程规范 / 怎么保证质量 / 有没有界面测试」</span>
+  <p><strong>【结论】</strong>我按四道关来控：<strong>写之前给约束、写之后验证、提交时走同样的 review、长期靠测试</strong>。<strong>成本最低的是第一道——很多问题不是它写错了，是我没告诉它项目里已经有什么。</strong></p>
+  <p><strong>【约束】</strong>技术栈、目录结构、命名习惯、常用工具函数写在一个说明文件里，<strong>每次开工先让它读</strong>——写一次之后不用重复交代。提示词模板里会带<strong>负向约束</strong>，比如"只改这个文件、不要动其他地方"。<strong>格式和类型检查交给工具跑，不靠人眼。</strong></p>
+  <p><strong>【规范的价值】</strong>我觉得这类规范的价值<strong>不在约束 AI，而在逼自己把项目里的隐性约定写清楚</strong>。比如"时间格式统一用哪个函数"——我自己知道所以从没想过要写，但 AI 不知道，它会自己造一个。</p>
+  <p><strong>【review】</strong><strong>走同样的流程，不会因为它写的就放松</strong>——谁提交的谁负责。但有三个额外动作：<strong>先看改动范围</strong>（超出范围的退回重做）、<strong>看有没有重复造轮子</strong>（项目里已有的函数它可能自己写一个）、<strong>让它自己列边界情况</strong>（我挑它漏掉的，比自己凭空想全）。</p>
+  <p><strong>【翻车案例】</strong>有一次它给的数据处理逻辑正常路径都对，<strong>但输入为空时会崩</strong>，跑测试才发现。<strong>原因是我没告诉它上游字段可能为空。</strong>之后我加了习惯：涉及外部数据的地方，<strong>在提示里明确说"这些字段可能为空或超长"</strong>，让它先处理异常。</p>
+  <p><strong>【减少出错】</strong>最有效的一条是<strong>给它可验证的目标</strong>。不说"帮我改一下这个函数"，而是"改到这个测试通过、不要动其他测试"——<strong>这样它自己会迭代到对为止</strong>。目标模糊的话，验证成本全落在我身上，还不如自己写。</p>
+  <p><strong>【界面测试】</strong><strong>能生成脚本、能覆盖点击输入提交，但用例清单我自己定</strong>——因为"要测哪些场景"是判断问题，它不知道哪个流程最常被走到。另外我会用覆盖率报告补漏，<strong>还会手动改坏一行看测试会不会挂</strong>，验证这个测试是不是真的测到了。</p>
+  <p><strong>【权衡】</strong>我不会说"AI 写的我每行都读"——一次几百行没人真做到。<strong>我的实际原则是：关键部分（数据变更、权限、金额）逐行读；常规部分看结构、靠测试兜；确实没细看的，必须有测试覆盖。没测试又没读，那块就是赌运气。</strong></p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>如果有人问「AI 写的代码你凭什么敢用」，你怎么答？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>检查你的回答里有没有<strong>具体动作</strong>，而不是态度：</p>
+    <ol>
+      <li><strong>写之前</strong>：给项目约定、先定接口、明确不许动哪些文件。</li>
+      <li><strong>写之后</strong>：跑一遍、看 diff、让它列边界情况。</li>
+      <li><strong>提交时</strong>：走同样的 review，看改动范围和有没有重复造轮子。</li>
+      <li><strong>长期</strong>：关键路径有测试覆盖，让约束固定在项目里。</li>
+    </ol>
+    <p>如果只说"我会仔细看"，对方会立刻想到：<strong>一次几百行你怎么仔细看？</strong></p>
+    <p>最诚实也最有说服力的收尾是那句：<strong>"没读懂的地方，要么有测试，要么不让它上线。"</strong>——它承认了你不可能全部读，但给出了兜底。<strong>比硬说"我每行都读"可信得多。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「给它可验证的目标」为什么能明显减少出错？举个你自己的例子。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>因为<strong>它把"判断对不对"这件事从你身上挪到了它身上</strong>：</p>
+    <ul>
+      <li><strong>目标模糊时</strong>（"帮我优化一下"）：它只能给你一个"看起来对"的版本，<strong>对不对得你自己验</strong>——验证成本全在你这边。</li>
+      <li><strong>目标可验证时</strong>（"改到这几个测试通过"）：它自己会跑、自己会试、自己会改，<strong>迭代到通过为止</strong>。你只需要最后确认一眼。</li>
+    </ul>
+    <p>而且还有个副作用：<strong>可验证的目标会逼你把需求想清楚</strong>。如果你说不出"怎么算改对了"，那说明你自己的需求还是模糊的——这时候该做的是先想清楚，而不是先让 AI 写。</p>
+    <p>这也是<a href="01-my-workflow.html">第 1 份</a>里"先定接口再填实现"的同一个道理。</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="02-tools-and-models.html">← 上一篇：工具与模型选型</a>
+  <a href="04-efficiency-and-prompts.html">下一篇：效率与提示词 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

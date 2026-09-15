@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · 你的 AI 工作流 — AI 工作流学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">AI 工作流 · 第 1/4 份 ｜ H 域 · AI 工作流与个人效能</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">全程并行 · AI 工作流</div>
+  <ul>
+    <li><a class="item" href="00-how-to-study.html"><span class="n">00</span><span>这一域怎么准备</span></a></li>
+    <li><a class="item cur" href="01-my-workflow.html"><span class="n">01</span><span>你的 AI 工作流</span></a></li>
+    <li><a class="item" href="02-tools-and-models.html"><span class="n">02</span><span>工具与模型选型</span></a></li>
+    <li><a class="item" href="03-quality-and-review.html"><span class="n">03</span><span>质量与 review</span></a></li>
+    <li><a class="item" href="04-efficiency-and-prompts.html"><span class="n">04</span><span>效率与提示词</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>01 · 你的 AI 工作流</h1>
+<p class="lead">
+  「你自己的 AI 工作流是什么样的」——这道题看起来开放，其实有<strong>唯一正确的答法结构</strong>：
+  <strong>按开发阶段讲，每个阶段说清用不用、怎么用、为什么。</strong>
+</p>
+
+<div class="qbadges"><span class="q">XZ-1</span><span class="q">YC-6</span><span class="q">YC-7</span><span class="q">HJ-6</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这一页<strong>必须配合你自己的实际做法</strong>——材料给的是结构，内容得你填。如果平时用得不多，先看<a href="00-how-to-study.html">导读</a>里"记一周"那个动作。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，理解"越靠前越要人把关"。</div>
+  <div><b>第二遍（12 分钟）</b>读第 1、2 节，边读边对照你每天的实际做法。</div>
+  <div><b>第三遍</b>做页尾回忆卡，<strong>把你自己的六个阶段写出来</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「你自己平时怎么用 AI 干活的？」</strong></p>
+
+<div class="analogy">
+  <span class="tag">两种答法</span>
+  <p><em>「我平时会用 AI 帮我写代码、查资料、写文档，效率提升挺明显的。」</em><br>
+  ——<strong>这句话等于什么都没说。</strong>谁都能这么讲，而且听完之后对方没有任何可以追问的抓手。</p>
+  <p><em>「我按阶段分。需求和方案阶段我只用它做对比和查漏，不直接采纳——因为这个阶段错了后面全白做。编码阶段用得最多，但我会先让它出接口和数据结构，确认了再让它填实现。调试阶段主要是把报错和上下文丢给它，让它给排查方向，我自己验证。」</em><br>
+  ——<strong>同样是三十秒，信息量完全不一样。</strong></p>
+</div>
+
+<p>差别在于：<strong>前者报的是"我用了什么"，后者讲的是"我在哪一步用它、为什么这么用"。</strong></p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 按开发阶段讲，而不是按工具讲</p>
+  <h3>越靠前越要人把关，越靠后越能放手</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 340" role="img" aria-label="开发各阶段 AI 的参与度与人的把关强度">
+    <text x="20" y="26" class="lbl-muted">一个请求从提出到交付，通常经过六个阶段</text>
+
+    <!-- 六阶段 -->
+    <rect class="box-u" x="20" y="42" width="118" height="52" rx="8"></rect>
+    <text x="79" y="64" text-anchor="middle" font-size="12" style="font-weight:600">需求理解</text>
+    <text x="79" y="82" text-anchor="middle" font-size="10.5" class="lbl-muted">要解决什么</text>
+
+    <rect class="box-u" x="146" y="42" width="118" height="52" rx="8"></rect>
+    <text x="205" y="64" text-anchor="middle" font-size="12" style="font-weight:600">方案设计</text>
+    <text x="205" y="82" text-anchor="middle" font-size="10.5" class="lbl-muted">怎么做</text>
+
+    <rect class="box-m" x="272" y="42" width="118" height="52" rx="8"></rect>
+    <text x="331" y="64" text-anchor="middle" font-size="12" style="font-weight:600">编码</text>
+    <text x="331" y="82" text-anchor="middle" font-size="10.5" class="lbl-muted">写出来</text>
+
+    <rect class="box-m" x="398" y="42" width="118" height="52" rx="8"></rect>
+    <text x="457" y="64" text-anchor="middle" font-size="12" style="font-weight:600">调试</text>
+    <text x="457" y="82" text-anchor="middle" font-size="10.5" class="lbl-muted">跑不通</text>
+
+    <rect class="box-s" x="524" y="42" width="118" height="52" rx="8"></rect>
+    <text x="583" y="64" text-anchor="middle" font-size="12" style="font-weight:600">测试</text>
+    <text x="583" y="82" text-anchor="middle" font-size="10.5" class="lbl-muted">验证</text>
+
+    <rect class="box-s" x="650" y="42" width="130" height="52" rx="8"></rect>
+    <text x="715" y="64" text-anchor="middle" font-size="12" style="font-weight:600">文档交接</text>
+    <text x="715" y="82" text-anchor="middle" font-size="10.5" class="lbl-muted">写清楚</text>
+
+    <!-- 参与度条 -->
+    <text x="20" y="126" class="lbl-muted" font-size="12.5">AI 能帮上的程度</text>
+    <rect class="box-t" x="20" y="138" width="118" height="18" rx="5"></rect>
+    <rect class="box-t" x="146" y="138" width="118" height="18" rx="5"></rect>
+    <rect class="box-t" x="272" y="138" width="118" height="30" rx="5"></rect>
+    <rect class="box-t" x="398" y="138" width="118" height="26" rx="5"></rect>
+    <rect class="box-t" x="524" y="138" width="118" height="30" rx="5"></rect>
+    <rect class="box-t" x="650" y="138" width="130" height="24" rx="5"></rect>
+    <text x="79" y="172" text-anchor="middle" font-size="10.5" class="lbl-muted">低</text>
+    <text x="331" y="180" text-anchor="middle" font-size="10.5" class="lbl-muted">最高</text>
+    <text x="583" y="180" text-anchor="middle" font-size="10.5" class="lbl-muted">高</text>
+    <text x="715" y="172" text-anchor="middle" font-size="10.5" class="lbl-muted">中</text>
+
+    <!-- 把关强度 -->
+    <text x="20" y="212" class="lbl-muted" font-size="12.5">你必须自己把关的程度</text>
+    <rect x="20" y="224" width="118" height="30" rx="5" fill="var(--c-risk-bg)" stroke="var(--c-risk)"></rect>
+    <rect x="146" y="224" width="118" height="30" rx="5" fill="var(--c-risk-bg)" stroke="var(--c-risk)"></rect>
+    <rect class="box-d" x="272" y="224" width="118" height="22" rx="5"></rect>
+    <rect class="box-d" x="398" y="224" width="118" height="22" rx="5"></rect>
+    <rect class="box-d" x="524" y="224" width="118" height="18" rx="5"></rect>
+    <rect class="box-d" x="650" y="224" width="130" height="18" rx="5"></rect>
+    <text x="79" y="268" text-anchor="middle" font-size="10.5" fill="var(--c-risk)">最高</text>
+    <text x="205" y="268" text-anchor="middle" font-size="10.5" fill="var(--c-risk)">最高</text>
+    <text x="715" y="252" text-anchor="middle" font-size="10.5" class="lbl-muted">低</text>
+
+    <rect class="box-t" x="20" y="288" width="760" height="42" rx="8"></rect>
+    <text x="400" y="307" text-anchor="middle" font-size="12.5" style="font-weight:600">两条曲线是反的：AI 最能帮上忙的地方，往往不是最需要你把关的地方</text>
+    <text x="400" y="324" text-anchor="middle" font-size="11.5" class="lbl-muted">所以在前面两段"少用但用对"，在中间两段"多用但验好"</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：六个阶段里，<strong>AI 在编码和测试阶段能帮最多</strong>（有明确输入输出、有对错），<strong>但这两个阶段恰恰不是最需要你把关的</strong>——代码能跑、测试能过，至少有个客观标准。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">真正要人拿主意的是<strong>前两段</strong>：需求和方案。这里 AI 能帮的有限（它不知道你的业务背景），<strong>但一旦错了，后面全是白做</strong>。所以工作流的设计原则是：<strong>前面少用但用对，中间多用但验好，后面用来省时间</strong>。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-user)"></i>人主导</span>
+  <span><i style="background:var(--c-model)"></i>AI 主力</span>
+  <span><i style="background:var(--c-store)"></i>AI 辅助</span>
+  <span><i style="background:var(--c-tool)"></i>AI 参与度</span>
+  <span><i style="background:var(--c-risk)"></i>必须人工把关</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 六个阶段分别怎么用（<code>XZ-1</code>、<code>YC-7</code>）</h2>
+
+<p>下面每一段都给一个<strong>可以直接改的表述</strong>。把你自己的做法替换进去就行。</p>
+
+<table>
+  <thead><tr><th style="width:16%">阶段</th><th style="width:42%">怎么用</th><th>为什么这么用</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>需求理解</strong></td>
+      <td>让它<strong>反过来提问</strong>："这个需求里还有哪些没说明白的地方？"——用它的提问来发现自己漏掉的地方。</td>
+      <td><strong>不做决策，只做查漏。</strong>它不知道你的业务背景，但很擅长找出描述里的空白。这一步能省掉不少返工。</td>
+    </tr>
+    <tr>
+      <td><strong>方案设计</strong></td>
+      <td>让它<strong>给几个方向的对比</strong>：每种做法的优缺点、适合什么场景。然后你自己选。</td>
+      <td>它给的方案通常"都对但不够贴合"，<strong>价值在于帮你把选项列全</strong>，而不是替你决定。</td>
+    </tr>
+    <tr>
+      <td><strong>编码</strong></td>
+      <td><strong>分两步</strong>：先让它出接口和数据结构的定义，你确认之后，再让它填实现。</td>
+      <td>一步到位容易跑偏。先定接口等于<strong>先把"做什么"锁住</strong>，后面填实现时它跑不远。</td>
+    </tr>
+    <tr>
+      <td><strong>调试</strong></td>
+      <td>把<strong>报错原文 + 相关代码 + 你已经试过什么</strong>一起给它，让它给排查方向。</td>
+      <td>给的信息越全，它越可能说到点上。<strong>而且说清"试过什么"能避免它重复你已经排除的路。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>测试</strong></td>
+      <td>让它<strong>补边界用例</strong>——你自己写正常路径，让它想"还有哪些情况没考虑"。</td>
+      <td>这是它的强项：<strong>人容易只测自己想得到的路径</strong>，它列边界情况通常比你全。</td>
+    </tr>
+    <tr>
+      <td><strong>文档</strong></td>
+      <td>让它<strong>把代码和注释整理成说明</strong>，你改措辞和重点。</td>
+      <td>纯劳动的活，交给它最划算。<strong>但"重点是什么"要你来定。</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>说清<strong>"哪些事我不交给它"</strong>——这比说用了什么更有判断力：</p>
+  <p>「有几件事我不太会让它做。<strong>一是不让它碰我还没想清楚的方案</strong>——我自己没想明白的时候，它给的答案我看不出对错，反而容易被带偏。<strong>二是不让它改我没读过的代码</strong>——改错了我也判断不出来。<strong>三是关键的删除和迁移操作不让它自动执行</strong>，一定要我确认。」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 「团队有没有 AI 工作流」（<code>YC-6</code>）</h2>
+
+<p>这题问的是<strong>团队层面</strong>，不是个人。答的时候注意一个区分：<strong>个人的做法和团队的做法不是一回事</strong>——个人可以随意，团队要有约定。</p>
+
+<table>
+  <thead><tr><th style="width:24%">层面</th><th>团队里通常会出现什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>约定</strong></td>
+      <td>哪些代码允许 AI 生成、哪些不允许（比如涉及安全的）；提交时要不要标注；提示词和上下文能不能带业务数据出去。</td>
+    </tr>
+    <tr>
+      <td><strong>流程</strong></td>
+      <td>AI 生成的代码<strong>是否走同样的 review 流程</strong>（多数团队是走同样的，这点要说清）；测试覆盖的要求有没有变化。</td>
+    </tr>
+    <tr>
+      <td><strong>共享</strong></td>
+      <td>好用的提示词、脚本、配置有没有沉淀下来给大家用；踩过的坑有没有记录下来。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <span class="tag">如果你们团队其实没有成文的东西</span>
+  <p><strong>别硬编一个"我们有完整的 AI 开发规范"。</strong>一追问"规范里写了什么"就崩。</p>
+  <p>诚实但有条理的答法是：<strong>承认没有成文的，然后说清实际上的做法</strong>——</p>
+  <p>「<strong>我们没有成文的规范</strong>，但有一些实际上的共识：<strong>一是 AI 生成的代码走同样的 review 流程</strong>，不会因为"是 AI 写的"就放松；<strong>二是提示词里不带真实的客户数据</strong>，需要的话先用脱敏的样本；<strong>三是通用的提示词和脚本会放到共享目录里</strong>，谁改了大家都能看到。」</p>
+  <p>这样答<strong>既真实又显得你有观察</strong>——比背一份虚构的规范安全得多。</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 「用什么工具做规划、草图、文档、开发」（<code>HJ-6</code>）</h2>
+
+<p>这题问得很实在，<strong>答的时候按用途分，别按工具名罗列</strong>。</p>
+
+<table>
+  <thead><tr><th style="width:22%">用途</th><th style="width:34%">你会用什么</th><th>要注意什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>项目规划</strong></td>
+      <td>对话类工具，用来拆任务、列风险、做对比。</td>
+      <td><strong>它的规划能力取决于你给的信息</strong>。只说"帮我规划一个项目"，得到的一定是通用模板。</td>
+    </tr>
+    <tr>
+      <td><strong>草图 / 原型</strong></td>
+      <td>能直接产出可运行页面的工具，或者让对话工具写一个静态页面。</td>
+      <td><strong>目的不是"做好看"，是"让需求变具体、能讨论"</strong>（见<a href="../step-5-final-prep/07-cross-team-collaboration.html">跨角色协作</a>）。所以粗糙一点没关系。</td>
+    </tr>
+    <tr>
+      <td><strong>文档</strong></td>
+      <td>对话类工具，把零散记录整理成结构化文档。</td>
+      <td>整理得好，但<strong>重点和取舍要你定</strong>——它不知道哪个信息对读者最重要。</td>
+    </tr>
+    <tr>
+      <td><strong>开发</strong></td>
+      <td>能读整个仓库、能执行命令的编程工具。</td>
+      <td>关键差别在<strong>能不能看到项目上下文</strong>。只看单个文件的工具，给出的代码经常和你项目里的写法不搭。</td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="ask">
+  <summary>对方追问：「这些工具你都在哪用？账号是自己买的还是公司的？」（<code>YU-3</code>）</summary>
+  <p>这题在<strong>核实你说的是不是真的</strong>——真在用的人一定答得出来。三块说清：</p>
+  <ul>
+    <li><strong>渠道</strong>：公司统一采购、自己订阅、还是用免费额度。<strong>说清各占多少</strong>，别含糊。</li>
+    <li><strong>费用</strong>：大概什么量级。<strong>不用报精确数字</strong>，说"每月几十"或"公司报销"就够。</li>
+    <li><strong>稳定性</strong>：有没有遇到过不能用、限流、响应变慢的情况，怎么应对的。</li>
+  </ul>
+  <p>最后这块最容易出彩：「<strong>高峰期偶尔会限流，所以我一般把重活放在非高峰时段跑</strong>；另外关键任务我会准备一个备选工具，主用的那个挂了能立刻切过去。」</p>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「你们团队所有人都这么用吗？」</summary>
+  <p>这题<strong>在试探你是不是夸大了个人的做法</strong>。诚实回答，而且要能解释差异：</p>
+  <ul>
+    <li><strong>如果确实有差异</strong>：「不是。<strong>用得比较多的就几个人</strong>，其他人主要还是靠传统方式——<strong>有的是觉得改提示词比自己写还慢，有的是试过但没找到合适的场景。</strong>」</li>
+    <li><strong>说清为什么会有差异</strong>：这件事<strong>和任务类型有关</strong>。写新功能、查资料、写文档收益明显；改老代码、调复杂 bug 收益就小很多。</li>
+    <li><strong>说你怎么做的</strong>：「我一般是<strong>先在自己这块做出效果，再把具体的做法（提示词、脚本）分享出去</strong>，而不是劝别人用。」</li>
+  </ul>
+  <p>最后这条体现的是<strong>你推动事情的方式</strong>——和<a href="../step-4-storytelling/07-landing-and-blockers.html">落地推动</a>那页是同一个思路。</p>
+</details>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「你自己的 AI 工作流是什么样的」</span>
+  <p><strong>【结论】</strong>我按<strong>开发阶段</strong>分着用，而不是所有环节都用一个方式。<strong>原则是前面少用但用对，中间多用但验好，后面用来省时间。</strong></p>
+  <p><strong>【需求和方案】</strong>这两段我<strong>不采纳它的结论</strong>。需求阶段让它反过来问我"哪里没说清楚"，用它的提问查漏；方案阶段让它把几个方向的取舍列出来，<strong>但选哪个我自己定</strong>。因为这个阶段错了后面全白做，而它不知道我的业务背景。</p>
+  <p><strong>【编码】</strong>用得最多，但<strong>分两步</strong>：先让它出接口和数据结构，我确认之后才让它填实现。<strong>一步到位容易跑偏，先锁住"做什么"，后面它就跑不远。</strong></p>
+  <p><strong>【调试】</strong>把<strong>报错原文、相关代码、以及我已经试过什么</strong>一起给它，让它给排查方向。说清"试过什么"很重要，不然它会重复我已经排除的路。</p>
+  <p><strong>【测试和文档】</strong>测试主要让它<strong>补边界用例</strong>——人容易只测自己想得到的路径，它列得比我全；文档是纯劳动，交出去最划算，<strong>但重点我来定</strong>。</p>
+  <p><strong>【不交给它的】</strong>三件事：<strong>我还没想清楚的方案</strong>（看不出对错，容易被带偏）、<strong>我没读过的代码不让它改</strong>（改错了我判断不出来）、<strong>删除和迁移这类操作不让它自动执行</strong>，一定我确认。</p>
+  <p><strong>【团队】</strong><strong>我们没有成文的规范</strong>，但有实际共识：AI 写的代码<strong>走同样的 review 流程</strong>；提示词里不带真实客户数据；通用提示词和脚本放共享目录。<strong>用得多的是几个人，不是全员</strong>——这和任务类型有关，写新功能和查资料收益明显，改老代码就小很多。</p>
+  <p><strong>【权衡】</strong>这套做法的代价是<strong>前期更慢</strong>——需求阶段要花时间让它提问、编码要先定接口。但换来的是<strong>返工少</strong>。我试过图快让它一把写，结果方向偏了，改的时间比重新写还长。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>把你的开发流程按六个阶段过一遍，说出每个阶段你用不用 AI、怎么用。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>检查两件事：</p>
+    <ol>
+      <li><strong>是不是每个阶段都有明确的"用/不用"？</strong>如果某一段你说的是"有时候用"——那说明你还没想清楚它的边界。</li>
+      <li><strong>有没有说出"为什么"？</strong>只报做法像流水账，说出理由（尤其是"为什么这一段不交给它"）才有判断力。</li>
+    </ol>
+    <p>最容易出彩的是<strong>需求和方案这两段</strong>——大部分人会说自己"全流程都用 AI"，而你能说清"这两段我只用它查漏、不用它决策"，一听就是想过的。</p>
+    <p>如果某个阶段你确实用得很少，<strong>直说就行</strong>。工作流不需要每个环节都用到 AI，那不是缺点。</p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>为什么"AI 最能帮上忙的阶段"和"最需要你把关的阶段"不是同一段？</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <p>因为这两件事的判断标准不一样：</p>
+    <ul>
+      <li><strong>AI 帮得上忙</strong>，取决于这件事<strong>有没有明确的对错</strong>。编码和测试有——代码能跑、测试能过，是客观的。所以它可以大包大揽，你验一下就行。</li>
+      <li><strong>需要你把关</strong>，取决于这件事<strong>错了之后代价大不大</strong>。需求和方案的代价最大——方向错了，后面写多少代码都是白费。而这两个阶段恰恰没有客观标准，靠的是对业务的理解。</li>
+    </ul>
+    <p>所以两者是错开的：<strong>能帮上忙的地方不需要你死盯，需要你死盯的地方它帮不上忙。</strong></p>
+    <p>这个认识直接决定了工作流怎么设计：<strong>在它强的环节多放权、但要验；在它弱的环节少用它、但要想清楚。</strong></p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="00-how-to-study.html">← 上一篇：这一域怎么准备</a>
+  <a href="02-tools-and-models.html">下一篇：工具与模型选型 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>工程化、运维与交付 — 材料目录</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">按方向取舍 · 工程化与运维（I 域，7 题）</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">按方向取舍 · 工程化与运维</div>
+  <ul>
+    <li><a class="item" href="01-docker-and-k8s.html"><span class="n">01</span><span>Docker 与 K8s</span></a></li>
+    <li><a class="item" href="02-linux-and-testing.html"><span class="n">02</span><span>日志排查与测试</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>工程化、运维与交付</h1>
+<p class="lead">
+  覆盖 <strong>I 域 7 题</strong>。这一域<strong>不占步骤，按方向取舍</strong>——
+  投偏基础架构的方向就补，投 AI 应用就答出「够用」即可。
+</p>
+
+<div class="analogy">
+  <span class="tag">先想清楚投入到哪一档</span>
+  <p>计划里的定位很明确：<strong>7 题，答出「够用」即可，不必深挖源码级细节。</strong></p>
+  <p>所以这一域的准备策略和别处不同：<strong>不是"学深"，是"别答崩"</strong>。大概率会问，但答到"知道是什么、能说清关系、用过"就够；<strong>把深挖的时间还给项目更划算。</strong></p>
+</div>
+
+<div class="warn">
+  <span class="tag">唯一的例外</span>
+  <p>如果你明确要投<strong>偏基础设施或平台</strong>的方向，那这一域的权重完全不同——<strong>那就不是"够用"的问题了</strong>，得按目标方向的要求补。</p>
+  <p>判断方法很简单：<strong>看目标方向的描述里有没有出现容器编排、平台建设这类词</strong>。有，就深挖；没有，按这一页的"够用"标准走。</p>
+</div>
+
+<h2 id="i">工程化、运维与交付（7 题）</h2>
+
+<div class="cards">
+  <a class="card" href="01-docker-and-k8s.html">
+    <div class="num">01</div>
+    <h3>Docker 与 K8s</h3>
+    <p>五道题里四道和容器有关。花十分钟把它们的关系理顺——<strong>镜像和容器的区别、多个服务怎么通信、多租户怎么部署。</strong></p>
+    <div class="qbadges"><span class="q">KJ-5</span><span class="q">KJ-6</span><span class="q">KJ-7</span><span class="q">JR-16</span><span class="q">YF-13</span></div>
+  </a>
+
+  <a class="card" href="02-linux-and-testing.html">
+    <div class="num">02</div>
+    <h3>日志排查与测试</h3>
+    <p>两道题，共同点是<strong>"没有专职的人，你自己怎么兜住"</strong>：一条日志异常的命令怎么查、没有测试岗怎么保证质量。</p>
+    <div class="qbadges"><span class="q">YF-14</span><span class="q">HJ-11</span></div>
+  </a>
+</div>
+
+
+<h2 id="how">这一域怎么答</h2>
+
+<table>
+  <thead><tr><th style="width:22%">原则</th><th>为什么</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>先答"是什么"</strong></td>
+      <td>概念题只要关系说对就不扣分。<strong>答崩通常是因为把两个东西的关系说反了</strong>，而不是因为不知道细节。</td>
+    </tr>
+    <tr>
+      <td><strong>再答"我用过"</strong></td>
+      <td>用过和没用过一听就分得出来。<strong>说清你在项目里实际做了什么</strong>（写了配置、排查过什么），比背概念有用。</td>
+    </tr>
+    <tr>
+      <td><strong>不知道就说不知道</strong></td>
+      <td>这一域被追问到深水区的概率不高，但一旦追到，<strong>硬撑的代价远大于承认</strong>。可以说"这块我只到会用的程度，没深入过原理"。</td>
+    </tr>
+    <tr>
+      <td><strong>把话题引到你的强项</strong></td>
+      <td>比如从"部署"引到"我负责的是把服务打成镜像和写部署配置"，<strong>那是你真做过的部分</strong>。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这一域的完成标志</span>
+  <ul class="checklist">
+    <li>能说清<strong>镜像和容器的区别</strong>，以及数据怎么持久化</li>
+    <li>能说清 <strong>Docker 和 K8s 各管什么</strong>（不是互相替代）</li>
+    <li>能说出<strong>你在项目里实际做过哪部分</strong>（写配置？排查？还是只管用？）</li>
+    <li>有一条<strong>查日志的具体命令</strong>，以及你的排查顺序</li>
+    <li>能说清<strong>没有测试岗时，质量靠什么兜</strong></li>
+  </ul>
+</div>
+
+<hr>
+
+</main>
+</div>
+
+</body>
+</html>

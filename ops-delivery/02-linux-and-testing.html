@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · 日志排查与测试 — 工程化与运维学习资料</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html">← 总目录</a>
+  <a href="index.html">材料目录</a>
+  <a href="../index.html#plan">学习计划全文</a>
+  <span class="crumb">工程化与运维 · 第 2/2 份 ｜ I 域 · 工程化、运维与交付</span>
+</header>
+
+<div class="layout">
+<nav class="sidenav">
+  <a class="up" href="../index.html">← 总目录</a>
+  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <div class="grp">按方向取舍 · 工程化与运维</div>
+  <ul>
+    <li><a class="item" href="01-docker-and-k8s.html"><span class="n">01</span><span>Docker 与 K8s</span></a></li>
+    <li><a class="item cur" href="02-linux-and-testing.html"><span class="n">02</span><span>日志排查与测试</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<h1>02 · 日志排查与测试</h1>
+<p class="lead">
+  两道题看着不相关，其实共同点是同一个：<strong>没有专职的人时，你自己怎么兜住。</strong>
+  一条日志命令、一套没有测试岗的质量方案。
+</p>
+
+<div class="qbadges"><span class="q">YF-14</span><span class="q">HJ-11</span></div>
+
+<div class="warn">
+  <span class="tag">读之前</span>
+  <p>这两题都<strong>需要你真做过</strong>。"我会用 grep"这种答法等于没答——对方要听的是<strong>具体的命令和顺序</strong>。术语不熟先看 <a href="../step-1-foundation/00-key-terms.html">00 · 先认识这几个词</a>。</p>
+</div>
+
+<div class="howto">
+  <div><b>第一遍（4 分钟）</b>只看主图，记住排查的四步顺序。</div>
+  <div><b>第二遍（12 分钟）</b>读第 1、2 节，把常用命令的组合记下来。</div>
+  <div><b>第三遍</b>做页尾回忆卡，<strong>把质量那套按你的项目讲一遍</strong>。</div>
+</div>
+
+<!-- ============ 场景 ============ -->
+<h2 id="s0">0. 先看一个场景</h2>
+
+<p>对方问：<strong>「线上报了一批异常，日志文件很大，你怎么查？」</strong></p>
+
+<div class="analogy">
+  <span class="tag">两种答法</span>
+  <p><em>「我会用 grep 把错误的那几行找出来看看。」</em><br>——方向对，但太粗。<strong>日志几十万行、错误几千条，"看看"是看不过来的。</strong></p>
+  <p><em>「我会分四步：<strong>先确认有没有</strong>——筛出错误行看有多少；<strong>再看分布</strong>——把错误信息按内容统计排序，看是不是集中在某一类；<strong>然后看规律</strong>——这些错误是不是集中在某个时间段、某个接口；<strong>最后定位到具体请求</strong>——拿一个具体的请求标识，把那一次调用的完整链路捞出来。」</em><br>——<strong>四步都在收窄范围，而不是"看"。</strong></p>
+</div>
+
+<p>这道题（<code>YF-14</code>）的关键不在你会不会 grep，而在<strong>你有没有一个"从大到小"的排查顺序</strong>。</p>
+
+<!-- ============ 主图 ============ -->
+<div class="hero">
+  <p class="hero-cap">主图 · 查日志的四步，每一步都在缩小范围</p>
+  <h3>别一上来就看具体某一条</h3>
+
+  <svg class="svgfig" viewBox="0 0 800 320" role="img" aria-label="查日志的四步收窄过程">
+    <!-- 收窄示意 -->
+    <rect class="box-t" x="20" y="34" width="760" height="40" rx="8"></rect>
+    <text x="400" y="59" text-anchor="middle" font-size="12.5" style="font-weight:600">① 先确认有没有、有多少 —— 整个日志文件</text>
+
+    <rect class="box-t" x="90" y="82" width="620" height="40" rx="8"></rect>
+    <text x="400" y="107" text-anchor="middle" font-size="12.5" style="font-weight:600">② 看分布 —— 错误集中在哪几类</text>
+
+    <rect class="box-t" x="180" y="130" width="440" height="40" rx="8"></rect>
+    <text x="400" y="155" text-anchor="middle" font-size="12.5" style="font-weight:600">③ 看规律 —— 集中在哪个时间段 / 哪个接口</text>
+
+    <rect class="box-s" x="270" y="178" width="260" height="40" rx="8"></rect>
+    <text x="400" y="203" text-anchor="middle" font-size="12.5" style="font-weight:600">④ 定位到一次具体调用</text>
+
+    <!-- 命令 -->
+    <text x="20" y="248" class="lbl-muted" font-size="12.5">每一步对应的命令组合</text>
+
+    <rect class="box-d" x="20" y="260" width="370" height="26" rx="5"></rect>
+    <text x="32" y="278" font-size="11" style="font-family:ui-monospace,monospace">grep -c ERROR app.log</text>
+    <text x="404" y="278" font-size="11" class="lbl-muted">先数一下有多少</text>
+
+    <rect class="box-d" x="20" y="292" width="370" height="26" rx="5"></rect>
+    <text x="32" y="310" font-size="11" style="font-family:ui-monospace,monospace">grep ERROR app.log | sort | uniq -c | sort -rn | head</text>
+    <text x="404" y="310" font-size="11" class="lbl-muted">按内容统计排序，一眼看主要矛盾</text>
+  </svg>
+
+  <p style="margin:0"><strong>这张图在说什么</strong>：查日志的顺序是<strong>从整体到具体</strong>——先数总量，再做分布统计找出"主要矛盾"，然后看规律，最后才捞一次完整的调用链路。</p>
+  <p class="lbl-muted" style="margin:8px 0 0;font-size:13.5px">这一步的价值：<strong>日志几十万行，你不可能一条条看。做一次分布统计，往往几千条错误会收敛成三四个原因</strong>——然后你只需要看那三四个。</p>
+</div>
+
+<div class="legend">
+  <span>颜色含义：</span>
+  <span><i style="background:var(--c-tool)"></i>收窄范围</span>
+  <span><i style="background:var(--c-store)"></i>定位到具体</span>
+  <span><i style="background:var(--c-data)"></i>命令示例</span>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1">1. 日志怎么查（<code>YF-14</code>）</h2>
+
+<p>答这题要<strong>说出具体命令</strong>——只说"用 grep"和说出完整的统计组合，可信度差一个量级。</p>
+
+<table>
+  <thead><tr><th style="width:26%">要做什么</th><th>命令写法</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>实时跟踪</strong></td>
+      <td><code>tail -f app.log</code>——一边跑一边看新的输出。<strong>复现问题时用这个。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>按关键字筛</strong></td>
+      <td><code>grep ERROR app.log</code>；要看前后几行就加 <code>-A</code> / <code>-B</code>，<strong>光看错误行往往看不出上下文</strong>。</td>
+    </tr>
+    <tr>
+      <td><strong>按时间范围筛</strong></td>
+      <td>用 <code>sed -n '/起始时间/,/结束时间/p'</code> 截一段出来。<strong>直接 grep 时间戳也行，但截区间更直观。</strong></td>
+    </tr>
+    <tr>
+      <td><strong>做分布统计</strong></td>
+      <td><code>... | awk '{print $某列}' | sort | uniq -c | sort -rn | head</code>——<strong>这是最有价值的一条</strong>：把几万条错误按内容归类计数，排出前几名。</td>
+    </tr>
+    <tr>
+      <td><strong>捞一次完整调用</strong></td>
+      <td>用请求标识 <code>grep 某个请求id app.log</code>，把一个请求从进来到出错的所有日志捞出来。</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="skeleton">
+  <span class="tag">这题的加分点</span>
+  <p>说清<strong>"日志本身设计得好不好，决定了排查快不快"</strong>：</p>
+  <p>「工具只解决一半问题。<strong>另一半是日志里有没有关键信息</strong>——比如每个请求有没有一个贯穿全链路的标识，出错时有没有把关键的入参和上下文打出来。</p>
+  <p><strong>我踩过的坑就是日志里没打请求标识</strong>，结果出了问题只能靠时间戳去猜哪几条是同一个请求的，<strong>排查时间翻了好几倍</strong>。后来加上了这个标识，同样的排查几分钟就能定位。」</p>
+</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2">2. 没有测试岗怎么保证质量（<code>HJ-11</code>）</h2>
+
+<p>这题的潜台词是：<strong>"没人帮你测，你怎么保证上线不出事。"</strong>答案不是"我会仔细测"，而是<strong>一套分层的机制</strong>。</p>
+
+<div class="pipeline">
+  <details class="node s"><summary>① 提交前自测</summary><div class="body">固定动作：<strong>自己跑一遍主流程 + 想一遍边界情况</strong>。这一步靠清单，不靠记性——因为赶时间的时候最容易漏。</div></details>
+  <div class="link">→</div>
+  <details class="node t"><summary>② 自动化测试</summary><div class="body">接口测试覆盖<strong>核心链路</strong>，单测覆盖<strong>容易写错的逻辑</strong>。<strong>这是没有人帮你测时唯一能长期依赖的东西</strong>——人会疲劳，脚本不会。</div></details>
+  <div class="link">→</div>
+  <details class="node m"><summary>③ 交叉验证</summary><div class="body"><strong>让同事跑一遍</strong>，或者<strong>让别人看代码逻辑</strong>。没有测试岗不等于没人看——换个人就很容易发现你自己看不到的问题。</div></details>
+  <div class="link">→</div>
+  <details class="node d"><summary>④ 上线观察</summary><div class="body">发布后盯着错误率和核心指标。<strong>出问题能在几分钟内回滚</strong>，比"保证不出问题"现实得多。</div></details>
+</div>
+
+<div class="warn">
+  <span class="tag">这题最该说的一句</span>
+  <p>「<strong>没有测试岗，意味着开发要为质量负全责——那就不能靠"小心"，得靠机制。</strong>」</p>
+  <p>因为"小心"是不可持续的：<strong>赶进度的时候第一个被牺牲的就是它</strong>。而自动化测试和回滚能力不会因为赶进度而消失。</p>
+  <p>另外补一句体现分寸的话：「<strong>但我也知道这套覆盖不到全部</strong>——有些交互和体验问题只能靠人试。<strong>所以关键版本上线前我会找几个同事实际用一遍</strong>，不完全依赖自动化。」</p>
+</div>
+
+<details class="ask">
+  <summary>对方追问：「那你们有自动化测试吗？覆盖多少？」</summary>
+  <p>这题在<strong>核实你说的"靠自动化"是不是真的</strong>。诚实回答，而且要说清"覆盖在哪"：</p>
+  <ul>
+    <li><strong>如果有</strong>：说清<strong>覆盖的是哪部分</strong>——通常是"核心业务链路的接口测试"，而不是"全部代码"。<strong>报一个大概的比例，并说明统计口径。</strong></li>
+    <li><strong>如果很少</strong>：「<strong>覆盖得不算多</strong>，主要是几条核心链路。<strong>剩下的靠自测和上线观察兜。</strong>」——诚实说，然后补一句你知道该往哪补。</li>
+    <li><strong>补一句判断</strong>：「我的优先级是<strong>先覆盖"出错代价最大"和"最常改动"的那两条链路</strong>——因为这两类最容易出问题，收益也最直接。」</li>
+  </ul>
+</details>
+
+<details class="ask">
+  <summary>对方追问：「那你有没有漏测过？后来怎么改的？」</summary>
+  <p>这题<strong>几乎一定会被问到</strong>，而且是个加分机会——<strong>承认漏过、并说清怎么改的，比说"我基本没漏过"可信得多。</strong></p>
+  <p>好的结构是<strong>现象 → 原因 → 改了什么</strong>：</p>
+  <p>「漏过。<strong>有一次改了一个共用的工具函数，本地测了主流程没问题，但没测到一个只在特定条件下才走的分支</strong>——上线后有个低频功能报错了。</p>
+  <p><strong>原因不是粗心，是那个分支平时没人走，我压根没想到。</strong>后来我改了两件事：<strong>一是改共用代码时会搜一下有哪些地方在用它，把调用点都过一遍；二是给这类共用函数补了测试。</strong>」</p>
+  <p>最后补一句认知：「这件事让我意识到，<strong>漏测往往不是"没测仔细"，而是"没想到还有这种情况"</strong>——所以靠清单和测试比靠小心有用。」</p>
+</details>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3">3. 讲解骨架（看懂之后再背）</h2>
+
+<div class="skeleton">
+  <span class="tag">「Linux 熟不熟 / 日志怎么查 / 没有测试岗怎么保证质量」</span>
+  <p><strong>【Linux】</strong>日常够用。<strong>用得最多的就是查日志和看进程、看磁盘和内存</strong>——这些是我自己排查问题时要用的。</p>
+  <p><strong>【查日志的顺序】</strong>我按<strong>从整体到具体</strong>四步走：<strong>先确认有多少</strong>（<code>grep -c</code> 数一下）；<strong>再做分布统计</strong>——把错误按内容归类计数排序（<code>awk</code> 取列 + <code>sort | uniq -c | sort -rn | head</code>），<strong>这一步最有价值，几千条错误往往收敛成三四个原因</strong>；<strong>然后看规律</strong>，是不是集中在某个时间段或某个接口；<strong>最后用请求标识捞一次完整调用</strong>，看那一次到底发生了什么。</p>
+  <p><strong>【一个经验】</strong>工具只解决一半问题，<strong>另一半是日志里有没有关键信息</strong>。我踩过的坑是日志里没打请求标识，出了问题只能靠时间戳猜哪几条是同一个请求，<strong>排查时间翻了好几倍</strong>；加上标识之后几分钟就能定位。</p>
+  <p><strong>【质量：结论】</strong><strong>没有测试岗意味着开发要为质量负全责，那就不能靠"小心"，得靠机制</strong>——因为赶进度的时候第一个被牺牲的就是小心。</p>
+  <p><strong>【四层机制】</strong><strong>提交前自测</strong>（按清单跑主流程 + 想边界，不靠记性）；<strong>自动化测试</strong>（接口测试覆盖核心链路、单测覆盖易错逻辑，<strong>这是唯一能长期依赖的</strong>）；<strong>交叉验证</strong>（让同事跑一遍或者看代码逻辑，换个人容易发现你自己看不到的）；<strong>上线观察</strong>（盯错误率和核心指标，<strong>出问题几分钟内能回滚，比"保证不出问题"现实</strong>）。</p>
+  <p><strong>【漏测经历】</strong>漏过。改了一个共用的工具函数，本地测了主流程，<strong>但没测到一个特定条件下才走的分支</strong>，上线后低频功能报错。<strong>原因不是粗心，是那个分支平时没人走，我压根没想到。</strong>后来改了两件事：改共用代码时<strong>先搜有哪些调用点、都过一遍</strong>；给这类函数<strong>补上测试</strong>。</p>
+  <p><strong>【认知】</strong>这件事让我意识到，<strong>漏测往往不是"没测仔细"，而是"没想到还有这种情况"</strong>——所以靠清单和自动化比靠小心有用。</p>
+  <p><strong>【权衡】</strong>但我也知道这套覆盖不到全部。<strong>有些交互和体验问题只能靠人试</strong>，所以关键版本上线前我会找几个同事实际用一遍。</p>
+</div>
+
+<hr>
+
+<div class="recall">
+  <span class="tag">回忆卡 1 · 合上材料，用自己的话讲一遍</span>
+  <p>「日志文件很大，你怎么查？」——说出你的顺序和每一步的命令。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>先数总量</strong>：<code>grep -c ERROR app.log</code>——先知道规模。</li>
+      <li><strong>做分布统计</strong>：<code>grep ERROR app.log | awk '{print $列}' | sort | uniq -c | sort -rn | head</code>——<strong>这是最关键的一步</strong>，几千条错误会收敛成几个原因。</li>
+      <li><strong>看规律</strong>：集中在哪个时间段、哪个接口、哪个用户。<strong>把范围从"某个错误"缩到"某个场景"。</strong></li>
+      <li><strong>捞一次完整调用</strong>：用请求标识把那一次的所有日志捞出来，看完整链路。</li>
+    </ol>
+    <p>加分句：「<strong>排查快不快，一半取决于工具，另一半取决于日志里有没有打请求标识和关键上下文。</strong>」——这句话说明你从"被日志坑过"的角度想过问题。</p>
+    <p>如果只用过 <code>tail</code> 和 <code>grep</code>，就诚实说这两种，<strong>然后讲一个你真用它们定位到问题的例子</strong>。<strong>有例子比会更多命令有用。</strong></p>
+  </details>
+</div>
+
+<div class="recall">
+  <span class="tag">回忆卡 2 · 合上材料，用自己的话讲一遍</span>
+  <p>「没有测试岗，你们怎么保证质量？」——说出你的四层机制，并指出哪一层最重要。</p>
+  <details>
+    <summary>讲完了，展开对照</summary>
+    <ol>
+      <li><strong>提交前自测</strong>：按清单跑主流程、想边界。<strong>靠清单不靠记性。</strong></li>
+      <li><strong>自动化测试</strong>：覆盖核心链路和易错逻辑。</li>
+      <li><strong>交叉验证</strong>：让同事跑一遍或看代码。<strong>换个人容易发现你自己看不到的。</strong></li>
+      <li><strong>上线观察</strong>：盯指标、能快速回滚。</li>
+    </ol>
+    <p>最重要的是<strong>第二层</strong>——因为它是唯一<strong>不依赖"当时状态好不好"</strong>的一层。人会疲劳、会赶进度、会想当然，脚本不会。</p>
+    <p>核心那句话：<strong>"没有测试岗意味着开发要为质量负全责，那就不能靠小心，得靠机制。"</strong></p>
+    <p>最后别忘了主动说边界：「不过这套覆盖不到全部，<strong>有些体验问题只能靠人试</strong>，所以关键版本上线前我会找同事实际用一遍。」</p>
+  </details>
+</div>
+
+<hr>
+
+<div class="pager">
+  <a href="01-docker-and-k8s.html">← 上一篇：Docker 与 K8s</a>
+  <a href="index.html">回到材料目录 →</a>
+</div>
+
+</main>
+</div>
+
+</body>
+</html>
