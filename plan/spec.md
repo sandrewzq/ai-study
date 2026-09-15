@@ -194,7 +194,7 @@ node _dev/checklinks.js      # 死链 + 锚点 + 标签配对，仓库根目录�
 
 - **死链**：所有 `.html`/`.md` 里的相对链接，目标文件是否存在
 - **锚点**：`xxx.html#sec-2` 里的 `#sec-2` 在目标页是否存在
-- **标签配对**：`div`/`details`/`table`/`svg`/`dl`/`ul`/`nav` 的开闭数量是否一致
+- **标签配对**：`div`、`details`、`table`、`svg`、`dl`、`ul`、`nav` 的开闭数量是否一致
 
 ### 2. 布局自检（探针，必过）
 
