@@ -195,18 +195,6 @@ li { margin: 5px 0; }
 /* 长行内代码串不该撑破窄屏（例如 `div`、`details`、`table` 连成一串） */
 p code, li code, td code, th code, blockquote code { overflow-wrap: anywhere; }
 
-/* Markdown 渲染页的目录框（plan/ 下的页面用） */
-.toc-box {
-  background: var(--code-bg); border: 1px solid var(--line);
-  border-radius: 10px; padding: 14px 22px; margin: 22px 0;
-}
-.toc-box .t { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-.toc-box ul { list-style: none; padding-left: 0; margin: 0; }
-.toc-box li { margin: 3px 0; font-size: 14.5px; }
-.toc-box li.lv2 { padding-left: 16px; font-size: 14px; color: var(--muted); }
-.toc-box a { text-decoration: none; color: inherit; }
-.toc-box a:hover { color: var(--accent); }
-
 /* 分页导航 */
 .pager {
   display: flex; justify-content: space-between; gap: 16px;
