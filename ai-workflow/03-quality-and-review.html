@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>03 · 质量与 review — AI 工作流学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">AI 工作流 · 第 3/4 份 ｜ H 域 · AI 工作流与个人效能</span>
@@ -26,10 +29,11 @@
     <li><a class="item" href="04-efficiency-and-prompts.html"><span class="n">04</span><span>效率与提示词</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>03 · 质量与 review</h1>
 <p class="lead">
@@ -51,6 +55,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 「有没有 AI 编程规范」（YC-8）</a></li>
+    <li><a href="#s2">2. 「有没有 code review 流程」（YC-9）</a></li>
+    <li><a href="#s3">3. 「怎么减少出错、降低重复劳动」（YU-7）</a></li>
+    <li><a href="#s4">4. AI 能不能做界面测试（HJ-12）</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>对方问：<strong>「AI 写的代码相对不可控，你们有 review 流程吗？」</strong></p>
@@ -315,6 +333,8 @@
 <!-- ============ 5 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「有没有 AI 编程规范 / 怎么保证质量 / 有没有界面测试」</span>
   <p><strong>【结论】</strong>我按四道关来控：<strong>写之前给约束、写之后验证、提交时走同样的 review、长期靠测试</strong>。<strong>成本最低的是第一道——很多问题不是它写错了，是我没告诉它项目里已经有什么。</strong></p>
@@ -371,5 +391,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

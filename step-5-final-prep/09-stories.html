@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>09 · 讲一段经历 — 步骤 5 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 5 · 第 9/9 份 ｜ J 域 · 软性、职业与综合</span>
@@ -31,10 +34,11 @@
     <li><a class="item cur" href="09-stories.html"><span class="n">09</span><span>讲一段经历</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>09 · 讲一段经历</h1>
 <p class="lead">
@@ -56,6 +60,18 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 两道题分别侧重什么</a></li>
+    <li><a href="#s2">2. 讲的时候容易犯的三个错</a></li>
+    <li><a href="#s3">3. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>前面聊得挺好，对方问了一句：<strong>「说说你职业里遇到的最有挑战的事吧。」</strong></p>
@@ -227,6 +243,8 @@
 <!-- ============ 3 ============ -->
 <h2 id="s3">3. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「职业中最有挑战的事 / 做过最深刻的事」</span>
   <p><strong>【结论】</strong>对我来说印象最深的是<strong>一次判断错方向的事</strong>——提问量掉了三成，我以为是效果问题，优化了两周没解决。</p>
@@ -289,5 +307,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>07 · 异步任务与队列 — 步骤 2 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 2 · 第 7/12 份 ｜ D 域 · 后端、数据与中间件</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>07 · 异步任务与队列</h1>
 <p class="lead">
@@ -58,6 +62,21 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 为什么长任务要用队列</a></li>
+    <li><a href="#s2">2. 保证任务不丢：三道保证</a></li>
+    <li><a href="#s3">3. 重复执行的代价：AI 场景特别贵</a></li>
+    <li><a href="#s4">4. 断点续跑：任务中途中断怎么接着做</a></li>
+    <li><a href="#s5">5. 队列挂了怎么办：支付场景的一致性</a></li>
+    <li><a href="#s6">6. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>你上传了 500 份 PDF，后台开始批量向量化。跑到第 300 份的时候，<strong>K8s 把 Pod 重启了</strong>（可能是发版，可能是内存超限）。</p>
@@ -247,7 +266,7 @@
 <div class="skeleton">
   <span class="tag">讲的时候把"钱"说出来</span>
   <p>"重复执行在普通业务里可能只是个数据问题，但在 AI 场景里直接就是成本问题。所以我们的任务表对<strong>幂等键建了唯一索引</strong>，执行前先查、执行后落库。</p>
-  <p>改造之前，一次 Pod 重启会导致约 X% 的文档被重复向量化，白烧了大概 Y 元；加上幂等之后这个浪费基本归零。"</p>
+  <p>改造之前，一次 Pod 重启会导致约 <span class="blank">X</span>% 的文档被重复向量化，白烧了大概 <span class="blank">Y</span> 元；加上幂等之后这个浪费基本归零。"</p>
 </div>
 
 <!-- ============ 4 ============ -->
@@ -317,13 +336,15 @@
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s6">6. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「进程崩溃 / K8S 重启后，队列里的任务会不会丢」</span>
   <p><strong>【结论】</strong>不能只看队列，整条链路有三个风险点：<strong>入队前、消费中、确认前</strong>。</p>
   <p><strong>【入队前】</strong>业务代码先写一条任务记录（状态 pending），再投递到队列。这样即使投递失败，也能靠定时任务扫出 pending 的补投。</p>
   <p><strong>【消费中】</strong>队列要支持确认机制：Worker 取任务时不删除，处理成功才 ack；没 ack 的超时后重新投递。注意这保证的是<strong>至少一次</strong>，不是恰好一次。</p>
   <p><strong>【确认前】</strong>既然一定会重复，就要靠<strong>业务幂等</strong>兜底——我们给任务表对幂等键建了唯一索引，执行前先查、执行后落库。</p>
-  <p><strong>【数字】</strong>改造前一次发版重启会导致约 X% 的文档被重复向量化，白烧了 Y 元；加上幂等和进度表之后，重复处理的浪费基本归零。</p>
+  <p><strong>【数字】</strong>改造前一次发版重启会导致约 <span class="blank">X</span>% 的文档被重复向量化，白烧了 <span class="blank">Y</span> 元；加上幂等和进度表之后，重复处理的浪费基本归零。</p>
   <p><strong>【权衡】</strong>入队前落库增加了写库开销，队列确认机制也会降低一点吞吐。但相比"任务丢了要人工补"，这点开销完全值得。</p>
 </div>
 
@@ -404,5 +425,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

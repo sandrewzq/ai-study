@@ -7,7 +7,7 @@ const SKIP = ['.git', '.backup', '_dev', 'node_modules'];
 const files = [];
 (function walk(d) {
   for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-    if (e.name.startsWith('.') && e.name !== '.') continue;
+    if (e.name.startsWith('.') || e.name.startsWith('__')) continue;
     const p = path.join(d, e.name);
     if (e.isDirectory()) { if (!SKIP.includes(e.name)) walk(p); }
     else if (/\.(html|md)$/.test(e.name)) files.push(p);
@@ -25,13 +25,35 @@ function anchors(abs) {
 }
 
 const re = /(?:\b(?:href|src)\s*=\s*"([^"]*)")|(?:\]\(([^)\s]+)\))/g;
+
+// .md 里的行内代码和围栏代码是**举例**，不是本文件的链接。
+// 比如 plan/spec.md 用 `href="index.html"` 演示材料页侧栏长什么样——那个相对路径
+// 是相对材料页所在目录（step-N-xxx/）写的，拿本文档所在目录去解析必然落空。
+// 把代码段按等长空格遮蔽后再扫，偏移量不变。
+function maskSpans(s, pattern) {
+  const c = [...s];
+  for (const m of s.matchAll(pattern)) {
+    for (let i = m.index; i < m.index + m[0].length; i++) if (c[i] !== '\n') c[i] = ' ';
+    }
+  return c.join('');
+}
+const mdScannable = c => maskSpans(maskSpans(c, /```[\s\S]*?```/g), /`[^`\n]*`/g);
+
+// .html 里的 <code>/<pre> 同理，而且是**同一个例子**：spec.md 里 `href="index.html"`
+// 渲染成 spec.html 之后就是 <code>…href="index.html"…</code>，`.md` 那一趟被遮蔽掉了、
+// 这一趟没有，于是同一处示例在源文件里合格、在渲染件里报「文件不存在」。
+// 两边口径必须一样，否则「改 md 不报错、重新生成渲染件就报错」这种怪事会一直有。
+const htmlScannable = c => maskSpans(maskSpans(c, /<pre[\s\S]*?<\/pre>/g), /<code>[\s\S]*?<\/code>/g);
+
 let total = 0, ok = 0;
 const bad = [];
 
 for (const f of files) {
+  const isMd = f.endsWith('.md');
   const content = fs.readFileSync(f, 'utf8');
+  const scannable = isMd ? mdScannable(content) : htmlScannable(content);
   const rel = path.relative(ROOT, f);
-  for (const m of content.matchAll(re)) {
+  for (const m of scannable.matchAll(re)) {
     const t = m[1] ?? m[2];
     if (/^(https?:|mailto:|data:|javascript:|tel:)/i.test(t) || t.startsWith('#')) continue;
     total++;
@@ -77,12 +99,13 @@ tagBad.forEach(b => console.log('  ' + b));
 const allNames = new Set();
 (function walk(d) {
   for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-    if (e.name.startsWith('.')) continue;
+    if (e.name.startsWith('.') || e.name.startsWith('__')) continue;
     if (e.isDirectory()) { if (!SKIP.includes(e.name)) walk(path.join(d, e.name)); }
     else allNames.add(e.name);
   }
 })(ROOT);
 const stale = [];
+let refChecked = 0;
 for (const f of files) {
   if (!f.endsWith('.html')) continue;
   const rel = path.relative(ROOT, f);
@@ -93,10 +116,16 @@ for (const f of files) {
     const t = m[1];
     if (t.includes('/')) continue;                      // 路径写法交给上面的 href 检查
     if (/^(NN|N-)|[*]|^\.[a-z]+$/i.test(t)) continue;   // 模板占位符 / 纯扩展名
+    refChecked++;
     if (!allNames.has(t)) stale.push(rel + '  正文提到  ' + t);
   }
 }
-console.log(`\n正文文件名引用：${stale.length ? '✗ ' + stale.length + ' 处指向不存在的文件' : '✓ 全部有效'}`);
+// 这一项必须报**扫了多少**：它的校验点几乎全部来自学习计划 §9「配套学习资料」，
+// 那一节搬走之后计数会掉到接近 0，而输出只报「✗ N 处」或「✓ 全部有效」——
+// 不打印计数的话，检查范围缩到零和真的零问题长得一模一样。
+console.log(`\n正文文件名引用：${stale.length
+  ? '✗ ' + stale.length + ' 处指向不存在的文件（扫描 ' + refChecked + ' 处）'
+  : '✓ 全部有效（扫描 ' + refChecked + ' 处）'}`);
 stale.forEach(s => console.log('  ' + s));
 
 // ---- 措辞检查 ----

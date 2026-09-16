@@ -19,35 +19,73 @@
   --ask-line: #db61a2;
   --q-bg: #eef2f7;
   --q-fg: #44506b;
-  --max: 880px;
+  --max: 880px;          /* 单栏正文（.wrap 独立使用时）*/
+  --shell: 1240px;       /* 全站外壳宽度：顶栏和 .layout 必须用同一个，否则粘顶条会和正文错位 */
+  --pad: 28px;           /* 外壳左右内边距，同上 */
+  --topbar-h: 51px;      /* 顶栏实测高度：锚点跳转要避开它，见 html{scroll-padding-top} */
+
+  /* 下图两种配色（深色 + 图型色）的值只写这一遍。
+     它们由两处映射到正式变量：一处给「跟随系统」(@media)，一处给「手动切深色」([data-theme="dark"])。
+     两处映射的变量名必须一模一样，否则手动切换会缺色——_dev/themecheck.js 回归这一条。 */
+  --dk-bg: #0d1117;              --dk-fg: #e6edf3;
+  --dk-muted: #9198a1;           --dk-line: #21262d;
+  --dk-line-strong: #30363d;     --dk-accent: #6ea8fe;
+  --dk-accent-soft: #132039;     --dk-code-bg: #161b22;
+  --dk-analogy-bg: #161b22;      --dk-analogy-line: #6e7681;
+  --dk-skeleton-bg: #0f2417;     --dk-skeleton-line: #3fb950;
+  --dk-warn-bg: #2a2113;         --dk-warn-line: #d29922;
+  --dk-ask-bg: #2a1622;          --dk-ask-line: #db61a2;
+  --dk-q-bg: #1c2430;            --dk-q-fg: #a5b3cc;
+
+  --dk-c-user: #b083f0;   --dk-c-user-bg: #241a33;
+  --dk-c-model: #6ea8fe;  --dk-c-model-bg: #132339;
+  --dk-c-tool: #e39158;   --dk-c-tool-bg: #2e1f12;
+  --dk-c-store: #4ac26b;  --dk-c-store-bg: #10261a;
+  --dk-c-data: #9aa4b0;   --dk-c-data-bg: #1c2229;
+  --dk-c-risk: #f28b8b;   --dk-c-risk-bg: #2e1618;
 }
 
+/* 配色三态：不设 data-theme 跟随系统；data-theme="light"/"dark" 由顶栏的按钮写入。
+   color-scheme 必须跟着一起切，否则深色下搜索框、滚动条这些浏览器自绘控件还是浅色的。 */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d1117;
-    --fg: #e6edf3;
-    --muted: #9198a1;
-    --line: #21262d;
-    --line-strong: #30363d;
-    --accent: #6ea8fe;
-    --accent-soft: #132039;
-    --code-bg: #161b22;
-    --analogy-bg: #161b22;
-    --analogy-line: #6e7681;
-    --skeleton-bg: #0f2417;
-    --skeleton-line: #3fb950;
-    --warn-bg: #2a2113;
-    --warn-line: #d29922;
-    --ask-bg: #2a1622;
-    --ask-line: #db61a2;
-    --q-bg: #1c2430;
-    --q-fg: #a5b3cc;
+  :root:not([data-theme="light"]) {
+    --bg: var(--dk-bg);                     --fg: var(--dk-fg);
+    --muted: var(--dk-muted);               --line: var(--dk-line);
+    --line-strong: var(--dk-line-strong);   --accent: var(--dk-accent);
+    --accent-soft: var(--dk-accent-soft);   --code-bg: var(--dk-code-bg);
+    --analogy-bg: var(--dk-analogy-bg);     --analogy-line: var(--dk-analogy-line);
+    --skeleton-bg: var(--dk-skeleton-bg);   --skeleton-line: var(--dk-skeleton-line);
+    --warn-bg: var(--dk-warn-bg);           --warn-line: var(--dk-warn-line);
+    --ask-bg: var(--dk-ask-bg);             --ask-line: var(--dk-ask-line);
+    --q-bg: var(--dk-q-bg);                 --q-fg: var(--dk-q-fg);
   }
+}
+
+/* 手动深色：与上面那段是同一份映射，变量名必须逐一对齐 */
+:root[data-theme="dark"] {
+  --bg: var(--dk-bg);                     --fg: var(--dk-fg);
+  --muted: var(--dk-muted);               --line: var(--dk-line);
+  --line-strong: var(--dk-line-strong);   --accent: var(--dk-accent);
+  --accent-soft: var(--dk-accent-soft);   --code-bg: var(--dk-code-bg);
+  --analogy-bg: var(--dk-analogy-bg);     --analogy-line: var(--dk-analogy-line);
+  --skeleton-bg: var(--dk-skeleton-bg);   --skeleton-line: var(--dk-skeleton-line);
+  --warn-bg: var(--dk-warn-bg);           --warn-line: var(--dk-warn-line);
+  --ask-bg: var(--dk-ask-bg);             --ask-line: var(--dk-ask-line);
+  --q-bg: var(--dk-q-bg);                 --q-fg: var(--dk-q-fg);
 }
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* 锚点落地要让开粘顶的 topbar。实测顶栏 51px、h2 目标只有 31px 高——
+     不设这条，跳过去后标题 100% 被盖住，只能看见它下面的正文。 */
+  scroll-padding-top: calc(var(--topbar-h) + 21px);
+}
 
 body {
   margin: 0;
@@ -62,17 +100,51 @@ body {
 
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px 96px; }
 
-/* 顶栏 */
+/* 顶栏
+   宽度必须和 .layout 用同一组 --shell/--pad：以前这里是 --max(880px)，
+   顶栏按视口居中而 .layout 是 1240px，结果粘顶条的底边框和毛玻璃
+   只盖住中间 880px，两侧正文从模糊层外面穿过去（实测 @1440：顶栏
+   x[273,1153]，正文列 x[413,1305]）。 */
 .topbar {
   position: sticky; top: 0; z-index: 10;
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  max-width: var(--max); margin: 0 auto; padding: 12px 24px;
+  max-width: var(--shell); margin: 0 auto; padding: 12px var(--pad);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: saturate(180%) blur(8px);
   border-bottom: 1px solid var(--line);
   font-size: 14px;
 }
 .topbar .crumb { color: var(--muted); }
+
+/* 顶栏右侧的两个工具键（搜索 / 配色）。
+   注意：它们必须是 <button> 而不是 <a>——顶栏不放链接是全站铁律（_dev/navcheck.js R1），
+   而且这两个动作本来也不跳转。
+   高度压到 23px（比 crumb 的行高 26px 还矮）是有意的：顶栏高度直接决定锚点落点，
+   顶栏一长高，--topbar-h 就得跟着改，68 个页面的锚点全受影响。让它当矮的那个，
+   顶栏高度就仍然由 crumb 决定，和加这些按钮之前一模一样。 */
+.topbar .tools { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.topbar .tools button {
+  display: inline-flex; align-items: center; gap: 4px;
+  font: inherit; font-size: 13px; line-height: 1;
+  color: var(--muted); background: var(--code-bg);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 4px 10px; cursor: pointer;
+}
+.topbar .tools button:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.topbar .tools .kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px; padding: 0 3px; border-radius: 3px;
+  border: 1px solid var(--line-strong); color: var(--muted);
+}
+
+/* 跳到正文：第一个可聚焦元素。68 个页面每页都要用 Tab 走过侧栏那 10 多条链接，
+   没有这个锚，键盘用户每次都得先穿过整个目录。 */
+.skip {
+  position: absolute; left: -9999px; top: 0; z-index: 50;
+  background: var(--accent); color: #fff; padding: 10px 16px;
+  border-radius: 0 0 8px 0; text-decoration: none; font-size: 14px;
+}
+.skip:focus { left: 0; }
 
 /* 标题 */
 h1 { font-size: 30px; line-height: 1.35; margin: 32px 0 8px; letter-spacing: -.01em; }
@@ -103,7 +175,11 @@ strong { color: var(--fg); }
   border-radius: 10px; padding: 14px 20px; margin: 24px 0 8px;
 }
 .toc-title { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-.toc ol { margin: 0; padding-left: 20px; }
+/* 目录条目就是各节标题的原文，而绝大多数标题自己带编号（「0. 先看一个场景」），
+   所以这里不让 <ol> 再画一遍序号——否则每一行都印成「1. 0. 先看一个场景」。
+   那 6 个 00 导读页的标题没有编号，它们的目录看起来就像一棵普通的列表，
+   这是对的：目录只负责顺序，编号归标题自己管。 */
+.toc ol { margin: 0; padding-left: 0; list-style: none; }
 .toc li { margin: 3px 0; }
 .toc a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
 .toc a:hover { color: var(--accent); border-color: var(--accent); }
@@ -130,6 +206,26 @@ strong { color: var(--fg); }
 }
 .skeleton ul { margin: 8px 0 0; }
 .skeleton > p:last-child, .skeleton > ul:last-child { margin-bottom: 0; }
+
+/* 骨架的用法说明：紧跟在「N. 讲解骨架」标题后面。
+   读者点进材料页是来找答案的，而这一节其实就是答案——不写一句，没人知道该拿它干什么。
+   由 _dev/speccheck.js 的第 12 项守着位置（必须在骨架标题之后）。 */
+.skelnote {
+  font-size: 13.5px; line-height: 1.75; color: var(--muted);
+  margin: 0 0 14px;
+}
+.skelnote strong { color: var(--fg); }
+
+/* 自己填数字的槽位（X / XX / X%）。
+   不处理的话，「知识库目前 XX 万段」在公开版里读起来像没写完——
+   虚线底 + 等宽把「待填」这个意思做进字形里，再用 .skelnote 那一句说清口径。 */
+.blank {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .93em; color: var(--skeleton-line);
+  background: var(--skeleton-bg);
+  border-bottom: 1.5px dashed var(--skeleton-line);
+  border-radius: 3px 3px 0 0; padding: 0 3px;
+}
 
 /* 提醒 / 坑 */
 .warn {
@@ -193,6 +289,15 @@ li { margin: 5px 0; }
 /* 长行内代码串不该撑破窄屏（例如 `div`、`details`、`table` 连成一串） */
 p code, li code, td code, th code, blockquote code { overflow-wrap: anywhere; }
 
+/* 题号反查：入口页里每个题号都指向讲它的那份材料（生成见 _dev/link-questions.js）。
+   全页有 600 多处，所以默认要"安静"——沿用 .toc a 的细下划线表示可跳转，
+   悬停才亮起来；不写 border 是为了不产生 1px 的排版位移（inline 元素只画下边框）。 */
+.qref { text-decoration: none; color: inherit; }
+.qref code { border-bottom: 1px dotted var(--line-strong); }
+.qref:hover code, .qref:focus-visible code {
+  color: var(--accent); background: var(--accent-soft); border-bottom-color: var(--accent);
+}
+
 /* 分页导航 */
 .pager {
   display: flex; justify-content: space-between; gap: 16px;
@@ -239,14 +344,22 @@ blockquote {
   --c-risk: #cf222e;   --c-risk-bg: #fdedee;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
-    --c-user: #b083f0;   --c-user-bg: #241a33;
-    --c-model: #6ea8fe;  --c-model-bg: #132339;
-    --c-tool: #e39158;   --c-tool-bg: #2e1f12;
-    --c-store: #4ac26b;  --c-store-bg: #10261a;
-    --c-data: #9aa4b0;   --c-data-bg: #1c2229;
-    --c-risk: #f28b8b;   --c-risk-bg: #2e1618;
+  :root:not([data-theme="light"]) {
+    --c-user: var(--dk-c-user);   --c-user-bg: var(--dk-c-user-bg);
+    --c-model: var(--dk-c-model);  --c-model-bg: var(--dk-c-model-bg);
+    --c-tool: var(--dk-c-tool);   --c-tool-bg: var(--dk-c-tool-bg);
+    --c-store: var(--dk-c-store);  --c-store-bg: var(--dk-c-store-bg);
+    --c-data: var(--dk-c-data);   --c-data-bg: var(--dk-c-data-bg);
+    --c-risk: var(--dk-c-risk);   --c-risk-bg: var(--dk-c-risk-bg);
   }
+}
+:root[data-theme="dark"] {
+  --c-user: var(--dk-c-user);   --c-user-bg: var(--dk-c-user-bg);
+  --c-model: var(--dk-c-model);  --c-model-bg: var(--dk-c-model-bg);
+  --c-tool: var(--dk-c-tool);   --c-tool-bg: var(--dk-c-tool-bg);
+  --c-store: var(--dk-c-store);  --c-store-bg: var(--dk-c-store-bg);
+  --c-data: var(--dk-c-data);   --c-data-bg: var(--dk-c-data-bg);
+  --c-risk: var(--dk-c-risk);   --c-risk-bg: var(--dk-c-risk-bg);
 }
 
 .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 16px 0 6px; font-size: 13.5px; }
@@ -339,11 +452,30 @@ blockquote {
   background: var(--bg); color: var(--muted);
   font-size: 11.5px; text-align: center;
 }
-.qchain li:first-child::before {
-  border-color: var(--c-model); color: var(--c-model); font-weight: 600;
+/* 每条链的第一问是「主问题」，其余是「追问」；问题下面那行是「要点」。
+   三者的区别写在字面上，不靠颜色。原来只把**第一条的序号**涂成 --c-model，
+   而页面上没有任何一处说明那是什么意思——读者只能猜是「最重要」「已完成」还是
+   「当前项」（本规范第四节：颜色编码必须配图例，无图例的着色就是制造困惑）。 */
+/* 标签是一列定宽的 inline-block，正文跟在它后面。
+   **不要用 padding-left + 负 text-indent 做悬挂缩进**：那个写法会把首个行盒整体左移，
+   而 `.lbl` 是行内块、跟着行盒一起移——于是标签被拽回来压在序号圆圈上（试过，截图里
+   「主问题」的中间那个字被圈盖住了）。悬挂缩进只适合「行首是纯文本」的场合。 */
+.qchain .lbl {
+  display: inline-block; box-sizing: border-box; width: 4.2em;
+  color: var(--muted); font-size: 12px; font-weight: 400;
 }
-.qchain .q { display: block; font-weight: 600; }
+/* 类名是 .ask 不是 .q——.q 在别处已经是「题号徽章」（第 165 行）。
+   写成 .qchain .q 时，这里只声明了 display/font-weight，background、border-radius、
+   padding、font-family、font-size 全被徽章那条规则漏了进来，于是每条追问都被画成
+   一条满宽的灰色药丸、还是等宽小字，看着像标签不像问题。特异性救不了这个：
+   .qchain .q (0,2,0) 只赢它自己写的那两条，没写的照样继承。
+   两个不同的东西共用一个类名，就一定会长成这样。 */
+.qchain .ask { display: block; font-weight: 600; }
 .qchain .hint { display: block; color: var(--muted); font-size: 13px; font-weight: 400; margin-top: 3px; }
+
+/* 链名下面那行「属于哪个域和步骤 · 为什么说它高频」。
+   和 h3 的 10px 下边距一起看，它离标题比离列表近，所以读起来是标题的一部分。 */
+.chain-meta { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
 
 /* ---------- 决策树 ---------- */
 .tree { margin: 20px 0; }
@@ -452,18 +584,19 @@ blockquote {
   display: grid;
   grid-template-columns: 252px minmax(0, 1fr);
   column-gap: 40px;
-  max-width: 1240px;
+  max-width: var(--shell);
   margin: 0 auto;
-  padding: 0 28px 96px;
+  padding: 0 var(--pad) 96px;
 }
 .layout > main.wrap { max-width: none; margin: 0; padding: 0; }
 
 .sidenav {
-  position: sticky; top: 54px; align-self: start;
-  max-height: calc(100vh - 78px); overflow-y: auto;
-  padding: 28px 0 28px;
+  /* 贴顶位置从前是写死的 54px，和顶栏真实高度没有耦合——顶栏一换行（窄屏长面包屑
+     实测能到 77px）侧栏就会钻到它下面。现在统一由 --topbar-h 推导。 */
+  position: sticky; top: calc(var(--topbar-h) + 3px); align-self: start;
+  max-height: calc(100vh - var(--topbar-h) - 27px); overflow-y: auto;
+  padding: 28px 20px 28px 0;
   border-right: 1px solid var(--line);
-  padding-right: 20px;
   font-size: 14px;
   scrollbar-width: thin;
 }
@@ -476,14 +609,26 @@ blockquote {
   font-size: 12.5px; color: var(--muted); letter-spacing: .06em;
   margin: 18px 0 6px; padding-left: 10px;
 }
-/* 分区里的子标题（如「这一层」下面的「步骤 2 · 做系统」），紧贴分区标题 */
+/* 分区里的子标题（如「这一层」下面的「步骤 2 · 做系统」），紧贴分区标题。
+   这一行有两种身份，静止时必须一眼分得出，不能只靠 :hover：
+   宽屏下 .item 没有边框，全是一行 --fg 文字，于是
+     材料页  <a class="grp sub" href="index.html">  可点，回材料目录
+     目录页  <div class="grp sub">                  本页，不可点
+   冒号前后长得一模一样——.grp.sub 那份 --fg + 600 字重两处都有，只有把鼠标
+   移上去才分得出谁能点。所以定一条贯穿整个侧栏的读法：
+     **--fg 的行能点，灰色的行是标签**（.item 也遵循这条）
+   可点的那种再补一个 ←，和「往上」段的「← 总目录」用同一套语言。
+   （窄屏本来就没这个问题：.item 是带边框的 chip，标签没有边框。） */
 .sidenav .grp.sub {
-  margin: 2px 0 6px; color: var(--fg); font-weight: 600; letter-spacing: 0;
+  margin: 2px 0 6px; font-weight: 600; letter-spacing: 0;
   font-size: 13px;
 }
-/* 材料页上这个标题本身就是「回材料目录」的入口（目录页上它是本页，所以是 <div>）。
-   给它和 .up / .item 一样的悬停反馈，让人看得出能点 */
-.sidenav a.grp.sub { display: block; text-decoration: none; padding: 3px 10px; border-radius: 7px; }
+.sidenav div.grp.sub { color: var(--muted); }        /* 本页：降成标签，不做成可点的样子 */
+.sidenav a.grp.sub {
+  display: block; text-decoration: none; border-radius: 7px;
+  color: var(--fg); padding: 3px 10px;
+}
+.sidenav a.grp.sub::before { content: "← "; }
 .sidenav a.grp.sub:hover { background: var(--accent-soft); color: var(--accent); }
 .sidenav ul { list-style: none; margin: 0; padding: 0; }
 .sidenav li { margin: 1px 0; }
@@ -512,8 +657,15 @@ a:focus-visible, summary:focus-visible {
 }
 
 @media (max-width: 980px) {
+  /* 窄屏顶栏可能折成两行（长面包屑实测 77px），锚点让位量跟着放大 */
+  :root { --topbar-h: 72px; }
+  /* 刘海屏/圆角屏横屏时，左右留白要跟着安全区走，否则正文贴边被切 */
+  .topbar { padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left)); }
   /* minmax(0,1fr) 而不是 1fr：1fr 的最小值是 auto，会被宽表格的 min-content 撑破 */
-  .layout { grid-template-columns: minmax(0, 1fr); column-gap: 0; padding: 0 20px 72px; }
+  .layout {
+    grid-template-columns: minmax(0, 1fr); column-gap: 0;
+    padding: 0 max(20px, env(safe-area-inset-right)) 72px max(20px, env(safe-area-inset-left));
+  }
   /* 宽表格改为横向滚动，而不是把整页撑宽 */
   .wrap table { display: block; overflow-x: auto; max-width: 100%; }
   .wrap table > thead, .wrap table > tbody { display: table; width: 100%; min-width: 560px; }
@@ -537,3 +689,96 @@ a:focus-visible, summary:focus-visible {
 /* 学习计划侧栏：一级项当分组标题用 */
 .sidenav a.item.cur0 { font-weight: 600; margin-top: 10px; }
 
+
+/* ==========================================================================
+   交互层（assets/app.js）——没有 JS 时这一节全部不生效，页面照样能读
+   ========================================================================== */
+
+/* ---------- 站内搜索 ---------- */
+.searchpanel {
+  position: fixed; inset: 0; z-index: 60;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(3px);
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: max(60px, 10vh) 16px 16px;
+}
+.searchpanel[hidden] { display: none; }
+.searchbox {
+  width: 100%; max-width: 620px;
+  background: var(--bg); border: 1px solid var(--line-strong); border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .22);
+  overflow: hidden; display: flex; flex-direction: column;
+  max-height: 76vh;
+}
+.searchbox input {
+  font: inherit; font-size: 16px; color: var(--fg); background: var(--bg);
+  border: none; border-bottom: 1px solid var(--line);
+  padding: 15px 18px; outline: none; width: 100%;
+}
+.searchbox input::placeholder { color: var(--muted); }
+.search-hint {
+  font-size: 12.5px; color: var(--muted); padding: 8px 18px;
+  border-bottom: 1px solid var(--line); display: flex; gap: 12px; flex-wrap: wrap;
+}
+.search-results { list-style: none; margin: 0; padding: 6px; overflow-y: auto; }
+.search-results li { margin: 0; }
+.search-results a {
+  display: block; padding: 9px 12px; border-radius: 9px;
+  text-decoration: none; color: var(--fg);
+}
+.search-results a:hover, .search-results a.sel { background: var(--accent-soft); }
+.search-results .r-t { font-weight: 600; display: block; }
+.search-results .r-c { font-size: 12.5px; color: var(--muted); }
+.search-results .r-s { font-size: 13px; color: var(--muted); }
+.search-results .r-s mark, .search-results .r-t mark { background: transparent; color: var(--accent); font-weight: 600; }
+.search-results .r-where {
+  font-size: 12px; color: var(--muted); border: 1px solid var(--line-strong);
+  border-radius: 999px; padding: 1px 7px; margin-left: 6px; white-space: nowrap;
+}
+.search-empty { padding: 14px 18px 18px; color: var(--muted); font-size: 14px; }
+
+/* ---------- 清单打勾 ---------- */
+.checklist li .ck {
+  position: absolute; left: 0; top: 1px;
+  width: 22px; height: 22px; padding: 0;
+  font-size: 17px; line-height: 1; color: var(--muted);
+  background: none; border: none; border-radius: 5px; cursor: pointer;
+}
+.checklist li .ck::before { content: "☐"; }
+.checklist li.done .ck { color: var(--skeleton-line); }
+.checklist li.done .ck::before { content: "☑"; }
+.checklist li .ck:hover { background: var(--code-bg); color: var(--accent); }
+.checklist li.done .ck:hover { color: var(--skeleton-line); }
+/* JS 接管之后，CSS 画的那个装饰性方框让位给真按钮 */
+.checklist.live li::before { content: none; }
+
+.ck-bar {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--muted); margin: 14px 0 -4px;
+}
+.ck-bar .ck-track { flex: 1 1 auto; height: 5px; background: var(--code-bg); border-radius: 3px; overflow: hidden; }
+.ck-bar .ck-fill { height: 100%; width: 0; background: var(--skeleton-line); transition: width .18s; }
+.ck-bar button {
+  font: inherit; font-size: 12.5px; color: var(--muted);
+  background: none; border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 3px 10px; cursor: pointer;
+}
+.ck-bar button:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- 右下角浮层（回顶部 / 全展开） ---------- */
+.floaters {
+  position: fixed; z-index: 40;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+}
+.floaters button {
+  font: inherit; font-size: 13px; color: var(--muted);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(8px);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 8px 13px; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+}
+.floaters button:hover { color: var(--accent); border-color: var(--accent); }
+.floaters button[hidden] { display: none; }

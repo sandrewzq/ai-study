@@ -11,6 +11,8 @@
 const fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const CHECK = process.argv.includes('--check');
+// 题号的提取与 crumb 题量都读 qids.js——本模块和 link-questions.js 各写一份必然分叉
+const { badgesIn, crumbTotal } = require('./qids.js');
 
 // 不占步骤的两个专题，域那一格补一句定位说明
 const DOMAIN_NOTE = {
@@ -35,9 +37,8 @@ function build(rel) {
 
   // 1) crumb：步骤名 + 域 + 总题量
   const crumb = text(s.match(/<span class="crumb">([\s\S]*?)<\/span>/)[1]);
-  const totalM = crumb.match(/(\d+)\s*题/);
-  if (!totalM) throw new Error('crumb 里找不到总题量：' + crumb);
-  const total = +totalM[1];
+  const total = crumbTotal(s);
+  if (total === null) throw new Error('crumb 里找不到总题量：' + crumb);
 
   // 2) 00 导读页（有的域没有）
   const sidebar = s.match(/<nav class="sidenav">([\s\S]*?)<\/nav>/)[1];
@@ -59,9 +60,10 @@ function build(rel) {
       href: m[1],
       num: text(m[2].match(/<div class="num">([\s\S]*?)<\/div>/)[1]).replace(/\s*·.*$/, ''),
       title: text(m[2].match(/<h3>([\s\S]*?)<\/h3>/)[1]).replace(/（按方向选读）$/, ''),
-      q: ((m[2].match(/<div class="qbadges">([\s\S]*?)<\/div>/) || [, ''])[1].trim())
-        // 卡片里题号是紧挨的，表格里跟步骤 1 那页保持一致，用空格隔开
-        .replace(/<\/span><span class="q">/g, '</span> <span class="q">'),
+      // 卡片里题号是紧挨的，表格里跟步骤 1 那页保持一致，用空格隔开。
+      // 走 qids.js 的 badgesIn 而不是直接数 <span class="q">：那个类在别处也装域徽章
+      // （「H 域 18 题」），形状过滤必须和 link-questions 的口径是同一份。
+      q: badgesIn(m[2]).map(x => `<span class="q">${x}</span>`).join(' '),
     }));
     domains.push({ id: id.toUpperCase(), title, count: +cntM[1], cards });
   }
@@ -103,29 +105,50 @@ function build(rel) {
     `</table>\n\n`;
 
   // 6) 插在 .warn 之前（和步骤 1 的顺序一致：导语 → 完成标志 → 对照表 → 提示）
+  //    已经生成过的页先拆掉旧表再装新表，这样 --check 才是真的在比"有没有漂移"，
+  //    而不是见到表就报错（那样这个检查永远不可能通过，等于没有）。
   const warnAt = s.indexOf('<div class="warn">');
   if (warnAt < 0) throw new Error('找不到 <div class="warn">，无法定位插入点');
-  if (s.includes('<h2>与学习计划的对照</h2>')) throw new Error('这一页已经有对照表了，先删掉再加');
-
-  const out = s.slice(0, warnAt) + section + s.slice(warnAt);
-  return { out, crumb, matCount, domains, total, abs };
+  const have = /<h2>与学习计划的对照<\/h2>[\s\S]*?<\/table>\n*/;
+  const out = have.test(s)
+    ? s.replace(have, section)
+    : s.slice(0, warnAt) + section + s.slice(warnAt);
+  return { out, orig: s, crumb, matCount, domains, total, abs };
 }
 
-let ok = 0;
+// 先全部解析、全部校验通过，再统一写盘。
+// 原来 fs.writeFileSync 在循环里逐页写：第 4 页的卡片写坏（比如有人往卡片里塞了个 <a>，
+// 正则在第一个 </a> 截断、.qbadges 落空），前 3 页已经落盘了——半新半旧，而报错只说第 4 页。
+// 校验本身是逐页独立的，所以「全部算完再写」不会掩盖任何一页的问题。
+const results = [];
+let failed = 0;
 for (const rel of PAGES) {
   try {
-    const r = build(rel);
-    const detail = r.domains.map(d => `${d.id}域 ${d.count}题/${d.cards.length}份`).join('  ');
-    if (CHECK) {
-      console.log(`  ✗ 待改  ${rel}\n         ${r.crumb}｜${r.matCount} 份｜${detail}`);
-    } else {
-      fs.writeFileSync(r.abs, r.out);
-      console.log(`  ✓ ${rel}\n      ${r.crumb}｜${r.matCount} 份｜${detail}`);
-    }
-    ok++;
+    results.push(build(rel));
   } catch (e) {
+    failed++;
     console.log(`  ⚠️  ${rel}\n      ${e.message}`);
-    process.exitCode = 1;
   }
 }
-console.log(`\n${CHECK ? '待改' : '已改'} ${ok}/${PAGES.length} 个目录页`);
+
+if (failed) {
+  console.log(`\n✗ ${failed}/${PAGES.length} 个目录页解析失败，**未改写任何文件**。`);
+  process.exit(1);
+}
+
+let ok = 0, drift = 0;
+for (const r of results) {
+  const rel = path.relative(ROOT, r.abs).split(path.sep).join('/');
+  const detail = r.domains.map(d => `${d.id}域 ${d.count}题/${d.cards.length}份`).join('  ');
+  const changed = r.out !== r.orig;
+  if (CHECK) {
+    if (changed) { drift++; console.log(`  ✗ 待改  ${rel}\n         ${r.crumb}｜${r.matCount} 份｜${detail}`); }
+    else console.log(`  · 一致  ${rel}`);
+  } else {
+    if (changed) fs.writeFileSync(r.abs, r.out);
+    console.log(`  ✓ ${rel}\n      ${r.crumb}｜${r.matCount} 份｜${detail}`);
+  }
+  ok++;
+}
+console.log(`\n${CHECK ? '待改 ' + drift + '/' + PAGES.length : '已改 ' + ok + '/' + PAGES.length} 个目录页`);
+if (CHECK && drift) process.exitCode = 1;

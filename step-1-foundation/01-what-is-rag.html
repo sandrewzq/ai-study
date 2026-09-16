@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>01 · RAG 是什么 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 第 1/9 份 ｜ A 域 · LLM 与 RAG</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>01 · RAG 是什么</h1>
 <p class="lead">
@@ -56,6 +60,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 它到底解决哪三个问题</a></li>
+    <li><a href="#s2">2. 一个容易钻牛角尖的问题：RAG 是不是"文档问答"？</a></li>
+    <li><a href="#s3">3. RAG、微调、长上下文，该用哪个</a></li>
+    <li><a href="#s4">4. 答错了，先分清是哪一类错</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>你把 AI 接进公司内部系统，员工问它：<strong>「我们公司的年假怎么算？」</strong></p>
@@ -299,11 +317,13 @@
 <!-- ============ 5 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「简单介绍一下 RAG 的流程」<span style="color:var(--muted);font-weight:400">（约 3 分钟）</span></span>
   <p><strong>【结论】</strong>RAG 是检索增强生成，核心是先从外部知识库取相关信息，再让模型基于这些信息生成答案。它主要解决三个问题：模型不知道私有知识、知识会过时、以及容易产生幻觉。</p>
   <p><strong>【做法】</strong>我们分两条链路。离线链路把文档解析、切分、向量化后入库，同时把原文和元数据存进 ES。在线链路拿到问题后先做查询改写，然后并行走两路召回——ES 做关键词、向量库做语义，用 RRF 融合成 Top 50，再用交叉编码器精排到 Top 5，组装进提示词让模型基于证据回答，并要求标注出处。</p>
-  <p><strong>【数字】</strong>知识库目前 XX 万段，单次问答检索加精排的 P95 是 X 秒；加了混合检索之后，专有名词类问题的命中率从 X% 提到 Y%。</p>
+  <p><strong>【数字】</strong>知识库目前 <span class="blank">XX</span> 万段，单次问答检索加精排的 P95 是 <span class="blank">X</span> 秒；加了混合检索之后，专有名词类问题的命中率从 <span class="blank">X</span>% 提到 <span class="blank">Y</span>%。</p>
   <p><strong>【坑】</strong>最开始只做了向量召回，结果用户搜产品型号和条款编号经常搜不到——向量擅长语义、不擅长精确匹配。加了关键词那一路才解决。</p>
   <p><strong>【权衡】</strong>精排提升了准确率但增加了延迟，所以我把候选从 100 缩到 30，并对高频问题做了结果缓存，把延迟控制在可接受范围。</p>
 </div>
@@ -380,5 +400,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

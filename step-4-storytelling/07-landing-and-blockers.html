@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>07 · 落地推动与棘手难题 — 步骤 4 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 4 · 第 7/7 份 ｜ G 域 · 项目叙事与方案设计</span>
@@ -29,10 +32,11 @@
     <li><a class="item cur" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>07 · 落地推动与棘手难题</h1>
 <p class="lead">
@@ -54,6 +58,19 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 怎么推动落地（PY-1）</a></li>
+    <li><a href="#s2">2. 未登录用户怎么处理（PY-4）</a></li>
+    <li><a href="#s3">3. 「棘手难题」怎么讲（YU-4）</a></li>
+    <li><a href="#s4">4. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>系统做完了，效果也还不错。你把它推给团队，满怀期待地等反馈。</p>
@@ -279,6 +296,8 @@
 <!-- ============ 4 ============ -->
 <h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「怎么推动 AI 系统落地 / 遇到过什么棘手难题」</span>
   <p><strong>【结论】</strong>我的体会是<strong>落地难的不是技术，是让人真的用起来</strong>。系统做完只是第一段，后面还有"有人用"和"用得住"。</p>
@@ -334,5 +353,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

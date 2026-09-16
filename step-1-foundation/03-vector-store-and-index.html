@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>03 · 向量库与索引算法 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 第 3/9 份 ｜ A 域 · LLM 与 RAG</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>03 · 向量库与索引算法</h1>
 <p class="lead">
@@ -56,6 +60,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. HNSW 的三个参数</a></li>
+    <li><a href="#s2">2. IVF：先分班再找</a></li>
+    <li><a href="#s3">3. 内存还是不够？上量化</a></li>
+    <li><a href="#s4">4. 选向量库：五个问题</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>库里 50 万个向量。用户提问，系统要把问题也算成一个向量，然后<strong>找出跟它最像的 50 个</strong>。</p>
@@ -289,18 +307,20 @@
 
 用 PQ 量化可压到原来的 1/10 左右。</code></pre>
 
-<p>回答示例：<em>"我们大概 XX 万份文档、切成 XX 万个 chunk，向量维度 1024，原始向量约 X GB，加上 HNSW 索引常驻约 Y GB——这也正是我们当初选 IVF 而不是 HNSW 的原因。"</em></p>
+<p>回答示例：<em>"我们大概 <span class="blank">XX</span> 万份文档、切成 <span class="blank">XX</span> 万个 chunk，向量维度 1024，原始向量约 <span class="blank">X</span> GB，加上 HNSW 索引常驻约 <span class="blank">Y</span> GB——这也正是我们当初选 IVF 而不是 HNSW 的原因。"</em></p>
 
 <p><strong>数字要和你的选型对得上</strong>，这比数字本身是多少更重要。</p>
 
 <!-- ============ 5 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「你们用的什么向量库？选型依据是什么？」</span>
-  <p><strong>【结论】</strong>我们用的是 X，核心原因是<strong>已经在用 Y、且我们的规模（XX 万向量）它能撑得住</strong>，不需要多维护一个中间件。</p>
+  <p><strong>【结论】</strong>我们用的是 X，核心原因是<strong>已经在用 Y、且我们的规模（<span class="blank">XX</span> 万向量）它能撑得住</strong>，不需要多维护一个中间件。</p>
   <p><strong>【做法】</strong>索引用的是 HNSW，在这个量级下延迟和召回都最好。线上把 <code>efSearch</code> 作为可调参数，用它来平衡召回率和延迟。写入走批量加增量：新文档实时插入，每周做一次小规模重建，避免图结构退化。</p>
-  <p><strong>【数字】</strong>XX 万条向量，1024 维，原始约 X GB、索引常驻约 Y GB；P99 检索延迟 X 毫秒，召回率（对比暴力检索）约 X%。</p>
+  <p><strong>【数字】</strong><span class="blank">XX</span> 万条向量，1024 维，原始约 <span class="blank">X</span> GB、索引常驻约 <span class="blank">Y</span> GB；P99 检索延迟 <span class="blank">X</span> 毫秒，召回率（对比暴力检索）约 <span class="blank">X</span>%。</p>
   <p><strong>【坑】</strong>早期用"先检索再过滤"做权限隔离，结果小部门用户经常搜不到东西——因为无权限的高分内容把名额占了。后来改成检索时就带上过滤条件。</p>
   <p><strong>【权衡】</strong>HNSW 吃内存，如果数据量再涨一个数量级，计划换 IVF + 量化，或者做冷热分层：热数据用 HNSW，冷数据用 IVF 放磁盘。</p>
 </div>
@@ -360,5 +380,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

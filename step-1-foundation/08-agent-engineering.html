@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>08 · Agent 工程化与选型 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 第 8/9 份 ｜ B 域 · Agent、多智能体与工具协议</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>08 · Agent 工程化与选型</h1>
 <p class="lead">
@@ -56,6 +60,22 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个问题</a></li>
+    <li><a href="#s1">1. claude code 的核心循环与四条设计原则</a></li>
+    <li><a href="#s2">2. Harness 到底是什么</a></li>
+    <li><a href="#s3">3. LangChain 和 LangGraph 怎么选</a></li>
+    <li><a href="#s4">4. 通用能力模块怎么抽象</a></li>
+    <li><a href="#s5">5. 意图识别与路由</a></li>
+    <li><a href="#s6">6. 完整案例：一个检索 Agent 的设计</a></li>
+    <li><a href="#s7">7. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个问题</h2>
 
 <p>你和别人用的是<strong>同一个模型</strong>，做的也是同一类任务，但人家的 Agent 就是更稳、更少跑偏、更省钱。差在哪？</p>
@@ -405,7 +425,7 @@
   <span class="tag">参考回答</span>
   <p><strong>【结论】</strong>我设计过一个检索 Agent，职责是把用户的口语问题变成精准的知识库查询，并返回可靠的证据。</p>
   <p><strong>【做法】</strong>它有三步：先做查询改写（含多轮对话的指代消解），然后并行发两路检索——关键词和向量语义，用 RRF 融合，再用交叉编码器精排到 Top 5 返回。工具集就三个：改写、检索、精排。它<strong>只读不写</strong>，不碰任何业务数据。</p>
-  <p><strong>【数字】</strong>上线后专有名词类问题的命中率从 X% 提到 Y%，检索环节 P95 约 X 毫秒，占整个问答链路耗时的 X%。</p>
+  <p><strong>【数字】</strong>上线后专有名词类问题的命中率从 <span class="blank">X</span>% 提到 <span class="blank">Y</span>%，检索环节 P95 约 <span class="blank">X</span> 毫秒，占整个问答链路耗时的 <span class="blank">X</span>%。</p>
   <p><strong>【坑】</strong>一开始我把三个步骤合成一个"大检索"工具，模型经常一次传错参数整条链路就失败。拆成三个小工具之后，模型可以单独重试某一步，鲁棒性明显变好。</p>
   <p><strong>【权衡】</strong>但拆细了轮次变多、延迟上升。最后的折中是"改写 + 检索"合并成一个工具，"精排"独立——因为精排失败率高且需要单独调参，值得单独一步。</p>
 </div>
@@ -423,6 +443,8 @@
 
 <!-- ============ 7 ============ -->
 <h2 id="s7">7. 讲解骨架（看懂之后再背）</h2>
+
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
 
 <div class="skeleton">
   <span class="tag">「claude code 的核心循环 / 多层架构是怎么做的」</span>
@@ -496,5 +518,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>08 · 团队与风险 — 步骤 5 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 5 · 第 8/9 份 ｜ J 域 · 软性、职业与综合</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-stories.html"><span class="n">09</span><span>讲一段经历</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>08 · 团队与风险</h1>
 <p class="lead">
@@ -56,6 +60,18 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 「怎么管理团队」（KJ-8）</a></li>
+    <li><a href="#s2">2. 临近交付出现风险（YU-9）</a></li>
+    <li><a href="#s3">3. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>对方问：<strong>「如果项目临近交付，突然发现一个前期没评估到的风险，你会怎么处理？」</strong></p>
@@ -233,6 +249,8 @@
 <!-- ============ 3 ============ -->
 <h2 id="s3">3. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「怎么管理团队 / 临近交付出现风险怎么办」</span>
   <p><strong>【团队管理】</strong><strong>我没有正式带过团队。</strong>不过有几件事比较接近：一是带过两个新同事上手这块业务，两三个月能独立干活；二是 AI 这条线是我牵头，<strong>拆任务、定排期、跨组对接这些是我做的</strong>。</p>
@@ -290,5 +308,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>08 · 支付与对账 — 步骤 2 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 2 · 第 8/12 份 ｜ D 域 · 后端、数据与中间件</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>08 · 支付与对账</h1>
 <p class="lead">
@@ -58,6 +62,19 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 接入流程怎么设计</a></li>
+    <li><a href="#s2">2. 回调验签：怎么确认这是真的微信发的</a></li>
+    <li><a href="#s3">3. 保证到账：不能只靠回调</a></li>
+    <li><a href="#s4">4. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>用户买了 100 积分的套餐，微信显示<strong>已支付成功</strong>。但用户回到 App 一看：<strong>积分没到账。</strong></p>
@@ -253,6 +270,8 @@
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「如何保证用户支付后积分/虚拟商品一定到账」</span>
   <p><strong>【结论】</strong>核心认知是：<strong>永远不要假设回调一定会到</strong>。回调会丢、会重复、也可能被伪造，所以要三层保障。</p>
@@ -260,7 +279,7 @@
   <p><strong>【幂等】</strong>订单走状态机，只允许"待支付 → 已支付"这种合法流转；重复回调直接返回成功、不重复发货。</p>
   <p><strong>【补偿层】</strong>定时任务扫描超过 N 分钟还是"待支付"的订单，<strong>主动去渠道查真实状态</strong>，该补的补上——这是解决"回调丢了"的关键。</p>
   <p><strong>【对账】</strong>每天拉渠道对账单和本地订单逐笔比对，不一致的进人工处理队列。</p>
-  <p><strong>【数字】</strong>加了主动查询之后，"已支付但未到账"的工单从每周 X 单降到基本为零。</p>
+  <p><strong>【数字】</strong>加了主动查询之后，"已支付但未到账"的工单从每周 <span class="blank">X</span> 单降到基本为零。</p>
 </div>
 
 <details class="ask">
@@ -324,5 +343,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

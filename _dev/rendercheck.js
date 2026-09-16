@@ -10,7 +10,7 @@ const SHELL = path.join(os.homedir(),
 const PAGES = [];
 (function walk(d) {
   for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-    if (e.name.startsWith('.')) continue;
+    if (e.name.startsWith('.') || e.name.startsWith('__')) continue;
     const p = path.join(d, e.name);
     if (e.isDirectory()) { if (!['_dev', 'notes', 'plan', 'node_modules', '.git'].includes(e.name)) walk(p); }
     else if (e.name.endsWith('.html')) PAGES.push(path.relative(ROOT, p));
@@ -51,19 +51,25 @@ let fail = 0;
 for (const rel of PAGES) {
   const src = path.join(ROOT, rel);
   const tmp = path.join(path.dirname(src), '__rendertest.html');
-  fs.writeFileSync(tmp, fs.readFileSync(src, 'utf8').replace('</body>', PROBE + '</body>'));
   const lines = [];
-  for (const [w, h] of SIZES) {
-    const out = execFileSync(SHELL, ['--no-sandbox', '--in-process-gpu', `--window-size=${w},${h}`,
-      '--virtual-time-budget=1500', '--dump-dom', 'file://' + tmp],
-      { encoding: 'utf8', maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'ignore'] });
-    const m = out.match(/<pre id="R">([\s\S]*?)<\/pre>/);
-    const r = m ? m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') : '无报告';
-    const bad = /页面溢出=是|\.layout=block|未裁剪溢出=(?!无)/.test(r);
-    if (bad) fail++;
-    lines.push(`      ${bad ? '✗' : '✓'} @${w}  ${r}`);
+  // 探针文件写在真实页面旁边，跑完必须删掉：一旦留下，build-search.js / checklinks.js
+  // 会把这份副本当成一个真页面收录（踩过：70 页 vs 66 页，多出来的就是临时文件）。
+  // 所以用 try/finally —— 浏览器崩了、超时了，也得把文件清掉。
+  try {
+    fs.writeFileSync(tmp, fs.readFileSync(src, 'utf8').replace('</body>', PROBE + '</body>'));
+    for (const [w, h] of SIZES) {
+      const out = execFileSync(SHELL, ['--no-sandbox', '--in-process-gpu', `--window-size=${w},${h}`,
+        '--virtual-time-budget=1500', '--dump-dom', 'file://' + tmp],
+        { encoding: 'utf8', maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'ignore'] });
+      const m = out.match(/<pre id="R">([\s\S]*?)<\/pre>/);
+      const r = m ? m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') : '无报告';
+      const bad = /页面溢出=是|\.layout=block|未裁剪溢出=(?!无)/.test(r);
+      if (bad) fail++;
+      lines.push(`      ${bad ? '✗' : '✓'} @${w}  ${r}`);
+    }
+  } finally {
+    fs.rmSync(tmp, { force: true });
   }
-  fs.rmSync(tmp, { force: true });
   console.log(`  ${rel}`);
   lines.forEach(l => console.log(l));
 }

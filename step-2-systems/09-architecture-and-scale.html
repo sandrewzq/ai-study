@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>09 · 架构分层与高并发 — 步骤 2 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 2 · 第 9/12 份 ｜ D 域 · 后端、数据与中间件</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>09 · 架构分层与高并发</h1>
 <p class="lead">
@@ -58,6 +62,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 每层该干什么、不该干什么</a></li>
+    <li><a href="#s2">2. 微服务：什么时候该拆</a></li>
+    <li><a href="#s3">3. 稳定性四件套：限流、熔断、缓存、队列</a></li>
+    <li><a href="#s4">4. 追问：express 的底层原理</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>对方问：<strong>"你们这个系统的后端分几层？"</strong>（<code>HJ-8</code>）</p>
@@ -249,6 +267,8 @@
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「传统业务系统的后端分几层」</span>
   <p><strong>【结论】</strong>我们分四层：<strong>接入层、应用层、领域层、数据层</strong>。分层的目的是把变化隔离——换数据库只动数据层，改业务规则只动领域层。</p>
@@ -315,5 +335,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

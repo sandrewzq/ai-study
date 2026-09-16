@@ -4,12 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>04 · 检索优化与重排 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
-  <span class="crumb">步骤 1 · 第 4/9 份 ｜ A 域 · LLM 与 RAG ｜ 对应计划 §5 追问树 5.1</span>
+  <span class="crumb">步骤 1 · 第 4/9 份 ｜ A 域 · LLM 与 RAG ｜ 对应计划 §4 追问链 4.1</span>
 </header>
 
 <div class="layout">
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>04 · 检索优化与重排</h1>
 <p class="lead">
@@ -56,6 +60,23 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 完整链路：一次提问到底经过什么</a></li>
+    <li><a href="#s2">2. 查询优化：用户的问题不是好查询</a></li>
+    <li><a href="#s3">3. 融合：为什么不能把两路分数相加</a></li>
+    <li><a href="#s4">4. 精排的代价，以及怎么缓解</a></li>
+    <li><a href="#s5">5. 怎么加速检索：先问瓶颈在哪</a></li>
+    <li><a href="#s6">6. 答不准时，按什么顺序排查</a></li>
+    <li><a href="#s7">7. 怎么证明召回是准的</a></li>
+    <li><a href="#s8">8. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>员工问：<strong>「餐厅能打包吗？」</strong>——知识库里明明有"员工餐厅不提供外带打包服务"这一条，但系统没把它找出来。</p>
@@ -309,7 +330,7 @@
 <div class="skeleton">
   <span class="tag">回答模板</span>
   <p>"我们会先看监控定位瓶颈：如果是<strong>查询优化</strong>慢，就用缓存和更小的模型；如果是<strong>召回</strong>慢，就调 <code>efSearch</code>、加元数据预过滤；如果是<strong>精排</strong>慢，就缩小候选集、加批处理；如果是<strong>生成</strong>慢，就上流式先把首字吐出来。"</p>
-  <p>顺带说一个真实收益会很有说服力："加了查询改写缓存之后，P95 从 X 秒降到 Y 秒。"</p>
+  <p>顺带说一个真实收益会很有说服力："加了查询改写缓存之后，P95 从 <span class="blank">X</span> 秒降到 <span class="blank">Y</span> 秒。"</p>
 </div>
 
 <!-- ============ 6 ============ -->
@@ -380,11 +401,13 @@
 <!-- ============ 8 ============ -->
 <h2 id="s8">8. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「你们的检索是怎么做的 / 怎么保证召回准确」</span>
   <p><strong>【结论】</strong>我们的检索是"查询优化 + 混合召回 + 精排"三段式。核心认知是：<strong>向量检索解决语义相似，但语义相似不等于能回答问题，所以召回之后必须精排</strong>。</p>
   <p><strong>【做法】</strong>用户问题先做改写和指代消解；然后并行走 ES 关键词和向量两路，各取 Top 50，用 RRF 融合；融合后按权限和生效日期过滤、去重；再用交叉编码器精排到 Top 5 交给模型。两路是并行发的。</p>
-  <p><strong>【数字】</strong>知识库 XX 万段；评测集 XXX 个问题，召回 50 条的命中率 X%，精排后 Top 5 的命中率 Y%；检索全链路 P95 约 X 秒。</p>
+  <p><strong>【数字】</strong>知识库 <span class="blank">XX</span> 万段；评测集 <span class="blank">XXX</span> 个问题，召回 50 条的命中率 <span class="blank">X</span>%，精排后 Top 5 的命中率 <span class="blank">Y</span>%；检索全链路 P95 约 <span class="blank">X</span> 秒。</p>
   <p><strong>【坑】</strong>早期只做向量召回，产品型号和条款编号经常搜不到。加了关键词那一路之后这类问题基本消失。另外一开始用"先检索再过滤"做权限，小部门用户经常搜不到东西，改成检索时带条件才解决。</p>
   <p><strong>【权衡】</strong>精排让准确率明显提升，但延迟增加。我们把候选从 100 缩到 30，并对高频问题做了结果缓存，把延迟压回可接受范围。</p>
 </div>
@@ -462,5 +485,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

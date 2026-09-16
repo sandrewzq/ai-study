@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>02 · 索引：切分与向量化 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 第 2/9 份 ｜ A 域 · LLM 与 RAG</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>02 · 索引：切分与向量化</h1>
 <p class="lead">
@@ -56,6 +60,23 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 粒度：切太大和切太小，各出什么问题</a></li>
+    <li><a href="#s2">2. 怎么切：三种策略</a></li>
+    <li><a href="#s3">3. 切完还要带上"身份证"：元数据</a></li>
+    <li><a href="#s4">4. PDF 为什么最麻烦</a></li>
+    <li><a href="#s5">5. 中文怎么切词（ES 分词）</a></li>
+    <li><a href="#s6">6. 稠密 vs 稀疏：为什么两种都要</a></li>
+    <li><a href="#s7">7. 为什么必须有人工审核</a></li>
+    <li><a href="#s8">8. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>你手上有一份 <strong>80 页的《员工手册》PDF</strong>，要把它变成可检索的知识库。</p>
@@ -383,11 +404,13 @@
 <!-- ============ 8 ============ -->
 <h2 id="s8">8. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「文档是怎么切分、入库、审核的」</span>
   <p><strong>【结论】</strong>切分的标准不是长度，而是<strong>语义是否完整</strong>——切太大，关键信息在整段里的占比被稀释，向量就表达不准、召不回来；切太小，前提条件和指代关系会断裂。</p>
   <p><strong>【做法】</strong>我们是结构优先：先按文档标题层级切，某一节太长的再按句子边界二次切分，相邻块保留 15% 重叠。每个 chunk 头部会拼上章节路径，并带上来源、页码、生效日期、权限这些元数据。向量化之后，向量写进向量库，原文和元数据写进 ES。</p>
-  <p><strong>【数字】</strong>一共 XX 万份文档、切成 XX 万个 chunk，平均每块 X 百字，重叠 15%。</p>
+  <p><strong>【数字】</strong>一共 <span class="blank">XX</span> 万份文档、切成 <span class="blank">XX</span> 万个 chunk，平均每块 <span class="blank">X</span> 百字，重叠 15%。</p>
   <p><strong>【坑】</strong>最开始用固定长度硬切，结果规则类文本被拦腰截断——"在 X 情况下做 Y"被切成两半，模型只看到 Y，不知道怎么用。改成按结构切之后这类问题基本消失。</p>
   <p><strong>【权衡】</strong>语义切分效果最好但慢且贵、长度不可控，所以只在长文档上局部使用，绝大部分场景用结构切分就够了。</p>
 </div>
@@ -400,7 +423,7 @@
     <li><strong>看检索粒度</strong>：要精确定位到条款就切小；要保留完整论证就切大。</li>
     <li><strong>实用折中</strong>：用小 chunk 做检索，命中后把<strong>它所在的整段</strong>送给模型——兼顾准确率和完整性。</li>
   </ul>
-  <p>最好直接说"我们线上用的是 X 字左右，这个值是 A/B 对比之后定的"，比背一个数字可信得多。</p>
+  <p>最好直接说"我们线上用的是 <span class="blank">X</span> 字左右，这个值是 A/B 对比之后定的"，比背一个数字可信得多。</p>
 </details>
 
 <details class="ask">
@@ -464,5 +487,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

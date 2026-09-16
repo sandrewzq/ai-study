@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>03 · 流式的工程细节 — 步骤 2 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 2 · 第 3/12 份 ｜ C 域 · 上下文治理与流式通信</span>
@@ -32,10 +35,11 @@
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>03 · 流式的工程细节</h1>
 <p class="lead">
@@ -57,6 +61,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 心跳保活：怎么知道连接还活着</a></li>
+    <li><a href="#s2">2. 断线重连：怎么退避</a></li>
+    <li><a href="#s3">3. 连接不上时的兜底：降级成轮询</a></li>
+    <li><a href="#s4">4. 弱网和数据不准时，怎么提示用户</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>流式功能上线了，用户反馈三个问题：</p>
@@ -236,6 +254,8 @@
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「WebSocket 有没有做心跳 / 断线怎么重连 / 连不上怎么兜底」</span>
   <p><strong>【心跳】</strong>客户端每 30 秒发 <code>ping</code>，服务端回 <code>pong</code>；连续 2~3 次没收到就判定连接已死，主动断开触发重连。服务端同样要清理半死连接，否则连接池会被占满。</p>
@@ -310,5 +330,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

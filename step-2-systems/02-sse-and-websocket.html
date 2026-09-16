@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>02 · SSE 与 WebSocket — 步骤 2 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 2 · 第 2/12 份 ｜ C 域 · 上下文治理与流式通信</span>
@@ -32,10 +35,11 @@
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>02 · SSE 与 WebSocket</h1>
 <p class="lead">
@@ -57,6 +61,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 三种方案对比</a></li>
+    <li><a href="#s2">2. SSE 的实现细节</a></li>
+    <li><a href="#s3">3. WebSocket 的前端流程</a></li>
+    <li><a href="#s4">4. 怎么选：三个问题</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>你在用 AI 对话，它的回答一个字一个字地出现，你能看到它"正在想"。但如果你等它全部生成完再一次性显示，体验会差很多——<strong>总时长一样，但感觉慢了好几倍。</strong></p>
@@ -259,6 +277,8 @@ data: [DONE]</code></pre>
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「SSE 和 WebSocket 有什么区别，分别用在什么场景」</span>
   <p><strong>【结论】</strong>最本质的区别是<strong>方向</strong>：SSE 是服务器<strong>单向</strong>推送，WebSocket 握手之后是<strong>双向</strong>的。</p>
@@ -302,7 +322,7 @@ data: [DONE]</code></pre>
   <ol>
     <li><strong>用 SSE 把流式输出接起来</strong>：后端持续写 <code>data:</code> 行，前端用 <code>EventSource</code> 或 <code>fetch</code> + 流式读取逐块渲染。跑通"一个字一个字蹦出来"的效果。</li>
     <li><strong>故意踩一次缓冲的坑</strong>：先不关 Nginx 缓冲跑一遍，观察"卡住很久然后一次性全出来"的现象，再关掉对比。<strong>这个体验差异你要能讲出来。</strong></li>
-    <li><strong>量一下首字延迟</strong>：记录"从发请求到第一个字出现"的时间。这个数字讲的时候很有用（"我们的首字延迟是 X 毫秒"）。</li>
+    <li><strong>量一下首字延迟</strong>：记录"从发请求到第一个字出现"的时间。这个数字讲的时候很有用（"我们的首字延迟是 <span class="blank">X</span> 毫秒"）。</li>
     <li><strong>试试 WebSocket 版本</strong>（可选）：用同一套业务逻辑再实现一个 WebSocket 版，对比代码量——你会直观感受到"重连、心跳都要自己写"有多麻烦。这个对比能答出很真实的选型理由。</li>
     <li><strong>录一段口述</strong>：讲清"为什么我们选 SSE 不选 WebSocket"，带上实现成本和踩坑经历。</li>
   </ol>
@@ -341,5 +361,6 @@ data: [DONE]</code></pre>
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

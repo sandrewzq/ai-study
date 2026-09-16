@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>00 · 这一步骤怎么学 — 步骤 5 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 5 · 导读</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-stories.html"><span class="n">09</span><span>讲一段经历</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>00 · 这一步骤怎么学</h1>
 <p class="lead">
@@ -115,6 +119,18 @@
 </div>
 
 <!-- ============ 和前面几步的区别 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#diff">和前几步有什么不一样</a></li>
+    <li><a href="#facts">第一步：把事实表定死</a></li>
+    <li><a href="#structure">第二步：每题 1 分钟，用同一个结构</a></li>
+    <li><a href="#list">这一步骤的材料</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="diff">和前几步有什么不一样</h2>
 
 <table>
@@ -280,5 +296,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

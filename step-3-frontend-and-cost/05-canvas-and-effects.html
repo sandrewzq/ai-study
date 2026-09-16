@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>05 · Canvas 与动效实战 — 步骤 3 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 3 · 第 5/11 份 ｜ E 域 · 前端与浏览器</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>05 · Canvas 与动效实战</h1>
 <p class="lead">
@@ -58,6 +62,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 「Canvas 做过什么场景」（SH-5、SH-6）</a></li>
+    <li><a href="#s2">2. 「红包动画是怎么做的」（SH-7、SH-8）</a></li>
+    <li><a href="#s3">3. 「打开 / 抖动 / 浮动 / 阴影 / 缩放做过吗」（SH-9）</a></li>
+    <li><a href="#s4">4. 无限画布怎么实现（KJ-3）</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>要做一个"新年红包雨"的活动页：<strong>屏幕上飘落几百个金币</strong>，用户点一下金币有爆开效果。</p>
@@ -311,6 +329,8 @@
 <!-- ============ 5 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「Canvas 用过吗 / 做过什么场景 / 无限画布怎么实现」</span>
   <p><strong>【结论】</strong>用过。选型标准我一般看两点：<strong>元素数量</strong>和<strong>要不要单独交互</strong>。数量大、又不需要逐个响应事件、也不需要被搜索和读屏的，用 Canvas。</p>
@@ -364,5 +384,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

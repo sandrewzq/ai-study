@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>09 · 自查与参考回答 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 第 9/9 份 ｜ 验收</span>
@@ -31,10 +34,11 @@
     <li><a class="item cur" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>09 · 自查与参考回答</h1>
 <p class="lead">
@@ -85,6 +89,19 @@
 </div>
 
 <!-- ============ 1 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s1">1. 口述模板：五段式</a></li>
+    <li><a href="#s2">2. 自查题 · RAG 部分（10 题）</a></li>
+    <li><a href="#s3">3. 自查题 · Agent 部分（10 题）</a></li>
+    <li><a href="#s4">4. 完整参考回答（3 份）</a></li>
+    <li><a href="#s5">5. 步骤 1 验收清单</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s1">1. 口述模板：五段式</h2>
 
 <p>绝大多数技术题都能套这个结构，能套住 80% 的题：</p>
@@ -275,11 +292,13 @@
 <!-- ============ 4 ============ -->
 <h2 id="s4">4. 完整参考回答（3 份）</h2>
 
+<p class="skelnote">这三份是<strong>按五段式写完整的答案</strong>，可以当答题稿的样板——先自己讲一遍，再对照着补漏。里面的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位。</p>
+
 <h3>示范一：简单介绍一下 RAG 的流程</h3>
 <div class="skeleton">
   <p><strong>【结论】</strong>RAG 是检索增强生成，核心是先从外部知识库取相关信息，再让模型基于这些信息生成答案。它主要解决模型不知道私有知识、知识会过时、容易幻觉这三个问题。</p>
   <p><strong>【做法】</strong>我们分两条链路。离线链路把文档解析、切分、向量化后入库，同时把原文和元数据存进 ES。在线链路拿到问题后先做查询改写，然后并行走两路召回——ES 做关键词、向量库做语义，用 RRF 融合成 Top 50，再用交叉编码器精排到 Top 5，组装进提示词让模型基于证据回答，并要求标注出处。</p>
-  <p><strong>【数字】</strong>知识库目前 XX 万段，单次问答检索加精排的 P95 是 X 秒；加了混合检索之后，专有名词类问题的命中率从 X% 提到 Y%。</p>
+  <p><strong>【数字】</strong>知识库目前 <span class="blank">XX</span> 万段，单次问答检索加精排的 P95 是 <span class="blank">X</span> 秒；加了混合检索之后，专有名词类问题的命中率从 <span class="blank">X</span>% 提到 <span class="blank">Y</span>%。</p>
   <p><strong>【坑】</strong>最开始只做了向量召回，结果用户搜产品型号和条款编号经常搜不到——向量擅长语义、不擅长精确匹配。加了关键词那一路才解决。</p>
   <p><strong>【权衡】</strong>精排提升了准确率但增加了延迟，所以我把候选从 100 缩到 30，并对高频问题做了结果缓存，把延迟控制在可接受范围。</p>
 </div>
@@ -297,7 +316,7 @@
 <div class="skeleton">
   <p><strong>【结论】</strong>多 Agent 主要解决两个问题：<strong>上下文污染</strong>和<strong>角色冲突</strong>，顺带拿到并行能力。</p>
   <p><strong>【做法】</strong>我们拆了检索和评审两个 Agent。检索 Agent 的上下文里只有查询和结果，不会被后续写作过程污染；评审 Agent 拿到的只有"待评审对象 + 评审维度"，没有历史包袱，判断更客观。两个各配独立的工具集，主 Agent 只负责分派和汇总。</p>
-  <p><strong>【数字】</strong>拆分之后评审结论的一致性明显提升；检索和评审可以并行，总耗时下降约 X%。</p>
+  <p><strong>【数字】</strong>拆分之后评审结论的一致性明显提升；检索和评审可以并行，总耗时下降约 <span class="blank">X</span>%。</p>
   <p><strong>【坑】</strong>一开始让两个 Agent 共用一份对话历史，结果评审者被前面的讨论带偏，永远说"还能改进"。改成上下文隔离之后才有收敛。</p>
   <p><strong>【权衡】</strong>但拆不是免费的：多 Agent 有<strong>通信成本</strong>和<strong>状态一致性成本</strong>——信息在传递中会丢失，责任边界会模糊，还会互相踢皮球。我的判断标准是——<strong>只有当子任务需要不同的上下文、或者可以并行时才拆</strong>，纯粹为了让架构"看起来更专业"而拆是负收益。</p>
 </div>
@@ -339,7 +358,7 @@
 <div class="skeleton">
   <span class="tag">下一步做什么</span>
   <p>步骤 1 达标后进入<strong>步骤 2：做系统（C + D 域）</strong>。那一步<strong>没有预先阅读材料</strong>——C 域（上下文治理、流式输出）和 D 域（后端数据）的知识只能在项目里长出来，先看也是白看。</p>
-  <p>动手之前回 <a href="../index.html#plan">学习计划全文</a> 看步骤 2 的「要实现的 ↔ 顺带答掉的题」对照表，把它当成需求清单来开发。</p>
+  <p>动手之前回 <a href="../reference/plan.html">学习计划</a> 看步骤 2 的「要实现的 ↔ 顺带答掉的题」对照表，把它当成需求清单来开发。</p>
 </div>
 
 <hr>
@@ -352,5 +371,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

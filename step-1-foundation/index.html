@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>步骤 1 · 打地基 — 学习资料目录</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 打地基（A + B 域，45 题）</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>步骤 1 · 打地基</h1>
 <p class="lead">
@@ -78,7 +82,7 @@
 
 <p>另外两处对应关系值得留意：</p>
 <ul>
-  <li><strong>04 和 07 分别对应计划第 5 节的追问树 5.1「RAG 检索链」和 5.2「多 Agent 链」</strong>——那两棵树是本步骤最重要的两条追问链。</li>
+  <li><strong>04 和 07 分别对应计划第 4 节的追问链 4.1「RAG 检索链」和 4.2「多 Agent 链」</strong>——那两条链是本步骤最重要的两条追问链。</li>
   <li><strong>上下文压缩</strong>（<code>JR-11</code> <code>JR-12</code> <code>JR-14</code>）在学习计划里属于 <strong>C 域、步骤 2</strong>，因此<strong>不在本目录</strong>，等步骤 2 的材料一起讲。</li>
 </ul>
 
@@ -165,5 +169,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>01 · 上下文治理 — 步骤 2 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 2 · 第 1/12 份 ｜ C 域 · 上下文治理与流式通信</span>
@@ -32,10 +35,11 @@
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>01 · 上下文治理</h1>
 <p class="lead">
@@ -57,6 +61,19 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 五种治理手段，按优先级排</a></li>
+    <li><a href="#s2">2. 追问：压缩质量不行怎么办</a></li>
+    <li><a href="#s3">3. claude code 是怎么做的</a></li>
+    <li><a href="#s4">4. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>你的 Agent 跑了 15 轮，开始犯一些很蠢的错误：反复改一个已经改对的地方、把早就否掉的方案又提出来、明明文件里写着答案却说"找不到"。</p>
@@ -265,11 +282,13 @@
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「你们上下文压缩的策略是什么」（含追问）</span>
   <p><strong>【结论】</strong>我们的核心原则是<strong>"最好的压缩是不需要压缩"</strong>——优先从源头上不让脏东西进上下文。</p>
   <p><strong>【做法】</strong>四层：① <strong>隔离</strong>：装环境、下数据、跑测试这些脏活交给子 Agent，主线只拿结论；② <strong>外部化</strong>：工具返回的大结果落盘，上下文里只留路径和摘要；③ <strong>摘要</strong>：长对话滚动总结，但关键约束（目标、已确认的结论、失败的教训）用<strong>结构化对象保存</strong>，不依赖模型摘要；④ <strong>截断</strong>：作为最后手段，只保留最近 N 轮。</p>
-  <p><strong>【数字】</strong>改造之后单次任务的 token 消耗下降约 X%，任务成功率提升 X%。</p>
+  <p><strong>【数字】</strong>改造之后单次任务的 token 消耗下降约 <span class="blank">X</span>%，任务成功率提升 <span class="blank">X</span>%。</p>
   <p><strong>【追问应对】</strong>压缩质量确实受模型能力限制。所以关键信息不靠摘要、原始内容可回溯、压缩用更强的模型并做校验。但根本解法还是前面那条——把需要压缩的量降下来。</p>
 </div>
 
@@ -333,5 +352,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

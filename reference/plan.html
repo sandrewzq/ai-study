@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学习计划 · AI Agent 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <span class="crumb">AI Agent 学习资料 · 学习计划</span>
+</header>
+
+<div class="layout">
+
+<nav class="sidenav">
+  <div class="grp zone">往上</div>
+  <a class="up" href="../index.html">← 总目录</a>
+  <div class="grp zone mid">这一层</div>
+  <div class="grp sub">参考</div>
+  <ul>
+    <li><a class="item cur" href="plan.html"><span>学习计划</span></a></li>
+    <li><a class="item" href="questions.html"><span>题目索引</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrap" id="main">
+
+<div id="plan">
+<!-- plan:title -->
+<h1 id="plan-sec-1">Agent 方向 · 题目分类与学习计划</h1>
+<!-- /plan:title -->
+
+  <p class="lead">242 道题按知识域分成 A~J 十个域，排成步骤 0~5 的学习顺序。<strong>下面的目录可直接跳到任意章节。</strong></p>
+
+  <div class="warn">
+    <span class="tag">读正文前先知道这个</span>
+    <p>计划里把 242 题分成 <strong>A~J 十个知识域</strong>（按学习顺序编号）：A = LLM 与 RAG、B = Agent 与多智能体、C = 上下文治理与流式通信、D = 后端与数据、E = 前端、F = 量化与成本、G = 项目叙事、H = AI 工作流、I = 工程化、J = 软性与职业。</p>
+    <p>所以正文里出现「<strong>F 域</strong>」「<strong>E 域</strong>」时，指的就是这些编号。完整对照见下面的<strong>第 1 节</strong>，或页面最末尾的速查表。</p>
+  </div>
+
+<!-- plan:auto -->
+<nav class="toc">
+  <div class="toc-title">这份计划的目录</div>
+  <ol>
+    <li><a href="#plan-sec-2">0. 这份文档怎么用</a></li>
+    <li><a href="#plan-sec-3">1. 学习顺序：A → J</a></li>
+    <li><a href="#plan-sec-6">2. 高频重复题（优先级最高，先练这些）</a></li>
+    <li><a href="#plan-sec-7">3. 数字题：最硬的筛子，必须自己填</a></li>
+    <li><a href="#plan-sec-8">4. 高频追问链（真正的分差在这里）</a></li>
+    <li><a href="#plan-sec-15">5. 答题标准：60 / 80 / 100 分</a></li>
+    <li><a href="#plan-sec-16">6. 执行步骤：按 A→J 推进</a></li>
+    <li><a href="#plan-sec-24">7. 优先级取舍与避坑</a></li>
+    <li><a href="#plan-sec-25">附：速查表</a></li>
+  </ol>
+</nav>
+<blockquote><p><strong>题目来源</strong>：整理自公开技术社区的技术分享，共 <strong>242 题</strong>，已按知识域重新归类，题号沿用「公司缩写-原序号」。</p><p>题目原文的权利归原作者所有；本页的讲解与分类是重新组织的，不是原文转载。</p></blockquote>
+<hr>
+<h2 id="plan-sec-2">0. 这份文档怎么用</h2>
+<p>三件事，各用一遍：</p>
+<ol><li><strong>体检</strong>：把<a href="questions.html">题目索引</a>里的清单从头扫一遍，每题打一个标记 —— <code>- [x]</code> 表示「能讲 3 分钟」，<code>- [ ]</code> 表示「答不利索」。只学没打勾的。</li><li><strong>突破</strong>：<strong>按第 1 节的 A→J 顺序学</strong>，不要按公司顺序、也不要按题量顺序。</li><li><strong>模拟</strong>：开始之前用它抽题。随机从 5 个不同域各抽 1 题，连问 40 分钟，模拟真实节奏。</li></ol>
+<p>原文件是<strong>实际提问顺序</strong>（按公司），这份文档是<strong>学习顺序</strong>（按知识域 + 依赖关系）。两份配合用。</p>
+<hr>
+<h2 id="plan-sec-3">1. 学习顺序：A → J</h2>
+<p>编号规则：<strong>A~J 就是学习顺序</strong>，本文所有清单（含附录）都严格按 A→J 排列。题量单独列出来，它只决定「这一域值不值得花时间」，不决定「先学哪个」。</p>
+<table><thead><tr><th style="text-align:left">编号</th><th style="text-align:left">知识域</th><th style="text-align:left">学习步骤</th><th style="text-align:right">题量</th><th style="text-align:right">占比</th><th style="text-align:left">怎么准备</th></tr></thead><tbody><tr><td style="text-align:left"><strong>A</strong></td><td style="text-align:left">LLM 与 RAG</td><td style="text-align:left">步骤 1 · 打地基</td><td style="text-align:right">22</td><td style="text-align:right">9%</td><td style="text-align:left">AI 岗的门槛知识，也是项目的核心实现。按「流程 → 效果 → 优化 → 评测」四层准备，第一天就要开始。</td></tr><tr><td style="text-align:left"><strong>B</strong></td><td style="text-align:left">Agent、多智能体与工具协议</td><td style="text-align:left">步骤 1 · 打地基</td><td style="text-align:right">23</td><td style="text-align:right">10%</td><td style="text-align:left">这一域的名字就是你学的方向，是必须最早建立认知的一域。深挖点集中在「为什么」和「失败怎么办」，要能讲清 trade-off。</td></tr><tr><td style="text-align:left"><strong>C</strong></td><td style="text-align:left">上下文治理与流式通信</td><td style="text-align:left">步骤 2 · 做系统</td><td style="text-align:right">23</td><td style="text-align:right">10%</td><td style="text-align:left">最容易露馅的一域，几乎全是「你有没有真做过」（断线续传、心跳、降级、状态同步），只能在项目里练出来。</td></tr><tr><td style="text-align:left"><strong>D</strong></td><td style="text-align:left">后端、数据与中间件</td><td style="text-align:left">步骤 2 · 做系统</td><td style="text-align:right">37</td><td style="text-align:right">15%</td><td style="text-align:left">题量第二（37 题），但不要提前刷完：做项目时遇到什么补什么。重点：事务 / 索引 / 缓存一致性 / 队列可靠性 / 并发。</td></tr><tr><td style="text-align:left"><strong>E</strong></td><td style="text-align:left">前端与浏览器</td><td style="text-align:left">步骤 3 · 保分</td><td style="text-align:right">44</td><td style="text-align:right">18%</td><td style="text-align:left">你的存量优势区（44 题），用 2~3 天集中刷完基础题即可，别在这里超支。Vue2/3 响应式原理被 3 家公司反复问，属送分题。</td></tr><tr><td style="text-align:left"><strong>F</strong></td><td style="text-align:left">量化指标与成本</td><td style="text-align:left">步骤 3 · 量化</td><td style="text-align:right">8</td><td style="text-align:right">3%</td><td style="text-align:left">只有 8 题，但最硬的筛子 —— 数字必须是项目真跑出来的，所以必须排在项目之后。</td></tr><tr><td style="text-align:left"><strong>G</strong></td><td style="text-align:left">项目叙事与方案设计</td><td style="text-align:left">步骤 4 · 讲故事</td><td style="text-align:right">27</td><td style="text-align:right">11%</td><td style="text-align:left">27 题，必须放在项目之后 —— 没有可讲的东西时准备它是空转。每题准备「我做过什么 + 数字 + 坑」。</td></tr><tr><td style="text-align:left"><strong>H</strong></td><td style="text-align:left">AI 工作流与个人效能</td><td style="text-align:left">全程并行</td><td style="text-align:right">18</td><td style="text-align:right">7%</td><td style="text-align:left">18 题，考的是「你本人」是不是真的重度使用 AI。不用专门排期，日常用 AI 时顺手积累素材即可。</td></tr><tr><td style="text-align:left"><strong>I</strong></td><td style="text-align:left">工程化、运维与交付</td><td style="text-align:left">按方向取舍</td><td style="text-align:right">7</td><td style="text-align:right">3%</td><td style="text-align:left">7 题，docker/k8s/linux/测试，答出「够用」即可，按目标方向决定投入，不必深挖源码级细节。</td></tr><tr><td style="text-align:left"><strong>J</strong></td><td style="text-align:left">软性、职业与综合</td><td style="text-align:left">步骤 5 · 冲刺</td><td style="text-align:right">33</td><td style="text-align:right">14%</td><td style="text-align:left">33 题，提前写稿背熟，注意每一轮说法一致（尤其是一些个人情况）。</td></tr><tr><td style="text-align:left"></td><td style="text-align:left"><strong>合计</strong></td><td style="text-align:left"></td><td style="text-align:right"><strong>242</strong></td><td style="text-align:right">100%</td><td style="text-align:left"></td></tr></tbody></table>
+<h3 id="plan-sec-4">为什么是这个顺序</h3>
+<p>不是按题量，也不是按重要性，而是按<strong>依赖关系</strong>：前面学的东西是后面东西的前提。</p>
+<ol><li><strong>A + B 打地基（步骤 1）</strong>：这两个是方向门槛，也是你做项目时的「图纸」。不先建立认知就直接上手做项目，只能照着教程抄，对方一追问就穿帮。</li><li><strong>C + D 做系统（步骤 2）</strong>：这两域的题几乎全是「你有没有真做过」，纸上准备不出来，只能在项目里练。它们是把前两步变成<strong>能跑的系统</strong>的能力。</li><li><strong>E 保分（步骤 3）</strong>：这是你的存量优势区，也是题量最大的一域，但恰恰最不需要提前学 —— 集中突击几天刷完基础题即可，省下的精力给做项目。</li><li><strong>F 量化（步骤 3）</strong>：数字必须是项目真跑出来的，<strong>必须排在项目之后</strong>，提前准备只能编，编了会连环翻车。</li><li><strong>G 讲故事（步骤 4）</strong>：项目做完才有素材。这也是为什么它虽然题量第三，却排在很后面。</li><li><strong>J 冲刺（步骤 5）</strong>：写稿背熟就行，学早了会忘，放最后收益最高。</li></ol>
+<p>两域不占步骤：<strong>H（AI 工作流与个人效能）全程并行</strong>，日常用 AI 时顺手积累；<strong>I（工程化）按目标方向取舍</strong>。</p>
+<blockquote><p>注意：以上是<strong>投入顺序</strong>，不是「做完一个再做下一个」。C、D 两域与步骤 2 的项目是交织进行的。</p><p>这份计划<strong>不排时间表，只排顺序</strong>。每个步骤在第 6 节都给了明确的「完成标志」，达标了就进下一步，没达标就继续 —— 进度取决于你每天能投入多少，跟日历无关。</p></blockquote>
+<h3 id="plan-sec-5">两个关键结论</h3>
+<p><strong>最关键的一条结论：纯 AI 知识（A + B）只有 45 题，占 19%。</strong> 一半以上的题是「工程基本功（D / E / I）+ 项目叙事与量化（F / G）」。</p>
+<p>所以正确的准备姿势不是「去学 Agent 技术」，而是：<strong>用一个真实的 AI 项目，把工程基本功串起来讲。</strong> 只会背 RAG 流程的人，会在 D、E、F、G 四域上大面积失分。</p>
+<p>另一个信号是<strong>重复率</strong>：SSE/WebSocket 重复出现 5 次，RAG 检索链重复出现 7 次，Vue 响应式重复出现 3 次，成本/用量类数字题几乎家家都问。这些重复出现的就是必考项（见第 2 节）。</p>
+<hr>
+<h2 id="plan-sec-6">2. 高频重复题（优先级最高，先练这些）</h2>
+<table><thead><tr><th style="text-align:left">高频考点</th><th style="text-align:left">涉及题号</th><th style="text-align:right">出现公司数</th></tr></thead><tbody><tr><td style="text-align:left">RAG 全链路：流程 / 检索加速 / 召回准确性 / 向量库选型 / 切片 / rerank</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/01-what-is-rag.html"><code>JR-5</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>JR-6</code></a> <a class="qref" href="../step-1-foundation/03-vector-store-and-index.html"><code>JR-7</code></a> <a class="qref" href="../step-1-foundation/03-vector-store-and-index.html"><code>JR-8</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>JR-10</code></a> <a class="qref" href="../step-1-foundation/01-what-is-rag.html"><code>TK-8</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-27</code></a> <a class="qref" href="../step-1-foundation/03-vector-store-and-index.html"><code>HQ-28</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-29</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-30</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-31</code></a> <a class="qref" href="../step-1-foundation/01-what-is-rag.html"><code>PY-5</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>PY-6</code></a> <a class="qref" href="../step-1-foundation/01-what-is-rag.html"><code>YU-17</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YU-18</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YF-4</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YF-5</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YF-6</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>YF-7</code></a></td><td style="text-align:right">7</td></tr><tr><td style="text-align:left">SSE / WebSocket：区别 / 心跳 / 重连 / 降级 / 断线续传 / 流式渲染</td><td style="text-align:left"><a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>FN-6</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>YC-10</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-18</code></a> <a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>HQ-19</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-20</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-21</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-22</code></a> <a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>YF-20</code></a> <a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>SH-10</code></a>~<a class="qref" href="../step-2-systems/03-streaming-details.html"><code>SH-21</code></a></td><td style="text-align:right">5</td></tr><tr><td style="text-align:left">多 Agent：是什么 / 为什么 / 什么场景 / 怎么路由</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>ML-5</code></a>~<a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>ML-10</code></a> <a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>HQ-26</code></a> <a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>YU-19</code></a></td><td style="text-align:right">3</td></tr><tr><td style="text-align:left">Vue2 / Vue3 响应式原理、Proxy vs defineProperty、数组拦截</td><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/01-framework-comparison.html"><code>SH-33</code></a>~<a class="qref" href="../step-3-frontend-and-cost/03-reactivity-pitfalls.html"><code>SH-39</code></a> <a class="qref" href="../step-3-frontend-and-cost/02-vue-reactivity.html"><code>HQ-32</code></a>~<a class="qref" href="../step-3-frontend-and-cost/02-vue-reactivity.html"><code>HQ-35</code></a> <a class="qref" href="../step-3-frontend-and-cost/02-vue-reactivity.html"><code>YF-18</code></a></td><td style="text-align:right">3</td></tr><tr><td style="text-align:left">成本与用量：token 消耗 / 成本优化 / 降本幅度 / 并发量</td><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>ML-11</code></a>~<a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-16</code></a> <a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>HJ-1</code></a> <a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>HJ-9</code></a> <a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-16</code></a></td><td style="text-align:right">3</td></tr><tr><td style="text-align:left">队列与任务可靠性：任务丢失 / 重试幂等 / 断点续跑 / 重复推理</td><td style="text-align:left"><a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-14</code></a>~<a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-17</code></a> <a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>PY-20</code></a> <a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>PY-21</code></a></td><td style="text-align:right">2</td></tr><tr><td style="text-align:left">工具协议：MCP / Function Call / Skill 三者区别</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>ML-2</code></a> <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>XZ-2</code></a> <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>YF-11</code></a> <a class="qref" href="../ai-workflow/02-tools-and-models.html"><code>PY-23</code></a></td><td style="text-align:right">4</td></tr><tr><td style="text-align:left">上下文治理：压缩策略 / claude code 上下文管理 / agent 主循环</td><td style="text-align:left"><a class="qref" href="../step-2-systems/01-context-management.html"><code>JR-11</code></a> <a class="qref" href="../step-2-systems/01-context-management.html"><code>JR-12</code></a> <a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>JR-13</code></a> <a class="qref" href="../step-2-systems/01-context-management.html"><code>JR-14</code></a> <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>JR-15</code></a> <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>KJ-1</code></a> <a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>HQ-36</code></a></td><td style="text-align:right">3</td></tr><tr><td style="text-align:left">AI 工作流：你日常怎么用 AI / 有没有规范 / 效率提升多少</td><td style="text-align:left"><a class="qref" href="../ai-workflow/01-my-workflow.html"><code>YC-6</code></a>~<a class="qref" href="../ai-workflow/03-quality-and-review.html"><code>YC-9</code></a> <a class="qref" href="../ai-workflow/02-tools-and-models.html"><code>HJ-2</code></a>~<a class="qref" href="../ai-workflow/01-my-workflow.html"><code>HJ-6</code></a> <a class="qref" href="../ai-workflow/01-my-workflow.html"><code>XZ-1</code></a> <a class="qref" href="../ai-workflow/02-tools-and-models.html"><code>YU-3</code></a> <a class="qref" href="../ai-workflow/03-quality-and-review.html"><code>YU-7</code></a> <a class="qref" href="../ai-workflow/04-efficiency-and-prompts.html"><code>YU-8</code></a> <a class="qref" href="../ai-workflow/04-efficiency-and-prompts.html"><code>YU-12</code></a> <a class="qref" href="../ai-workflow/04-efficiency-and-prompts.html"><code>YF-8</code></a> <a class="qref" href="../ai-workflow/04-efficiency-and-prompts.html"><code>YF-9</code></a></td><td style="text-align:right">5</td></tr><tr><td style="text-align:left">提问方最爱问的架构设计题：拆模块 / 分层 / 数据流转 / 选型</td><td style="text-align:left"><a class="qref" href="../step-4-storytelling/04-from-zero.html"><code>YC-2</code></a>~<a class="qref" href="../step-4-storytelling/03-architecture-layers.html"><code>YC-5</code></a> <a class="qref" href="../step-4-storytelling/04-from-zero.html"><code>HJ-7</code></a> <a class="qref" href="../step-4-storytelling/05-design-cases.html"><code>HJ-14</code></a> <a class="qref" href="../step-4-storytelling/05-design-cases.html"><code>HJ-15</code></a> <a class="qref" href="../step-4-storytelling/07-landing-and-blockers.html"><code>PY-1</code></a> <a class="qref" href="../step-4-storytelling/05-design-cases.html"><code>YF-23</code></a></td><td style="text-align:right">4</td></tr></tbody></table>
+<hr>
+<h2 id="plan-sec-7">3. 数字题：最硬的筛子，必须自己填</h2>
+<p>这一组题问的是「你到底有没有跑过真实系统」，<strong>编不出来</strong>，而且对方会顺着追问口径。</p>
+<p>准备方式只有一个：在自己的项目里真的去测，形成一套自洽的数字 —— 这也是为什么 F 域必须排在项目之后。</p>
+<table><thead><tr><th style="text-align:left">题号</th><th style="text-align:left">问题</th><th style="text-align:left">你需要准备的数字</th></tr></thead><tbody><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>ML-11</code></a></td><td style="text-align:left">用户量、日活</td><td style="text-align:left">注册量 / 日活 / 周活，以及口径（是累计还是月活）</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>ML-12</code></a></td><td style="text-align:left">Agent 使用量</td><td style="text-align:left">日均调用次数、峰值 QPS</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>ML-13</code></a></td><td style="text-align:left">Token 消耗量</td><td style="text-align:left">单次请求平均 input/output token、日均总量</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-14</code></a></td><td style="text-align:left">怎么节约 AI 成本</td><td style="text-align:left">成本构成拆解：模型费 / 向量库 / 服务器</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-15</code></a></td><td style="text-align:left">做过哪些成本优化</td><td style="text-align:left">缓存命中率、模型分级路由比例、上下文裁剪比例</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-16</code></a></td><td style="text-align:left">最终降了多少成本、收益多少</td><td style="text-align:left">降本百分比 + 对应绝对值，以及收益怎么算出来的</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>HJ-1</code></a></td><td style="text-align:left">个人一个月 token 使用量</td><td style="text-align:left">自己日常的用量（这是筛「你到底用不用 AI」的题）</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>HJ-9</code></a></td><td style="text-align:left">最大并发数、部署在哪里</td><td style="text-align:left">并发峰值、部署形态（云/自建、几台机器）</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-16</code></a></td><td style="text-align:left">任务重试导致重复调用大模型，怎么降本</td><td style="text-align:left">幂等去重后的重复调用下降比例</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-1-foundation/03-vector-store-and-index.html"><code>JR-7</code></a></td><td style="text-align:left">向量库数据量</td><td style="text-align:left">文档数 / chunk 数 / 向量维度 / 索引大小</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-4-storytelling/02-project-facts.html"><code>PY-10</code></a></td><td style="text-align:left">落地花了多久</td><td style="text-align:left">工期拆分：调研/开发/联调/上线各多久</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-2-systems/05-index-and-slow-query.html"><code>TK-9</code></a></td><td style="text-align:left">MySQL IO 爆高的排查过程</td><td style="text-align:left">能讲出定位路径 + 优化前后的耗时对比</td></tr><tr><td style="text-align:left"><a class="qref" href="../step-4-storytelling/02-project-facts.html"><code>YF-3</code></a></td><td style="text-align:left">这个系统做了多久</td><td style="text-align:left">个人投入时间与团队规模</td></tr><tr><td style="text-align:left"><a class="qref" href="../ai-workflow/04-efficiency-and-prompts.html"><code>YU-8</code></a></td><td style="text-align:left">用 AI 后你的效率在团队里什么水平</td><td style="text-align:left">一个可验证的对比口径（如需求交付周期缩短多少）</td></tr></tbody></table>
+<blockquote><p>没有真实项目怎么办：自己搭一个知识库问答系统，跑 1~2 万份文档，把上面每一项都测一遍。这个项目本身就能回答 G 域的一大半题目。</p></blockquote>
+<hr>
+<h2 id="plan-sec-8">4. 高频追问链（真正的分差在这里）</h2>
+<p>对方不会只问一层。下面 6 条链是最高频的追问路径，每条都标了它属于哪个学习步骤。</p>
+<p><strong>怎么用</strong>：每题先自己讲一遍，讲完再对照「要点」补漏。<strong>要点不是名词清单，是一句「按什么顺序、讲哪几件事」的话</strong>——照着它就能起头，细节和数字再回材料页。每段末尾的「配套题」点进去，就是讲这道题的那份材料，要点就是那份材料里答法的压缩版。</p>
+<h3 id="plan-sec-9">4.1 RAG 检索链</h3>
+<div class="chain-meta">A 域 · 步骤 1 打地基　·　JR / HQ / PY / YF 四家都在追</div>
+<ol class="qchain">
+  <li><span class="ask"><span class="lbl">主问题</span>RAG 整体流程是什么？</span>
+    <span class="hint"><span class="lbl">要点</span>分两条链说，不要揉成一条：离线（解析 → 切分 → 向量化 → 入库，原文和元数据同时进 ES）；在线（查询改写 → 混合召回 → RRF 融合 → 权限与生效期过滤 → 精排 → 组装提示词生成，并要求标注出处）。收尾补一句工程细节：每条数据都要带元数据（来源、版本、生效时间、权限），否则后面做过滤、做引用、做权限控制都要返工。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>怎么加速检索？</span>
+    <span class="hint"><span class="lbl">要点</span>别堆手段，先分诊瓶颈：查询处理慢就加缓存，召回慢就调 efSearch 或加元数据预过滤，精排慢就缩候选集，生成慢就上流式先把首字吐出来。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>召回不准怎么办？</span>
+    <span class="hint"><span class="lbl">要点</span>三步：查询改写 → 混合检索（ES 关键词 + 向量语义，RRF 融合）→ 交叉编码器精排。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>已经分组、排序、去重了，为什么还要 rerank？</span>
+    <span class="hint"><span class="lbl">要点</span>粗排是双塔、比的是语义相似，而相似不等于能回答问题；精排用交叉编码器把问题和文档拼在一起逐词对齐，才算得准。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>加了 rerank 延迟上升怎么办？</span>
+    <span class="hint"><span class="lbl">要点</span>三招：候选从 100 缩到 30、高频问题走结果缓存、精排本身做批处理。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>怎么证明改完真的变好了？</span>
+    <span class="hint"><span class="lbl">要点</span>先有评测集；看两个命中率——召回 50 条的、精排 Top 5 的；政策这类答错要出事的场景再加人工抽检。</span></li>
+</ol>
+<p>配套题：<a class="qref" href="../step-1-foundation/01-what-is-rag.html"><code>JR-5</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>JR-6</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>JR-10</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-27</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-29</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-30</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-31</code></a> <a class="qref" href="../step-1-foundation/01-what-is-rag.html"><code>PY-5</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YF-6</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>YF-7</code></a></p>
+<h3 id="plan-sec-10">4.2 多 Agent 链</h3>
+<div class="chain-meta">B 域 · 步骤 1 打地基　·　ML 连问 6 题，本质是一条链</div>
+<ol class="qchain">
+  <li><span class="ask"><span class="lbl">主问题</span>什么是多 Agent？</span>
+    <span class="hint"><span class="lbl">要点</span>先纠一个常见误解：多 Agent 的核心不是「分工」，是「把上下文隔离开」——每个 Agent 有独立角色和独立上下文。三个症状各对一个根因：错误假设留在上下文里把人带偏、自己评审自己永远说「还不错」、发散和收敛混在一个提示词里自己跟自己打架。并行和交叉验证是拆完顺带拿到的，不是目的。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>为什么需要多 Agent？</span>
+    <span class="hint"><span class="lbl">要点</span>两个根因：上下文污染、角色冲突；并行和交叉验证是顺带拿到的。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>单 Agent 也能分配多个职能，为什么还要拆？</span>
+    <span class="hint"><span class="lbl">要点</span>职能分配了，上下文还是同一份——拆的本质是给每个角色一份干净的上下文。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>什么场景下才值得拆？</span>
+    <span class="hint"><span class="lbl">要点</span>拆有代价：通信成本、状态一致性、排查难度；只有子任务需要不同上下文、或者能并行时才拆。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>多 Agent 怎么路由？</span>
+    <span class="hint"><span class="lbl">要点</span>静态图 vs 动态路由；我们的做法是主 Agent 只负责分派和汇总，各角色配独立工具集（HQ-26）。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>怎么防止多个 Agent 互相「踢皮球」或死循环？</span>
+    <span class="hint"><span class="lbl">要点</span>先划责任边界再定终止条件：谁负责、要交付什么、几轮之内必须收敛。</span></li>
+</ol>
+<p>配套题：<a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>ML-5</code></a>~<a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>ML-10</code></a> <a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>HQ-26</code></a> <a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>YU-19</code></a></p>
+<h3 id="plan-sec-11">4.3 流式通信链</h3>
+<div class="chain-meta">C 域 · 步骤 2 做系统　·　5 家都问，细节题最杀人</div>
+<ol class="qchain">
+  <li><span class="ask"><span class="lbl">主问题</span>SSE 和 WebSocket 有什么区别？各自适用场景？</span>
+    <span class="hint"><span class="lbl">要点</span>一句话先给区别：最本质的是<strong>方向</strong>——SSE 服务器单向推，WebSocket 握手之后是双向的。落到选型：只是服务器把数据推给前端看（推 token、推进度）用 SSE；要频繁双向交互或传二进制才上 WebSocket。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>你们都用了哪个？为什么？</span>
+    <span class="hint"><span class="lbl">要点</span>只要单向推 token 就 SSE：少写一套重连逻辑、天然兼容网关；要双向交互或传二进制才上 WebSocket。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>WebSocket 有没有做心跳保活？断了怎么重连？</span>
+    <span class="hint"><span class="lbl">要点</span>心跳：30 秒 ping/pong，连续 2~3 次没回就判死。重连：指数退避 + 随机抖动（不加抖动，所有客户端会在同一刻一起重连把服务端打垮），并且只对网络错误重连。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>连不上怎么兜底？会降级成 HTTP 轮询吗？</span>
+    <span class="hint"><span class="lbl">要点</span>会：降级轮询，频率动态放慢（有数据 2~3 秒、没数据逐步到 10 秒、切后台暂停）；再不行就给明确提示和一个「重试」按钮。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>SSE 断线续传怎么做？</span>
+    <span class="hint"><span class="lbl">要点</span>把「连接」和「任务」解耦：任务在服务端独立存储，每条输出带递增 seq，重连时用 Last-Event-ID 上报，服务端把 seq 之后的内容补发。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>后端流式推、前端边收边渲染，怎么做状态同步？</span>
+    <span class="hint"><span class="lbl">要点</span>一句话原则：让用户随时知道系统处于什么状态，并且永远留一个出口。重连用横幅不弹窗，可能过期的数据加时间戳或置灰。</span></li>
+</ol>
+<p>配套题：<a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>FN-6</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>YC-10</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-18</code></a>~<a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-22</code></a> <a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>YF-20</code></a> <a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>SH-10</code></a>~<a class="qref" href="../step-2-systems/03-streaming-details.html"><code>SH-21</code></a></p>
+<h3 id="plan-sec-12">4.4 上下文治理链</h3>
+<div class="chain-meta">C 域 · 步骤 2 做系统　·　claude code 相关题都挂在这条链上</div>
+<ol class="qchain">
+  <li><span class="ask"><span class="lbl">主问题</span>你的上下文压缩策略是什么？</span>
+    <span class="hint"><span class="lbl">要点</span>先给原则再给方法：核心原则是「最好的压缩是不需要压缩」——优先从源头上不让脏东西进上下文。然后按优先级报四层：① 隔离（脏活交子 Agent，主线只拿结论）；② 外部化（大结果落盘，上下文只留路径和摘要）；③ 摘要（长对话滚动总结，关键约束用结构化对象存）；④ 截断（最后手段）。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>压缩后质量下降怎么办？</span>
+    <span class="hint"><span class="lbl">要点</span>三件事一起做：关键信息用结构化字段存、不靠模型摘要；原始内容落盘可回溯；压缩用更强的模型并做一次校验。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>那怎么避免上下文被污染？</span>
+    <span class="hint"><span class="lbl">要点</span>主线程只留结论，装环境、跑测试这类脏活丢给子 Agent——最好的压缩是不需要压缩。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>claude code 的上下文治理怎么做的？</span>
+    <span class="hint"><span class="lbl">要点</span>三层：脏活丢给 sub-agent 做隔离、长对话滚动摘要、工具返回的大结果只留路径和摘要不回灌全文。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>claude code 的核心循环是什么？</span>
+    <span class="hint"><span class="lbl">要点</span>读 → 想 → 调工具 → 回灌；关键是「下一步做什么」由模型看着当前情况现判，没有任何一步是提前写死的。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>多轮循环怎么防止死循环和 token 爆炸？</span>
+    <span class="hint"><span class="lbl">要点</span>两件事分开管：循环靠终止条件和轮次上限兜底；token 靠工具结果落盘、滚动摘要和结构化字段压。</span></li>
+</ol>
+<p>配套题：<a class="qref" href="../step-2-systems/01-context-management.html"><code>JR-11</code></a> ~ <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>JR-15</code></a> <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>KJ-1</code></a> <a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>HQ-36</code></a></p>
+<blockquote><p>补充阅读：你库里的《AI科研不完全指北》讲的正是这件事 —— 所有工作流设计最终都只在做一件事：管住每一个 session 的上下文。</p></blockquote>
+<h3 id="plan-sec-13">4.5 异步任务与可靠性链</h3>
+<div class="chain-meta">D 域 · 步骤 2 做系统　·　HQ / PY 两家的深水区</div>
+<ol class="qchain">
+  <li><span class="ask"><span class="lbl">主问题</span>视频解析 / Embedding 这种长任务为什么用队列？</span>
+    <span class="hint"><span class="lbl">要点</span>别罗列技术名词，按「入队 → 消费 → 完成」三段讲：入队立刻返回「已受理」，不让用户等；消费端匀速拉取，把瞬时压力摊平（削峰）；完成情况落成数据，进程崩了也能重投、重试、续跑。一句话收尾：队列换来的不是性能，是「不丢、可重试、可削峰」。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>进程崩溃 / K8S 重启后任务会不会丢？</span>
+    <span class="hint"><span class="lbl">要点</span>三个风险点分别堵：入队前先写一条 pending 任务记录（投递失败还能扫出来补投）、消费中手动 ack（不 ack 就重投）、确认前靠业务幂等兜底。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>怎么保证不丢 + 一致性？</span>
+    <span class="hint"><span class="lbl">要点</span>先认一条认知：队列保证的是至少一次投递，不是恰好一次——所以重复是必然的，目标不是「防止重复」，而是「让重复没有副作用」。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>重试导致重复执行、重复调用大模型怎么办？</span>
+    <span class="hint"><span class="lbl">要点</span>幂等键建唯一索引，执行前先查、执行后落库；AI 场景里重复不只是数据问题，是直接烧钱。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>任务中途中断怎么断点续跑？</span>
+    <span class="hint"><span class="lbl">要点</span>进度落表，重跑时按已完成的批次跳过——代价只落在没做完的那一段，而不是整个任务从头再来。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>前端怎么感知任务中断 / 运行状态？</span>
+    <span class="hint"><span class="lbl">要点</span>别只依赖长连接：进页面先调一次任务状态接口拿当前状态和已有内容，再用连接接后续增量——长连接只能收到「连接之后」的变化。</span></li>
+</ol>
+<p>配套题：<a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-14</code></a>~<a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-18</code></a> <a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>PY-20</code></a>~<a class="qref" href="../step-2-systems/08-payment-and-reconciliation.html"><code>PY-22</code></a></p>
+<h3 id="plan-sec-14">4.6 成本优化链</h3>
+<div class="chain-meta">F 域 · 步骤 3 量化　·　ML 连问 6 题</div>
+<ol class="qchain">
+  <li><span class="ask"><span class="lbl">主问题</span>你有没有考虑过怎么节约 AI 成本？</span>
+    <span class="hint"><span class="lbl">要点</span>这题考的是结构不是数字，按四步走：先表态「算过账」→ 拆成本构成（模型调用占大头，向量库和服务器占小头）→ 按性价比报手段（缓存 &gt; 减少输入 &gt; 模型分级，外加去重）→ 最后给降幅和统计口径，并主动补一句「没牺牲效果」。<strong>别一上来就报一个百分比</strong>。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>做了哪些优化方案？</span>
+    <span class="hint"><span class="lbl">要点</span>按性价比排：第一是缓存，相同问题不重复调用，省得最多也最简单；第二是减输入（精排后只留最相关的几段、历史对话做摘要）；第三才是模型分级。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>为什么这样做有效？</span>
+    <span class="hint"><span class="lbl">要点</span>先拆成本构成再动手：模型调用占大头，而其中输入 token 比输出更值钱——这是 RAG 场景的特点，因为要把检索到的资料塞进去。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>最终降了多少？</span>
+    <span class="hint"><span class="lbl">要点</span>三个数一起给：降的百分比、省下的绝对金额、以及统计口径（按 token 还是按调用次数），缺一个都会被追着问。</span></li>
+  <li><span class="ask"><span class="lbl">追问</span>降本有没有牺牲效果？怎么监控？</span>
+    <span class="hint"><span class="lbl">要点</span>先做不影响效果的（缓存、去重、精简输入），再做要权衡的（模型分级），而且分级必须配兜底和效果监控——分错模型省下的钱可能不够赔体验。</span></li>
+</ol>
+<p>配套题：<a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>ML-11</code></a>~<a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-16</code></a> <a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>HJ-1</code></a> <a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-16</code></a></p>
+<hr>
+<h2 id="plan-sec-15">5. 答题标准：60 / 80 / 100 分</h2>
+<p>每道题都按三档准备，对方一个追问就能分辨你在哪一档：</p>
+<table><thead><tr><th style="text-align:left">档位</th><th style="text-align:left">表现</th><th style="text-align:left">例子（以「为什么需要多 Agent」为例）</th></tr></thead><tbody><tr><td style="text-align:left">60 分</td><td style="text-align:left">说得出定义和结论</td><td style="text-align:left">「因为要分工，每个 Agent 负责一个职能。」</td></tr><tr><td style="text-align:left">80 分</td><td style="text-align:left">绑定自己项目 + 数字 + 坑</td><td style="text-align:left">「我们拆了检索、代码、评审三个 Agent，拆之前单 Agent 上下文里混着调研笔记和历史失败方案，越到后面 idea 越飘；拆开后每个 Agent 上下文干净，评审结论一致性明显提升。」</td></tr><tr><td style="text-align:left">100 分</td><td style="text-align:left">讲清 trade-off 与边界</td><td style="text-align:left">「但拆不是免费的：多 Agent 有通信成本和状态一致性成本，任务拆得太细反而会因为信息丢失而变差。我的判断标准是——只有当子任务需要<strong>不同的上下文</strong>或<strong>可以并行</strong>时才拆，纯粹为了『看起来更专业』而拆是负收益。」</td></tr></tbody></table>
+<p><strong>口述统一用五段式</strong>，能套住 80% 的题：</p>
+<blockquote><p>结论 → 我项目里怎么做的 → 数字 → 踩过的坑 → 权衡与边界</p></blockquote>
+<hr>
+<h2 id="plan-sec-16">6. 执行步骤：按 A→J 推进</h2>
+<p><strong>只排顺序，不排时间。</strong> 每个步骤都给了「做什么」和「完成标志」——达标了再进下一步，没达标就继续做。快慢取决于你投入多少，与日历无关。</p>
+<h3 id="plan-sec-17">步骤 0：体检</h3>
+<p><strong>做什么</strong>：扫<a href="questions.html">题目索引</a>里的清单，逐题打勾（<code>- [x]</code> = 能讲 3 分钟）。</p>
+<p><strong>完成标志</strong>：得到一份属于自己的红区清单，并能按域说出缺口最大的两个域。</p>
+<blockquote><p>242 题全学是不可能完成的伪目标，实际要补的可能只有 60~80 题。这一步是为了<strong>把力气花在不会的地方</strong>。</p></blockquote>
+<h3 id="plan-sec-18">步骤 1：打地基 — A + B</h3>
+<p><strong>做什么</strong>（配套材料：<code>step-1-foundation/</code>，共 10 份，先读前置页 <code>00</code>，再按 01 → 09 读）</p>
+<ul><li><strong>前置页 <code>00</code></strong>：20 个概念的大白话解释（大模型、上下文、token、幻觉、向量、RAG、工具调用、Agent…）。<strong>没搭过 AI 应用的话先看它</strong>，后面会顺很多。</li><li><strong>A 域（22 题，材料 01~05）</strong>：RAG 本质与全链路 → 切分与向量化 → 向量库与索引算法 → 查询优化/混合检索/重排/评估 → 生成侧与模型选型。<br>其中检索那一段就是<strong>追问链 4.1「RAG 检索链」</strong>的展开（材料 04）。</li><li><strong>B 域（23 题，材料 06~08）</strong>：Agent 与 Workflow 的边界、ReAct 主循环与刹车机制、工具设计与 Function Call / MCP / Skill 的区别、多 Agent 的拆分标准（<strong>追问链 4.2「多 Agent 链」</strong>，材料 07）、工程化与选型（claude code / Harness / LangChain，材料 08）。</li><li><strong>材料 09</strong> 是自查题与参考回答，用来验收这一步。</li></ul>
+<p><strong>完成标志</strong></p>
+<ul class="checklist"><li>能用大白话解释 <code>00</code> 里的核心概念（上下文、幻觉、工具调用、RAG 与 Agent 的区别）</li><li>白纸上能画出 RAG 全链路图（离线 + 在线两条线）</li><li>白纸上能画出 Agent 主循环图，并说出三种防死循环手段</li><li>能用 3 分钟讲清「什么时候该拆多 Agent」以及拆的代价</li></ul>
+<p><strong>别做</strong>：一开始就啃 LangChain / claude code 源码，性价比极低（见第 7 节）。</p>
+<h3 id="plan-sec-19">步骤 2：做系统 — C + D</h3>
+<p><strong>做什么</strong>（配套材料：<code>step-2-systems/</code>，<strong>边做边翻，不要通读</strong>）</p>
+<p>自己搭一个「知识库问答 + Agent 工具调用」的小系统，把这份清单当成<strong>需求清单</strong>来验收：</p>
+<table><thead><tr><th style="text-align:left">要实现的</th><th style="text-align:left">顺带答掉的题</th></tr></thead><tbody><tr><td style="text-align:left">文档解析 → 切片 → 入库（含人工审核环节）</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>PY-6</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YF-4</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YF-5</code></a> <a class="qref" href="../step-1-foundation/02-chunking-and-embedding.html"><code>YF-6</code></a></td></tr><tr><td style="text-align:left">向量检索 + ES 混合检索 + rerank</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/01-what-is-rag.html"><code>JR-5</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>JR-6</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-29</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-30</code></a> <a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-31</code></a></td></tr><tr><td style="text-align:left">查询改写 + 意图识别路由</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/04-retrieval-and-rerank.html"><code>HQ-27</code></a> <a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>PY-2</code></a> <a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>PY-3</code></a></td></tr><tr><td style="text-align:left">Agent 工具调用 + 失败重试</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>ML-2</code></a> <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>JR-4</code></a></td></tr><tr><td style="text-align:left">SSE 流式输出 + 断线续传</td><td style="text-align:left"><a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>YC-10</code></a> <a class="qref" href="../step-2-systems/04-resume-and-task-state.html"><code>HQ-21</code></a> <a class="qref" href="../step-2-systems/02-sse-and-websocket.html"><code>YF-20</code></a></td></tr><tr><td style="text-align:left">队列异步跑 Embedding + 断点续跑</td><td style="text-align:left"><a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-14</code></a>~<a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-17</code></a></td></tr><tr><td style="text-align:left">token 统计与成本看板</td><td style="text-align:left"><a class="qref" href="../step-3-frontend-and-cost/10-usage-and-cost.html"><code>ML-13</code></a> <a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-14</code></a> <a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-15</code></a> <a class="qref" href="../step-3-frontend-and-cost/11-cost-optimization.html"><code>ML-16</code></a></td></tr><tr><td style="text-align:left">多智能体（检索 / 评审 两个就够）</td><td style="text-align:left"><a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>ML-5</code></a>~<a class="qref" href="../step-1-foundation/07-multi-agent.html"><code>ML-10</code></a></td></tr></tbody></table>
+<p><strong>材料形态和步骤 1 不同</strong>：概念部分照常讲清楚，但每份末尾多一节「<strong>动手清单</strong>」——列出这些知识在你项目里怎么验证。<strong>这一步骤的题目几乎都是"你当时怎么做的"，所以动手本身就是学习。</strong></p>
+<p>材料清单见第 8 节。</p>
+<p><strong>完成标志</strong></p>
+<ul class="checklist"><li>系统能跑通「提问 → 混合检索 → rerank → 流式输出」全流程</li><li>知识库里至少有 1 万份<strong>真实</strong>文档（不是伪造的示例数据）</li><li>刷新页面后回答能接着往下收（断线续传跑通）</li><li>有一次真实的踩坑记录（哪个环节出了问题、怎么定位、怎么解决）</li><li>能报出至少三个数字（数据量、首字延迟、token 消耗）</li></ul>
+<p><strong>别做</strong>：不要先把 C、D 两域的材料通读完再动手。<strong>遇到问题再翻对应那一份</strong>——在项目里踩过的坑，才是最有价值的部分。</p>
+<h3 id="plan-sec-20">步骤 3：保分与填数字 — E + F</h3>
+<p><strong>做什么</strong></p>
+<ul><li>E 域（44 题）：存量优势区，集中突击过一遍基础题。</li><li>F 域（8 题）：项目已经跑起来了，把第 3 节的数字表逐项填满。</li></ul>
+<p><strong>完成标志</strong></p>
+<ul class="checklist"><li>第 3 节数字表全部填满，且口径自洽（别出现「日活 1 万但并发峰值 5 万」）</li><li>E 域随机抽 10 题，能答上来 8 题</li></ul>
+<p><strong>注意</strong>：E 域虽然题量最大，但<strong>不该占总投入的大头</strong>，达标即止，省下的精力给项目。</p>
+<h3 id="plan-sec-21">步骤 4：讲故事 — G</h3>
+<p><strong>做什么</strong>：把步骤 2 的项目拆成 3~5 个可复述的故事（架构设计、一次线上问题、一次成本优化……），套第 5 节的五段式。</p>
+<p><strong>完成标志</strong></p>
+<ul class="checklist"><li>每道高频题都有一张答题卡：<code>答案骨架 / 我的数字 / 追问链</code>，200 字以内</li><li>能连续讲 40 分钟不重复、不卡壳</li></ul>
+<h3 id="plan-sec-22">步骤 5：冲刺 — J（I 按方向取舍）</h3>
+<p><strong>做什么</strong></p>
+<ul><li>J 域（33 题）：统一写稿背熟。</li><li>I 域（7 题）：按目标方向决定投入，投基础架构类方向就补，投 AI 应用岗答出「够用」即可。</li></ul>
+<p><strong>完成标志</strong></p>
+<ul class="checklist"><li>各轮说法一致（个人情况、职业规划、项目周期）</li><li>J 域每题都能在 1 分钟内给出结构完整的回答</li></ul>
+<h3 id="plan-sec-23">贯穿始终：模拟演练 — H</h3>
+<p>不属于任何单一步骤，从步骤 1 开始就可以做：</p>
+<ul><li>随机从 5 个不同域各抽 1 题，<strong>自己录音口述</strong>，不写稿。</li><li>录音转文字后丢给 AI 扮演提问方：让它挑漏洞、追问 3 层、给评分。</li><li>原帖作者就是靠「录音 + AI 整理」产出了这份清单，你把这个流程反过来用即可。</li><li>H 域的素材（你日常怎么用 AI、效率提升了多少）也在这里顺手积累。</li></ul>
+<blockquote><p>一条实操提醒：<strong>每次练习用一个干净的 session</strong>。别把 242 道题塞进同一个对话里 —— 上下文一脏，AI 陪练的追问质量会明显下降，你自己复习时也会越看越糊。（参见《AI科研不完全指北》的核心观点：Context Is All You Need。）</p></blockquote>
+<hr>
+<h2 id="plan-sec-24">7. 优先级取舍与避坑</h2>
+<p><strong>按目标方向取舍</strong>：</p>
+<table><thead><tr><th style="text-align:left">目标</th><th style="text-align:left">必练</th><th style="text-align:left">可以放弃</th></tr></thead><tbody><tr><td style="text-align:left">AI 应用 / Agent 开发（主流）</td><td style="text-align:left">A B C F G + D 的核心（事务/索引/队列）</td><td style="text-align:left">SH 的前端动画细节（<a class="qref" href="../step-3-frontend-and-cost/04-css3-and-animation.html"><code>SH-1</code></a>~<a class="qref" href="../step-3-frontend-and-cost/05-canvas-and-effects.html"><code>SH-9</code></a>）</td></tr><tr><td style="text-align:left">偏全栈 + AI</td><td style="text-align:left">上面全部 + E</td><td style="text-align:left">—</td></tr><tr><td style="text-align:left">明确投 HQ 这类 NestJS 岗</td><td style="text-align:left">加练 <a class="qref" href="../step-3-frontend-and-cost/01-framework-comparison.html"><code>HQ-1</code></a>~<a class="qref" href="../step-2-systems/07-async-jobs-and-queue.html"><code>HQ-17</code></a>（TypeORM/Bull/Nest 全套）</td><td style="text-align:left">前端动画</td></tr><tr><td style="text-align:left">明确投 TK 这类企微生态岗</td><td style="text-align:left">加练 <a class="qref" href="../step-4-storytelling/06-wecom-ecosystem.html"><code>TK-1</code></a>~<a class="qref" href="../step-4-storytelling/06-wecom-ecosystem.html"><code>TK-7</code></a>（企微登录/域名/埋点/ID 同步）</td><td style="text-align:left">多 Agent 深挖</td></tr></tbody></table>
+<p><strong>避坑清单</strong>：</p>
+<ol><li><strong>不要按公司顺序学</strong>。那是实际提问顺序，不是学习顺序。</li><li><strong>不要按题量顺序学</strong>。E 域题量最大但最该晚点碰，F 域题量最小却必须等项目跑完 —— 决定顺序的是依赖关系，不是题量。</li><li><strong>不要背概念不准备例子</strong>。B 域的题全部会落到「你的项目里怎么用的」。</li><li><strong>不要逐行读 claude code 源码</strong>。对方问的是「上下文治理思路」和「核心循环」，读官方工程博客 + 自己实现一遍 agent loop 就够（<a class="qref" href="../step-1-foundation/08-agent-engineering.html"><code>JR-13</code></a>~<a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>JR-15</code></a> <a class="qref" href="../step-1-foundation/06-agent-basics-and-tools.html"><code>KJ-1</code></a>）。</li><li><strong>不要回避数字题</strong>。这是唯一无法靠话术绕过的题型（第 3 节）。</li><li><strong>不要忽视 D 域</strong>。它题量第二，且 AI 应用的深度恰恰体现在这里。</li><li><strong>不要只练不录音</strong>。口述和默想的差距，比你想象的大得多。</li></ol>
+<hr>
+<h2 id="plan-sec-25">附：速查表</h2>
+<table><thead><tr><th style="text-align:left">编号</th><th style="text-align:left">知识域</th><th style="text-align:left">学习步骤</th><th style="text-align:right">题量</th></tr></thead><tbody><tr><td style="text-align:left">A</td><td style="text-align:left">LLM 与 RAG</td><td style="text-align:left">步骤 1 · 打地基</td><td style="text-align:right">22</td></tr><tr><td style="text-align:left">B</td><td style="text-align:left">Agent、多智能体与工具协议</td><td style="text-align:left">步骤 1 · 打地基</td><td style="text-align:right">23</td></tr><tr><td style="text-align:left">C</td><td style="text-align:left">上下文治理与流式通信</td><td style="text-align:left">步骤 2 · 做系统</td><td style="text-align:right">23</td></tr><tr><td style="text-align:left">D</td><td style="text-align:left">后端、数据与中间件</td><td style="text-align:left">步骤 2 · 做系统</td><td style="text-align:right">37</td></tr><tr><td style="text-align:left">E</td><td style="text-align:left">前端与浏览器</td><td style="text-align:left">步骤 3 · 保分</td><td style="text-align:right">44</td></tr><tr><td style="text-align:left">F</td><td style="text-align:left">量化指标与成本</td><td style="text-align:left">步骤 3 · 量化</td><td style="text-align:right">8</td></tr><tr><td style="text-align:left">G</td><td style="text-align:left">项目叙事与方案设计</td><td style="text-align:left">步骤 4 · 讲故事</td><td style="text-align:right">27</td></tr><tr><td style="text-align:left">H</td><td style="text-align:left">AI 工作流与个人效能</td><td style="text-align:left">全程并行</td><td style="text-align:right">18</td></tr><tr><td style="text-align:left">I</td><td style="text-align:left">工程化、运维与交付</td><td style="text-align:left">按方向取舍</td><td style="text-align:right">7</td></tr><tr><td style="text-align:left">J</td><td style="text-align:left">软性、职业与综合</td><td style="text-align:left">步骤 5 · 冲刺</td><td style="text-align:right">33</td></tr><tr><td style="text-align:left"></td><td style="text-align:left"><strong>合计</strong></td><td style="text-align:left"></td><td style="text-align:right"><strong>242</strong></td></tr></tbody></table>
+<!-- /plan:auto -->
+</div>
+
+</main>
+</div>
+
+<script src="../assets/app.js" defer data-root="../"></script>
+</body>
+</html>

@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>09 · AI 生成界面的质量 — 步骤 3 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 3 · 第 9/11 份 ｜ E 域 · 前端与浏览器</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>09 · AI 生成界面的质量</h1>
 <p class="lead">
@@ -58,6 +62,18 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 从专业角度看，AI 生成的界面有哪些问题（YU-15）</a></li>
+    <li><a href="#s2">2. 你在 UI/UX 方面的经验（YU-23）</a></li>
+    <li><a href="#s3">3. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>你让 AI 生成了一个「订单列表页」。跑起来一看，<strong>能用，但说不上来哪里怪</strong>。</p>
@@ -261,6 +277,8 @@
 <!-- ============ 3 ============ -->
 <h2 id="s3">3. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「AI 生成的页面有什么问题 / 你的 UI 经验」</span>
   <p><strong>【结论】</strong>AI 生成的界面，核心问题<strong>不是好不好看，而是没有约束和体系</strong>——它每次生成都是一次独立决策，所以间距、颜色、字号全都对不齐。</p>
@@ -313,5 +331,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

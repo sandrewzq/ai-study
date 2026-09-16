@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>06 · 数据一致性与并发 — 步骤 2 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 2 · 第 6/12 份 ｜ D 域 · 后端、数据与中间件</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="10-nestjs-and-orm.html"><span class="n">10</span><span>NestJS 与 ORM</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>06 · 数据一致性与并发</h1>
 <p class="lead">
@@ -58,6 +62,21 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 事务：先把概念说清</a></li>
+    <li><a href="#s2">2. 并发扣减的四种解法</a></li>
+    <li><a href="#s3">3. 秒杀系统怎么设计</a></li>
+    <li><a href="#s4">4. 缓存和数据库的一致性</a></li>
+    <li><a href="#s5">5. 追问：不用 Redis，只用 MySQL 怎么保证安全</a></li>
+    <li><a href="#s6">6. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>秒杀活动：<strong>100 件商品</strong>。活动结束后一统计，<strong>卖出去 137 件</strong>。</p>
@@ -348,12 +367,14 @@
 <!-- ============ 讲解骨架 ============ -->
 <h2 id="s6">6. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「高并发下怎么避免超卖」</span>
   <p><strong>【结论】</strong>超卖的本质是"读—判断—写"之间有空隙，两个请求都读到了同一个值。所以思路是<strong>让判断和扣减变成一步原子操作</strong>。</p>
   <p><strong>【方案】</strong>按并发量级选：日常场景用<strong>乐观锁</strong>——把条件写进 UPDATE 语句（<code>WHERE stock &gt;= 1</code>），看影响行数判断是否成功，不用加锁；秒杀量级用 <strong>Redis + Lua</strong> 预扣减，因为数据库扛不住那么大的写入。</p>
   <p><strong>【兜底】</strong>数据库层的乐观锁始终保留，作为最后一道防线；订单表加唯一索引做幂等，防止同一用户重复下单；活动结束后对账。</p>
-  <p><strong>【数字】</strong>改造前压测时 100 件会卖出 137 件；改成乐观锁后压测 5000 QPS 无超卖；引入 Redis 后单机 QPS 从 X 提到 Y。</p>
+  <p><strong>【数字】</strong>改造前压测时 100 件会卖出 137 件；改成乐观锁后压测 5000 QPS 无超卖；引入 Redis 后单机 QPS 从 <span class="blank">X</span> 提到 <span class="blank">Y</span>。</p>
   <p><strong>【权衡】</strong>乐观锁在高冲突场景下失败率高，要么重试要么直接提示售罄；Redis 方案性能好但多了一套组件，还要处理缓存和数据库的一致性，所以我们用队列异步落库并对账兜底。</p>
 </div>
 
@@ -436,5 +457,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

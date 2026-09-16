@@ -5,9 +5,8 @@
 notes/
 assets/RAG全链路图.png
 
-# plan/*.md 的渲染副本：由 _dev/gen-plan-html.js 生成，没有页面链接到它们
-# （学习计划的正式载体是 index.html 里嵌的那一份）
-plan/roadmap.html
+# plan/spec.md 的渲染副本：_dev/gen-plan-html.js 生成，没有页面链接到它
+# （spec 是开发文档，正式载体就是这份 md）
 plan/spec.html
 
 # 措辞黑名单：它列的就是不该公开的字眼，本身不进仓库

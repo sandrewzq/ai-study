@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>10 · 用量与成本口径 — 步骤 3 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 3 · 第 10/11 份 ｜ F 域 · 量化指标与成本</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>10 · 用量与成本口径</h1>
 <p class="lead">
@@ -58,6 +62,19 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 用户量怎么答（ML-11）</a></li>
+    <li><a href="#s2">2. 调用量和并发怎么推（ML-12、HJ-9）</a></li>
+    <li><a href="#s3">3. token 用量怎么算（ML-13、HJ-1）</a></li>
+    <li><a href="#s4">4. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>对方问：<strong>「你这个系统日活多少？」</strong></p>
@@ -182,7 +199,7 @@
 
 <div class="skeleton">
   <span class="tag">回答模板</span>
-  <p>「<strong>累计注册大概 X 万，日活稳定在 Y 左右，周活大概是日活的三倍。</strong>这是内部系统，所以用户增长比较平缓，日均使用时长大概十几分钟。」</p>
+  <p>「<strong>累计注册大概 <span class="blank">X</span> 万，日活稳定在 Y 左右，周活大概是日活的三倍。</strong>这是内部系统，所以用户增长比较平缓，日均使用时长大概十几分钟。」</p>
   <p>这个答法的好处：<strong>一次给出三个口径并说清关系，还补了业务性质</strong>——对方立刻知道你分得清，也知道你的系统是什么形态。</p>
 </div>
 
@@ -262,17 +279,19 @@
 <div class="skeleton">
   <span class="tag">这组题的统一纪律</span>
   <p><strong>说任何数字，都带上口径和推导。</strong></p>
-  <p>❌ "日活一万，并发五万。"<br>✅ "累计注册 X 万，日活一万左右；人均每天问 5 次，算下来日调用 5 万次；<strong>集中在工作时间</strong>，平均每秒一两次，<strong>乘个 3 到 5 倍的峰值系数</strong>，峰值大概每秒十几次。"</p>
+  <p>❌ "日活一万，并发五万。"<br>✅ "累计注册 <span class="blank">X</span> 万，日活一万左右；人均每天问 5 次，算下来日调用 5 万次；<strong>集中在工作时间</strong>，平均每秒一两次，<strong>乘个 3 到 5 倍的峰值系数</strong>，峰值大概每秒十几次。"</p>
   <p>后者长很多，但<strong>每一句都能接追问</strong>——这才是这一组题要的东西。</p>
 </div>
 
 <!-- ============ 4 ============ -->
 <h2 id="s4">4. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「用户量多少 / 调用量多少 / token 多少 / 并发多少」</span>
   <p><strong>【结论】</strong>我习惯<strong>把数字当成一条链来说，而不是一个个报</strong>：业务规模 → 用户量 → 调用量 → token 用量 → 成本。<strong>后面每一项都由前面推出来。</strong></p>
-  <p><strong>【用户量】</strong>累计注册 X 万，<strong>日活稳定在 Y 左右</strong>，周活大概是日活的三倍。这是内部系统，增长平缓。</p>
+  <p><strong>【用户量】</strong>累计注册 <span class="blank">X</span> 万，<strong>日活稳定在 Y 左右</strong>，周活大概是日活的三倍。这是内部系统，增长平缓。</p>
   <p><strong>【调用量】</strong>日活 × 人均调用次数 = 日调用量；<strong>摊到真正的业务时长上</strong>（不是 24 小时），再乘 3 到 5 倍的峰值系数，得到峰值每秒请求数。<strong>并发和日活是两个概念</strong>——日活是一天累积的人数，并发是某一刻的请求数。</p>
   <p><strong>【token】</strong><strong>输入和输出分开算</strong>。输入包括系统提示、历史对话和检索回来的资料——<strong>在 RAG 场景里输入远大于输出</strong>，这是成本的主要来源。日均总量等于日调用量乘单次用量，还要考虑失败重试的额外消耗。</p>
   <p><strong>【部署】</strong>两台云主机加托管数据库，前面有负载均衡；向量库是托管服务；静态资源走内容分发。<strong>量级不算大，所以没做分库分表。</strong></p>
@@ -359,5 +378,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

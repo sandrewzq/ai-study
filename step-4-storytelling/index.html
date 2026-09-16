@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>步骤 4 · 讲故事 — 材料目录</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 4 · 讲故事（G 域，27 题）</span>
@@ -29,10 +32,11 @@
     <li><a class="item" href="07-landing-and-blockers.html"><span class="n">07</span><span>落地推动与棘手难题</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>步骤 4 · 讲故事</h1>
 <p class="lead">
@@ -138,7 +142,7 @@
 <div class="skeleton">
   <span class="tag">完成标志（做到这些才算过关）</span>
   <ul class="checklist">
-    <li>每道高频题都有一张答题卡：<strong>答案骨架 / 我的数字 / 追问树</strong>，200 字以内</li>
+    <li>每道高频题都有一张答题卡：<strong>答案骨架 / 我的数字 / 追问链</strong>，200 字以内</li>
     <li>能<strong>连续讲 40 分钟不重复、不卡壳</strong></li>
     <li>每个故事都能说出<strong>一个具体的坑</strong>（现象 + 定位 + 解决）</li>
     <li>每个故事都能主动说出<strong>代价或边界</strong>——这是 80 分到 100 分的那一步</li>
@@ -157,5 +161,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

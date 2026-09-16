@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>06 · Agent 基础与工具协议 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 第 6/9 份 ｜ B 域 · Agent、多智能体与工具协议</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>06 · Agent 基础与工具协议</h1>
 <p class="lead">
@@ -56,6 +60,22 @@
 </div>
 
 <!-- ============ 场景引入 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个例子</a></li>
+    <li><a href="#s1">1. Agent 和 Workflow 差在哪</a></li>
+    <li><a href="#s2">2. 循环里每一步在做什么</a></li>
+    <li><a href="#s3">3. 工具怎么设计</a></li>
+    <li><a href="#s4">4. Function Call / MCP / Skill 的区别</a></li>
+    <li><a href="#s5">5. 工具调用失败了怎么办</a></li>
+    <li><a href="#s6">6. 通用 Agent 一般分几层</a></li>
+    <li><a href="#s7">7. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个例子</h2>
 
 <p>你对 AI 说：<strong>「帮我调研一下 X 产品的竞品，写份报告。」</strong></p>
@@ -433,6 +453,8 @@
 <!-- ============ 7 ============ -->
 <h2 id="s7">7. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「说说 MCP、Function Call、Skill 三者的区别」（必考）</span>
   <p><strong>【结论】</strong>三者解决的是不同层次的问题。</p>
@@ -499,5 +521,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

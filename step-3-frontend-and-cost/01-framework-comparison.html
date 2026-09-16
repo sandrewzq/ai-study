@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>01 · 框架选型：Vue 与 React — 步骤 3 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 3 · 第 1/11 份 ｜ E 域 · 前端与浏览器</span>
@@ -33,10 +36,11 @@
     <li><a class="item" href="11-cost-optimization.html"><span class="n">11</span><span>成本优化与收益</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>01 · 框架选型：Vue 与 React</h1>
 <p class="lead">
@@ -58,6 +62,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 回答这道题的三句话结构</a></li>
+    <li><a href="#s2">2. 「谁性能上限更高」——这是道送命题</a></li>
+    <li><a href="#s3">3. 「最新版本在做什么」（FN-3）</a></li>
+    <li><a href="#s4">4. 剩下两道零散的题</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>对方翻着你的项目，随口问了一句：<strong>「你 React 用得多，还是 Vue 用得多？」</strong></p>
@@ -248,6 +266,8 @@
 <!-- ============ 5 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「Vue 和 React 有什么区别 / 你更熟哪个」</span>
   <p><strong>【结论】</strong>我两个都用过，主力是 Vue。<strong>它们的本质区别是"谁负责知道哪里变了"</strong>——Vue 靠响应式自动追踪依赖，React 靠你重新描述界面、它来比对差异。</p>
@@ -330,5 +350,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

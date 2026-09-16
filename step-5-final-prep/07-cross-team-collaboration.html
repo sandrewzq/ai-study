@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>07 · 跨角色协作 — 步骤 5 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 5 · 第 7/9 份 ｜ J 域 · 软性、职业与综合</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-stories.html"><span class="n">09</span><span>讲一段经历</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>07 · 跨角色协作</h1>
 <p class="lead">
@@ -56,6 +60,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 技术选型谁决定（HQ-4）</a></li>
+    <li><a href="#s2">2. 产品缺位时怎么出草图（PY-24）</a></li>
+    <li><a href="#s3">3. 没有设计稿怎么推（TK-3）</a></li>
+    <li><a href="#s4">4. 需求一直变怎么办（YU-13、YU-14）</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>对方问：<strong>「如果产品经理没空，需要你自己出原型，你怎么推？」</strong></p>
@@ -245,7 +263,7 @@
   <div class="answers">
     <div class="a"><span class="yn" style="color:var(--c-risk)">直接答应</span>"好的，我加上。"——<strong>工期会失控</strong>，而且你成了那个"什么都能塞"的人</div>
     <div class="a"><span class="yn" style="color:var(--c-risk)">直接拒绝</span>"这不在需求范围内。"——<strong>显得不配合</strong>，而且如果这个改动确实重要，你就挡了正事</div>
-    <div class="a"><span class="yn" style="color:var(--c-store)">先评估、再给选项</span>"这个改动大概需要 X 天。<strong>如果要赶原来的时间点，需要把 Y 往后放；如果都保留，就要延 Z 天。你们看怎么安排？"</strong></div>
+    <div class="a"><span class="yn" style="color:var(--c-store)">先评估、再给选项</span>"这个改动大概需要 <span class="blank">X</span> 天。<strong>如果要赶原来的时间点，需要把 Y 往后放；如果都保留，就要延 Z 天。你们看怎么安排？"</strong></div>
   </div>
 
   <p class="q">② 为什么"给选项"比"给结论"好</p>
@@ -298,13 +316,15 @@
 <!-- ============ 5 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「技术选型谁定 / 产品缺位怎么推 / 没设计稿怎么办 / 需求一直变怎么处理」</span>
   <p><strong>【技术选型】</strong>我一般<strong>按影响范围分</strong>：只影响一个模块的，做这块的人自己定；影响一条链路的，牵头的人拉相关的人一起过；影响多个团队或长期方向的，往上走。<strong>因为这些决定后面的维护、迁移成本不一样。</strong></p>
   <p><strong>【我会怎么推动】</strong>如果是我牵头，我不会只说"我建议用 XX"。<strong>我会把选项和代价写清楚</strong>——每个方案适合什么场景、要付什么代价。<strong>因为选型很少是"哪个更好"，更多是"哪个更适合现在"。</strong></p>
   <p><strong>【产品缺位】</strong>我出草图和确认稿，但要澄清一点：<strong>目的不是做设计，是让需求变具体、能讨论。</strong>口头描述的需求你连"我要的不是这个"这种反馈都拿不到。<strong>另外我会把不确定的地方列成待确认清单，请对方拍板——优先级那类判断我不替他定。</strong></p>
   <p><strong>【没设计稿】</strong>我很清楚<strong>开发拼的界面专业度不如设计</strong>，所以定位是"让它能推进"，不是"把它做好看"。做法是<strong>用现成组件做基线、先跑通让业务方看到、把关键页面挑出来等设计有空再补</strong>，同时<strong>把用到的间距字号规矩记下来保持一致</strong>。</p>
-  <p><strong>【需求变更】</strong>我的反应是<strong>先评估、再给选项</strong>。"这个改动大概 X 天；要赶原来的时间点就得把 Y 往后放，都要保留就要延 Z 天——你们看怎么安排？"</p>
+  <p><strong>【需求变更】</strong>我的反应是<strong>先评估、再给选项</strong>。"这个改动大概 <span class="blank">X</span> 天；要赶原来的时间点就得把 Y 往后放，都要保留就要延 Z 天——你们看怎么安排？"</p>
   <p><strong>【为什么给选项】</strong>因为<strong>优先级是业务的判断，我负责提供"代价是多少"这个事实</strong>。这样我不是在拒绝需求，是在帮他做选择；而且后面时间不够的时候，大家知道是当时的选择，不是我做得慢。</p>
   <p><strong>【减少变更】</strong>另外我会在确认稿里<strong>特意标出"还不确定"的地方</strong>请对方重点看。<strong>大部分变更不是对方故意改，是当初没讲到</strong>——把不确定的点提前摊开，比事后一次次评估省事得多。</p>
   <p><strong>【权衡】</strong>我知道这样看起来"不够配合"。<strong>但我的判断是：把代价说清楚，对双方都更负责</strong>——真正不配合的是嘴上答应、最后交不出来。</p>
@@ -320,7 +340,7 @@
     <p>三步，顺序不能乱：</p>
     <ol>
       <li><strong>先问它解决什么</strong>：「这条我会先问"这是为了解决什么问题"。<strong>有些变更其实是在描述现象，问清楚之后可能发现有更省事的做法。</strong>」</li>
-      <li><strong>评估代价</strong>：不是随口说"要很久"，而是给一个范围——「大概 X 天」。</li>
+      <li><strong>评估代价</strong>：不是随口说"要很久"，而是给一个范围——「大概 <span class="blank">X</span> 天」。</li>
       <li><strong>给选项，不是给结论</strong>：「要赶原来的时间点就把 Y 往后放；都保留就延 Z 天。<strong>你们看怎么安排？</strong>」</li>
     </ol>
     <p>要避免的两种：<strong>直接答应的（工期失控，而且你会变成"什么都能塞"的人）</strong>、<strong>直接拒绝的（显得不配合，万一它真的很重要你就挡了正事）</strong>。</p>
@@ -353,5 +373,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

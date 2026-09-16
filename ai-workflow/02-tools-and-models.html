@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>02 · 工具与模型选型 — AI 工作流学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">AI 工作流 · 第 2/4 份 ｜ H 域 · AI 工作流与个人效能</span>
@@ -26,10 +29,11 @@
     <li><a class="item" href="04-efficiency-and-prompts.html"><span class="n">04</span><span>效率与提示词</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>02 · 工具与模型选型</h1>
 <p class="lead">
@@ -51,6 +55,20 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 日常用哪些、渠道和费用（YU-3）</a></li>
+    <li><a href="#s2">2. 「同一个模型不同工具，效果有差别吗」（HJ-4）</a></li>
+    <li><a href="#s3">3. 国内外工具的差异（HJ-3、HJ-2）</a></li>
+    <li><a href="#s4">4. MCP / Skill 怎么辅助开发（PY-23）</a></li>
+    <li><a href="#s5">5. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>对方问：<strong>「同一个模型放在不同工具里，效果有没有差别？」</strong></p>
@@ -263,6 +281,8 @@
 <!-- ============ 5 ============ -->
 <h2 id="s5">5. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。</p>
+
 <div class="skeleton">
   <span class="tag">「日常用哪些工具 / 有没有做过对比 / 只能用国内的有没有影响」</span>
   <p><strong>【分层】</strong>我习惯把这堆东西分四层看：<strong>模型、工具、协议、扩展</strong>。<strong>模型决定能力上限，工具决定你能不能用上这个上限</strong>，协议解决接东西麻烦，扩展解决"知不知道怎么做"。分清这个，很多问题就不乱了。</p>
@@ -318,5 +338,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// 规范校验：图例、图说、ASCII 图、目录页对照表、材料页 11 项骨架
+// 规范校验：图例、图说、ASCII 图、目录页对照表、材料页 12 项骨架、追问链要点
 // 规范见 plan/spec.md 第一节「导航约定」与第四节「图示规范」
 const fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..');
@@ -7,7 +7,7 @@ const SKIP = new Set(['.git', '_dev', 'notes', 'plan', 'node_modules']);
 const files = [];
 (function walk(d) {
   for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-    if (e.name.startsWith('.')) continue;
+    if (e.name.startsWith('.') || e.name.startsWith('__')) continue;
     const p = path.join(d, e.name);
     if (e.isDirectory()) { if (!SKIP.has(e.name)) walk(p); }
     else if (e.name.endsWith('.html')) files.push(p);
@@ -21,10 +21,10 @@ const ART = /[─│┌┐└┘├┤┬┴┼]/;
 // 不含 ← 和 ⇒ —— 它们更多用作注释/推导（"← 这一项是瓶颈"、"⇒ 所以是 6~8 GB"），不是流程。
 const FLOW = /[→↓↑↘↙]/;
 
-let badLegend = [], badCap = [], asciiArt = [], badCrosswalk = [], badSkeleton = [];
+let badLegend = [], badCap = [], asciiArt = [], badCrosswalk = [], badSkeleton = [], badQchain = [];
 let figTotal = 0;
 
-// 材料页的 11 项骨架（plan/spec.md 第二节）
+// 材料页的 12 项骨架（plan/spec.md 第二节）
 const SKELETON = [
   ['标题', /<h1>/],
   ['导语 .lead', /class="lead"/],
@@ -34,13 +34,22 @@ const SKELETON = [
   ['主图 .hero', /class="hero"/],
   ['正文 h2', /<h2/],
   ['讲解骨架 .skeleton', /class="skeleton"/],
+  // 第 8 项只证明「有骨架这一节」，不证明读者知道它是干什么的。
+  // 这一条连**位置**一起管：必须紧跟在讲答案的那节标题后面。
+  // 两个标题都要认：材料页是「N. 讲解骨架（看懂之后再背）」，
+  // 09-review-and-answers 没有骨架节，它的答案在「4. 完整参考回答（3 份）」下面。
+  ['骨架用法 .skelnote', /<h2[^>]*>[^<]*(?:讲解骨架|参考回答)[^<]*<\/h2>\s*<p class="skelnote">/],
   ['追问预警 details.ask', /class="ask"/],
   ['回忆卡 .recall', /class="recall"/],
   ['翻页 .pager', /class="pager"/],
 ];
-// 查阅型页面不套材料骨架：00 导读页 / 00 前置页 / 自查页 / 目录页
-// 与 density.js 的豁免口径保持一致
-const SURVEY = /(^|\/)(index|00-[^/]*|review-and-answers)\.html$/;
+// 查阅型页面不套材料骨架：00 导读页 / 00 前置页 / 目录页 / 入口页。
+// 判据走 pagekind.js，**不要在这里写正则**——这里原先那条
+// /(^|\/)(index|00-[^/]*|review-and-answers)\.html$/ 的 `review-and-answers` 分支
+// 因为带前缀锚定，从来没匹配上 `step-1-foundation/09-review-and-answers.html`
+// （前面是 `09-` 不是 `/`），于是一直在要求它套满 12 项。那一页恰好 12 项都齐，
+// 所以分歧没暴露。这不是「豁免了谁」的小事：写正则的人以为放宽了，实际收紧了。
+const { isSkeletonPage } = require('./pagekind.js');
 
 for (const f of files) {
   const rel = path.relative(ROOT, f).split(path.sep).join('/');
@@ -97,10 +106,23 @@ for (const f of files) {
     }
   }
 
-  // ⑤ 材料页 11 项骨架：缺一项就不算完成（查阅型页面豁免）
-  if (!SURVEY.test(rel)) {
+  // ⑤ 材料页 12 项骨架：缺一项就不算完成（查阅型页面豁免）
+  if (isSkeletonPage(rel)) {
     const miss = SKELETON.filter(([, re]) => !re.test(s)).map(([name]) => name);
     if (miss.length) badSkeleton.push(`${rel}  缺：${miss.join(' / ')}`);
+  }
+
+  // ⑥ 追问链：每条（主问题也算）都要有「要点」。
+  //    规范见第三节「追问链」——要点是给拿着它练口述的人看的，
+  //    空着等于告诉读者「这题不用准备」。这一条以前全靠人肉数，
+  //    实际发生过「改到一半、21 处是名词串、6 处空着」。
+  for (const block of s.matchAll(/<ol class="qchain">([\s\S]*?)<\/ol>/g)) {
+    const items = [...block[1].matchAll(/<li>[\s\S]*?<\/li>/g)].map(m => m[0]);
+    const blank = items.filter(it => !/class="hint"/.test(it));
+    if (blank.length) {
+      const first = blank[0].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 34);
+      badQchain.push(`${rel}  追问链 ${items.length} 条里有 ${blank.length} 条没要点（第一条：「${first}…」）`);
+    }
   }
 }
 
@@ -113,7 +135,9 @@ console.log(`\nASCII 图：${asciiArt.length ? '✗ ' + asciiArt.length + ' 处�
 asciiArt.forEach(x => console.log('  ' + x));
 console.log(`\n目录页对照表：${badCrosswalk.length ? '✗ ' + badCrosswalk.length + ' 个目录页不合规' : '✓ 7 个目录页齐备且与卡片一一对应'}`);
 badCrosswalk.forEach(x => console.log('  ' + x));
-console.log(`\n材料页 11 项骨架：${badSkeleton.length ? '✗ ' + badSkeleton.length + ' 页缺项' : '✓ 全部齐备（查阅型页面已豁免）'}`);
+console.log(`\n材料页 12 项骨架：${badSkeleton.length ? '✗ ' + badSkeleton.length + ' 页缺项' : '✓ 全部齐备（查阅型页面已豁免）'}`);
 badSkeleton.forEach(x => console.log('  ' + x));
+console.log(`\n追问链要点：${badQchain.length ? '✗ ' + badQchain.length + ' 条链有缺口' : '✓ 每条都有要点'}`);
+badQchain.forEach(x => console.log('  ' + x));
 
-process.exit(badLegend.length || badCap.length || asciiArt.length || badCrosswalk.length || badSkeleton.length ? 1 : 0);
+process.exit(badLegend.length || badCap.length || asciiArt.length || badCrosswalk.length || badSkeleton.length || badQchain.length ? 1 : 0);

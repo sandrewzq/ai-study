@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>05 · 生成侧与模型选型 — 步骤 1 学习资料</title>
+<script data-shell="theme">/* 配色要在样式表之前定下来，否则深色用户会先看到一闪的白页。localStorage 在 file:// 下可能直接抛错，所以整段包在 try 里。*/
+(function(){try{var t=localStorage.getItem("aistudy.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<a class="skip" href="#main">跳到正文</a>
 
 <header class="topbar">
   <span class="crumb">步骤 1 · 第 5/9 份 ｜ A 域 · LLM 与 RAG</span>
@@ -31,10 +34,11 @@
     <li><a class="item" href="09-review-and-answers.html"><span class="n">09</span><span>自查与参考回答</span></a></li>
   </ul>
   <div class="grp zone">参考</div>
-  <a class="up" href="../index.html#plan">学习计划全文</a>
+  <a class="up" href="../reference/plan.html">学习计划</a>
+  <a class="up" href="../reference/questions.html">题目索引</a>
 </nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
 <h1>05 · 生成侧与模型选型</h1>
 <p class="lead">
@@ -56,6 +60,22 @@
 </div>
 
 <!-- ============ 场景 ============ -->
+<!-- toc:auto -->
+<nav class="toc">
+  <div class="toc-title">本页目录</div>
+  <ol>
+    <li><a href="#s0">0. 先看一个场景</a></li>
+    <li><a href="#s1">1. 怎么组装这一段提示词</a></li>
+    <li><a href="#s2">2. 幻觉和"拒答"</a></li>
+    <li><a href="#s3">3. 输出格式：Markdown 还是 JSON</a></li>
+    <li><a href="#s4">4. 模型怎么选：六个维度</a></li>
+    <li><a href="#s5">5. 微调、API、私有化、蒸馏</a></li>
+    <li><a href="#s6">6. 成本优化的四条路</a></li>
+    <li><a href="#s7">7. 讲解骨架（看懂之后再背）</a></li>
+  </ol>
+</nav>
+<!-- /toc:auto -->
+
 <h2 id="s0">0. 先看一个场景</h2>
 
 <p>检索环节已经找回了 5 段资料，都跟"餐厅能不能打包"有关。接下来要做的只有一件事：<strong>把这 5 段资料组装成一段文字，连同用户的提问一起发给模型。</strong></p>
@@ -232,7 +252,7 @@
 <div class="warn">
   <span class="tag">别只答"我们用了最强的模型"</span>
   <p>对方想听的是<strong>取舍逻辑</strong>。一个高分回答长这样：</p>
-  <p>"我们把任务<strong>分了级</strong>：意图识别、格式校验这种简单任务用便宜的小模型，成本和延迟都低；只有最终答案生成和复杂推理才用最强的模型。整体成本降了大概 X%，效果几乎没损失——因为简单任务本来就不需要大模型。"</p>
+  <p>"我们把任务<strong>分了级</strong>：意图识别、格式校验这种简单任务用便宜的小模型，成本和延迟都低；只有最终答案生成和复杂推理才用最强的模型。整体成本降了大概 <span class="blank">X</span>%，效果几乎没损失——因为简单任务本来就不需要大模型。"</p>
 </div>
 
 <!-- ============ 5 ============ -->
@@ -302,11 +322,13 @@
 <!-- ============ 7 ============ -->
 <h2 id="s7">7. 讲解骨架（看懂之后再背）</h2>
 
+<p class="skelnote">这一段就是<strong>答案</strong>：按顺序把这几件事讲一遍，讲不下去的地方回上面正文补。再往下的「回忆卡」是自测（先合上材料讲，再展开对照），「动手清单」是怎么落到自己项目里。文中的 <span class="blank">X</span> <span class="blank">XX</span> <span class="blank">X%</span> <strong>不是没写完</strong>，是留给你填自己项目数字的槽位——换成真实数字，这段才立得住。</p>
+
 <div class="skeleton">
   <span class="tag">「大模型的选型逻辑是什么」</span>
   <p><strong>【结论】</strong>我们的选型不是"选最强的"，而是<strong>按任务分级 + 按约束过滤</strong>。</p>
   <p><strong>【做法】</strong>先用硬约束筛掉一批：数据能不能出境（决定用 API 还是私有化）、需不需要工具调用能力、上下文够不够长。然后在剩下的里按"能力 / 成本 / 延迟"权衡——意图识别、格式校验这类简单任务用便宜的小模型，最终答案生成用最强的。</p>
-  <p><strong>【数字】</strong>分级路由之后，约 X% 的请求走了小模型，整体成本下降约 X%，P95 延迟下降 X 秒，效果指标基本持平。</p>
+  <p><strong>【数字】</strong>分级路由之后，约 <span class="blank">X</span>% 的请求走了小模型，整体成本下降约 <span class="blank">X</span>%，P95 延迟下降 <span class="blank">X</span> 秒，效果指标基本持平。</p>
   <p><strong>【坑】</strong>一开始所有请求都用同一个大模型，成本很高但效果并没有更好——因为大部分请求是简单任务。分级之后才发现小模型完全够用。</p>
   <p><strong>【权衡】</strong>分级路由增加了系统复杂度（要维护两套提示词和评测），而且判断任务难度本身也有成本。所以只在请求量足够大、成本压力明显时才做。</p>
 </div>
@@ -371,5 +393,6 @@
 </main>
 </div>
 
+<script src="../assets/app.js" defer data-root="../"></script>
 </body>
 </html>
