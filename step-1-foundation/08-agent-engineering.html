@@ -65,12 +65,12 @@
   <div class="toc-title">本页目录</div>
   <ol>
     <li><a href="#s0">0. 先看一个问题</a></li>
-    <li><a href="#s1">1. claude code 的核心循环与四条设计原则</a></li>
-    <li><a href="#s2">2. Harness 到底是什么</a></li>
-    <li><a href="#s3">3. LangChain 和 LangGraph 怎么选</a></li>
-    <li><a href="#s4">4. 通用能力模块怎么抽象</a></li>
-    <li><a href="#s5">5. 意图识别与路由</a></li>
-    <li><a href="#s6">6. 完整案例：一个检索 Agent 的设计</a></li>
+    <li><a href="#s1">1. claude code 的核心循环与四条设计原则（JR-13）</a></li>
+    <li><a href="#s2">2. Harness 到底是什么（HQ-36）</a></li>
+    <li><a href="#s3">3. LangChain 和 LangGraph 怎么选（JR-2、HQ-25）</a></li>
+    <li><a href="#s4">4. 通用能力模块怎么抽象（JR-3）</a></li>
+    <li><a href="#s5">5. 意图识别与路由（PY-2、PY-3）</a></li>
+    <li><a href="#s6">6. 完整案例：一个检索 Agent 的设计（YU-19）</a></li>
     <li><a href="#s7">7. 讲解骨架（看懂之后再背）</a></li>
   </ol>
 </nav>
@@ -143,7 +143,7 @@
 </div>
 
 <!-- ============ 1 ============ -->
-<h2 id="s1">1. claude code 的核心循环与四条设计原则</h2>
+<h2 id="s1">1. claude code 的核心循环与四条设计原则（<code>JR-13</code>）</h2>
 
 <div class="warn">
   <span class="tag">先明确对方想听什么</span>
@@ -241,7 +241,7 @@
 </details>
 
 <!-- ============ 2 ============ -->
-<h2 id="s2">2. Harness 到底是什么</h2>
+<h2 id="s2">2. Harness 到底是什么（<code>HQ-36</code>）</h2>
 
 <p>上一节主图里那 8 个部件，加上把它们串起来的逻辑，合起来就叫 Harness。换个说法：</p>
 
@@ -276,7 +276,7 @@
 </details>
 
 <!-- ============ 3 ============ -->
-<h2 id="s3">3. LangChain 和 LangGraph 怎么选</h2>
+<h2 id="s3">3. LangChain 和 LangGraph 怎么选（<code>JR-2</code>、<code>HQ-25</code>）</h2>
 
 <table>
   <thead><tr><th style="width:16%"></th><th style="width:42%">LangChain</th><th>LangGraph</th></tr></thead>
@@ -323,7 +323,7 @@
 </div>
 
 <!-- ============ 4 ============ -->
-<h2 id="s4">4. 通用能力模块怎么抽象</h2>
+<h2 id="s4">4. 通用能力模块怎么抽象（<code>JR-3</code>）</h2>
 
 <p>对方问"你们抽象了哪些通用 AI 能力"（<code>JR-3</code>），实际在问<strong>你的工程化水平</strong>。</p>
 
@@ -345,7 +345,7 @@
 </div>
 
 <!-- ============ 5 ============ -->
-<h2 id="s5">5. 意图识别与路由</h2>
+<h2 id="s5">5. 意图识别与路由（<code>PY-2</code>、<code>PY-3</code>）</h2>
 
 <p>用户的问题五花八门，不可能都走同一条路。所以需要<strong>先判断他想干什么，再决定送到哪里处理</strong>。</p>
 
@@ -417,7 +417,7 @@
 </div>
 
 <!-- ============ 6 ============ -->
-<h2 id="s6">6. 完整案例：一个检索 Agent 的设计</h2>
+<h2 id="s6">6. 完整案例：一个检索 Agent 的设计（<code>YU-19</code>）</h2>
 
 <p>这道题（<code>YU-19</code>「你自主设计过智能体吗」）用五段式准备一个具体例子。<strong>下面是完整示范。</strong></p>
 

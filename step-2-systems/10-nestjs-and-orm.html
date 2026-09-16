@@ -68,11 +68,11 @@
   <div class="toc-title">本页目录</div>
   <ol>
     <li><a href="#s0">0. 先看一个场景</a></li>
-    <li><a href="#s1">1. 怎么给上百个接口统一加日志</a></li>
-    <li><a href="#s2">2. 管道（Pipe）是什么</a></li>
-    <li><a href="#s3">3. 依赖注入：Provider 是单例还是每次新建</a></li>
-    <li><a href="#s4">4. TypeORM 和 Prisma 怎么选</a></li>
-    <li><a href="#s5">5. TypeORM 的两种运行模式</a></li>
+    <li><a href="#s1">1. 怎么给上百个接口统一加日志（HQ-7）</a></li>
+    <li><a href="#s2">2. 管道（Pipe）是什么（HQ-8）</a></li>
+    <li><a href="#s3">3. 依赖注入：Provider 是单例还是每次新建（HQ-5、HQ-6）</a></li>
+    <li><a href="#s4">4. TypeORM 和 Prisma 怎么选（HQ-2、HQ-3）</a></li>
+    <li><a href="#s5">5. TypeORM 的两种运行模式（HQ-9）</a></li>
     <li><a href="#s6">6. 讲解骨架（看懂之后再背）</a></li>
   </ol>
 </nav>
@@ -157,7 +157,7 @@
 </div>
 
 <!-- ============ 1 ============ -->
-<h2 id="s1">1. 怎么给上百个接口统一加日志</h2>
+<h2 id="s1">1. 怎么给上百个接口统一加日志（<code>HQ-7</code>）</h2>
 
 <p>这就是 <code>HQ-7</code>。答题的关键是说出<strong>"用框架的切面机制，而不是挨个改"</strong>。</p>
 
@@ -193,7 +193,7 @@
 </div>
 
 <!-- ============ 2 ============ -->
-<h2 id="s2">2. 管道（Pipe）是什么</h2>
+<h2 id="s2">2. 管道（Pipe）是什么（<code>HQ-8</code>）</h2>
 
 <p><code>HQ-8</code>。一句话：<strong>管道是"进入业务逻辑之前的守门员"，负责转换和校验参数。</strong></p>
 
@@ -222,7 +222,7 @@
 </div>
 
 <!-- ============ 3 ============ -->
-<h2 id="s3">3. 依赖注入：Provider 是单例还是每次新建</h2>
+<h2 id="s3">3. 依赖注入：Provider 是单例还是每次新建（<code>HQ-5</code>、<code>HQ-6</code>）</h2>
 
 <p><code>HQ-5</code> 问的这个问题很具体，答案是：<strong>默认是单例</strong>（整个应用启动时创建一次，所有请求共用）。</p>
 
@@ -256,7 +256,7 @@
 <p><strong>代价</strong>：单例之间如果有可变状态，就会有并发问题；也不好做隔离测试。<strong>所以单例最适合"无状态的服务"</strong>——这也是为什么 Service 层应该写成无状态的。</p>
 
 <!-- ============ 4 ============ -->
-<h2 id="s4">4. TypeORM 和 Prisma 怎么选</h2>
+<h2 id="s4">4. TypeORM 和 Prisma 怎么选（<code>HQ-2</code>、<code>HQ-3</code>）</h2>
 
 <p><code>HQ-2</code> / <code>HQ-3</code>。两者都是 Node 生态里常用的数据库工具，但<strong>设计理念完全不同</strong>：</p>
 
@@ -304,7 +304,7 @@
 </div>
 
 <!-- ============ 5 ============ -->
-<h2 id="s5">5. TypeORM 的两种运行模式</h2>
+<h2 id="s5">5. TypeORM 的两种运行模式（<code>HQ-9</code>）</h2>
 
 <p><code>HQ-9</code>。其实问的是"你的实体和表结构怎么保持同步"：</p>
 

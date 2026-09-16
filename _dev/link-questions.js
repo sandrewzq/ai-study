@@ -5,16 +5,21 @@
 // 而材料页顶部本来就有 `.qbadges` 标着覆盖题号，这份映射一直是现成的，
 // 只是没人把它反向接上。
 //
-// 为什么全接（402 处）而不是只接 .checklist 里的 242 处：
+// 为什么全接（399 处）而不是只接 .checklist 里的 242 处：
 // 同一个题号会出现在「域清单」「高频重复题」「数字题」等好几张表里，
 // 只接一处会造成「这里能点、那里不能点」的用途横跳，和 plan/spec.md
 // 第一节反对的侧栏毛病是同一类。要么全接，要么不接。
 //
-// 为什么用静态链接而不是运行时 JS 装饰：checklinks.js 会顺带把这 402 条链接
-// 全部验一遍（目标文件存在 + 不是空锚点），等于白捡一层回归。
+// 为什么用静态链接而不是运行时 JS 装饰：checklinks.js 会顺带把这 399 条链接
+// 全部验一遍（目标文件存在 + 跨页锚点存在），等于白捡一层回归。
 //
 // 映射规则：每个题号必须**有且只有一个**材料页认领它（读该页的 `.qbadges`）。
 // 对不上就不写文件——0 个说明漏写材料，多个说明边界没划清，两种都得先解决。
+//
+// 链接末尾带**页内锚点**（`…#s5`），落到答这道题的那一节，而不是材料页顶部。
+// 落点由 qids.js 的 buildLandings() 算：题号写在某个 h2 标题里 → 落到那一节；
+// 没写 → 落到该页「讲解骨架」（09 那页是「完整参考回答」）。这个约定**早就有**，
+// 22 页一直在标题里写 `1. 用户量怎么答（ML-11）`，本脚本只是把它读出来当锚点用。
 //
 // plan.html 的计划正文由 build-plan.js 从 plan/roadmap.md 重建、questions.html 由
 // build-questions.js 从 plan/questions.md 重建，两个脚本都会调用本模块的
@@ -26,7 +31,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CHECK = process.argv.includes('--check');
 // 题号的判据与提取收在 qids.js：本模块和 add-crosswalk.js 都读它，
 // 各写一份必然分叉（历史上就分叉过一次，见那个文件顶部的注释）。
-const { QID, walkPages, toPosix, isDirPage, buildOwners, crumbTotal } = require('./qids.js');
+const { QID, walkPages, toPosix, isDirPage, buildOwners, buildLandings, crumbTotal } = require('./qids.js');
 const { hrefFrom } = require('./pagekind.js');
 
 // 会生成题号链接的页面。**入口页不在这份清单里**是有意的：它是纯目录，
@@ -86,7 +91,12 @@ function checkCoverage(pages, owners) {
 // 给一段 html 里的每个题号套上 <a class="qref">。映射不成立时抛错，绝不写出半成品。
 // page 是**这一段 html 将要落到的那个页面**（仓库根起算的路径），href 从它算出来，
 // 所以同一个题号在入口页和 reference/ 下的参考页里会写成不同的相对路径。
-function linkify(html, owners = buildOwners(), page) {
+//
+// href 末尾带页内锚点（`…#s5`），落点由 landings 给出——见 qids.js 的 buildLandings()。
+// 只落到「哪一节」这一级，不落到骨架段内部：讲解骨架是**一页一段**、不是一题一段，
+// 页内的 <details class="ask"> 追问块与题号也不是一一对应（03 页 3 个 ask 的 summary
+// 并不是那 3 道题的题面）。硬切到段内只会指错地方。
+function linkify(html, owners = buildOwners(), page, landings = buildLandings()) {
   if (!page) throw new Error('linkify() 少了第三个参数：这段 html 要落到哪一页');
   const { set: used, inPre } = qidsIn(html);
 
@@ -103,18 +113,24 @@ function linkify(html, owners = buildOwners(), page) {
     throw new Error('题号映射不成立：\n  ' + msg.join('\n  '));
   }
 
+  // 落点必须**纯由 landings 派生**，不能读这一段 html 自己的上下文。
+  // 生成脚本只对 `<!-- …:auto -->` 区间跑 linkify，CLI 对整页跑，两条路径的产出
+  // 必须逐字节一致；只要有一处读的是「当前这段」，--check 就会永久报漂移。
+  // landings 和 owners 同源（都是走一遍材料页），所以这里是安全的。
   const unwrapped = html.replace(WRAP_RE, '$1');
   let out = '', last = 0;
   for (const m of unwrapped.matchAll(QID_RE)) {
     if (inPre(m.index)) continue;              // 原样留在 out 里（靠 last 推进）
     const href = hrefFrom(page, owners.get(m[1])[0].split(path.sep).join('/'));
-    out += unwrapped.slice(last, m.index) + `<a class="qref" href="${href}">${m[0]}</a>`;
+    const land = landings.get(m[1]);
+    out += unwrapped.slice(last, m.index)
+      + `<a class="qref" href="${href}${land ? '#' + land.anchor : ''}">${m[0]}</a>`;
     last = m.index + m[0].length;
   }
   return out + unwrapped.slice(last);
 }
 
-module.exports = { linkify, buildOwners, checkCoverage, qidsIn, CONSUMERS };
+module.exports = { linkify, buildOwners, buildLandings, checkCoverage, qidsIn, CONSUMERS };
 
 // 第三条边：Σ(各目录页 crumb 里声称的题量) == 认领总数。
 //
@@ -138,7 +154,13 @@ function checkDirTotals(owners) {
 if (require.main === module) {
   const owners = buildOwners(ROOT);
 
-  // ① 先查覆盖面。这一步不通过就一个文件都不动——
+  // ① 落点表。buildLandings() 顺带把三条落点不变量查了（每个认领的题号都能解析出
+  //    落点、h2 标题里的题号属于本页、写了题号的 h2 有 id），所以它一抛错就不用往下走。
+  let landings;
+  try { landings = buildLandings(ROOT); }
+  catch (e) { console.log('✗ ' + e.message + '\n未改写任何文件。'); process.exit(1); }
+
+  // ①b 先查覆盖面。这一步不通过就一个文件都不动——
   //    今天它等价于「242 个题号每个都被引用了」，但它是**比出来的**，不是数出来的。
   const cov = checkCoverage(CONSUMERS, owners);
   if (cov.onlyOwned.length || cov.onlyReferenced.length) {
@@ -172,7 +194,7 @@ if (require.main === module) {
   for (const rel of CONSUMERS) {
     const orig = fs.readFileSync(path.join(ROOT, rel), 'utf8');
     let out;
-    try { out = linkify(orig, owners, rel); }
+    try { out = linkify(orig, owners, rel, landings); }
     catch (e) { console.log('✗ ' + e.message + '\n未改写任何文件。'); process.exit(1); }
     results.push({ rel, orig, out, instances: (orig.match(QID_RE) || []).length });
   }
@@ -190,6 +212,16 @@ if (require.main === module) {
     + `${cov.referenced.size} 个（${perPage}）`);
   console.log(`目录页题量：${tot.dirs.length} 页共 ${tot.sum} 题，与认领总数一致`);
   console.log('✓ 覆盖面成立：每个认领的题号都被引用，每个被引用的题号恰好一份材料认领');
+
+  // 落点分布。**兜底那 137 个不是待办清单**——概念页（01-what-is-rag 那类）正文节答的是
+  // 另一批问题，它的答案确实是整页给的，落到骨架就是正确答案，这些数字不会降到 0。
+  // 摆出来是为了「改标题时看得见自己动了多少」，不是「数字越小越好」。
+  const exact = [...landings.values()].filter(l => l.fromTitle).length;
+  const instances = results.reduce((a, r) => a + r.instances, 0);
+  const anchored = results.reduce((a, r) => a + (r.out.match(/class="qref" href="[^"]*#/g) || []).length, 0);
+  console.log(`落点：${owners.size} 个题号全部可解析；${exact} 个落在标题写明的那一节，`
+    + `${owners.size - exact} 个走兜底（讲解骨架 / 参考回答）`);
+  console.log(`带锚点的题号链接：${anchored} / ${instances} 处`);
   console.log(CHECK
     ? (stale ? '✗ 需要重跑 node _dev/link-questions.js' : '✓ 链接已是最新')
     : (stale ? `✓ 已改写 ${stale} 个页面` : '- 无变化'));

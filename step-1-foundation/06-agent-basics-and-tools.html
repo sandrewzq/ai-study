@@ -66,11 +66,11 @@
   <ol>
     <li><a href="#s0">0. 先看一个例子</a></li>
     <li><a href="#s1">1. Agent 和 Workflow 差在哪</a></li>
-    <li><a href="#s2">2. 循环里每一步在做什么</a></li>
+    <li><a href="#s2">2. 循环里每一步在做什么（ML-2、JR-15）</a></li>
     <li><a href="#s3">3. 工具怎么设计</a></li>
-    <li><a href="#s4">4. Function Call / MCP / Skill 的区别</a></li>
-    <li><a href="#s5">5. 工具调用失败了怎么办</a></li>
-    <li><a href="#s6">6. 通用 Agent 一般分几层</a></li>
+    <li><a href="#s4">4. Function Call / MCP / Skill 的区别（YF-11、XZ-2）</a></li>
+    <li><a href="#s5">5. 工具调用失败了怎么办（JR-4）</a></li>
+    <li><a href="#s6">6. 通用 Agent 一般分几层（ML-3、ML-4、KJ-1）</a></li>
     <li><a href="#s7">7. 讲解骨架（看懂之后再背）</a></li>
   </ol>
 </nav>
@@ -233,7 +233,7 @@
 </div>
 
 <!-- ============ 2 ============ -->
-<h2 id="s2">2. 循环里每一步在做什么</h2>
+<h2 id="s2">2. 循环里每一步在做什么（<code>ML-2</code>、<code>JR-15</code>）</h2>
 <p>回到第 0 节那个例子。<strong>点开任意一步</strong>，看它在实际运行中是干什么的。</p>
 
 <div class="pipeline">
@@ -323,7 +323,7 @@
 </ul>
 
 <!-- ============ 4 ============ -->
-<h2 id="s4">4. Function Call / MCP / Skill 的区别</h2>
+<h2 id="s4">4. Function Call / MCP / Skill 的区别（<code>YF-11</code>、<code>XZ-2</code>）</h2>
 
 <p><strong>这是整份清单里最高频的题之一（4 家公司问过）。</strong>先看图，再看下面的口诀。</p>
 
@@ -398,7 +398,7 @@
 </div>
 
 <!-- ============ 5 ============ -->
-<h2 id="s5">5. 工具调用失败了怎么办</h2>
+<h2 id="s5">5. 工具调用失败了怎么办（<code>JR-4</code>）</h2>
 <p>只答"重试"是不够的。<strong>先判断是哪一类失败</strong>，处理方式完全不同：</p>
 
 <div class="tree">
@@ -420,7 +420,7 @@
 <p style="color:var(--muted);font-size:14.5px">为什么强调"降级"：用户等 3 分钟拿到一句"抱歉失败了"，比等 10 秒就被告知"这个我做不到，要不要转人工"体验差得多。</p>
 
 <!-- ============ 6 ============ -->
-<h2 id="s6">6. 通用 Agent 一般分几层</h2>
+<h2 id="s6">6. 通用 Agent 一般分几层（<code>ML-3</code>、<code>ML-4</code>、<code>KJ-1</code>）</h2>
 <p>像 Manus 这类"什么都能干"的通用 Agent，从下往上可以拆成四层：</p>
 
 <svg class="svgfig" viewBox="0 0 860 250" role="img" aria-label="通用 Agent 的四层结构">
